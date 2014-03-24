@@ -138,8 +138,6 @@ class IT_Exchange_Advanced_US_Taxes_Add_On {
 		if ( !empty( $settings ) )
 			foreach ( $settings as $key => $var )
 				$form->set_option( $key, $var );
-				
-				ITDebug::print_r( $settings );
 		?>
 		
         <div class="it-exchange-addon-settings it-exchange-advanced-us-taxes-addon-settings">
