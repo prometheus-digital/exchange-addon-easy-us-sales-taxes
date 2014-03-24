@@ -190,10 +190,6 @@ class IT_Exchange_Advanced_US_Taxes_Add_On {
                 <?php $form->add_check_box( 'show_zero_tax' ); ?>
             </p>
             <p>
-                <label for="advanced-us-taxes-show_zero_tax"><?php _e( 'Display Zero Tax?', 'LION' ) ?></label>
-                <?php $form->add_check_box( 'show_zero_tax' ); ?>
-            </p>
-            <p>
                 <label for="advanced-us-taxes-default_tax_class"><?php _e( 'Default Tax Class', 'LION' ) ?></label>
                 <?php $form->add_check_box( 'default_tax_class' ); ?>
             </p>
