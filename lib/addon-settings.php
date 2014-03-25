@@ -115,7 +115,7 @@ class IT_Exchange_Advanced_US_Taxes_Add_On {
 		?>
 		<div class="wrap">
 			<?php screen_icon( 'it-exchange' ); ?>
-			<h2><?php _e( 'Customer Pricing Settings', 'LION' ); ?></h2>
+			<h2><?php _e( 'Advanced U.S. Taxes Settings', 'LION' ); ?></h2>
 
 			<?php do_action( 'it_exchange_advanced_us_taxes_settings_page_top' ); ?>
 			<?php do_action( 'it_exchange_addon_settings_page_top' ); ?>
