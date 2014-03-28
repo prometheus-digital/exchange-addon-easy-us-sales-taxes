@@ -172,12 +172,14 @@ class IT_Exchange_Advanced_US_Taxes_Add_On {
             </p>
             <p>
                 <label for="advanced-us-taxes-business_state"><?php _e( 'State', 'LION' ) ?></label>
-                <?php $form->add_text_box( 'business_state' ); ?>
+                <?php 
+                $states = it_exchange_get_data_set( 'states', array( 'country' => 'US', 'include-territories' => true ) );
+                $form->add_drop_down( 'business_state', $states ); 
+                ?>
             </p>
             <p>
                 <label for="advanced-us-taxes-business_zip_5"><?php _e( 'Zip Code', 'LION' ) ?></label>
-                <?php $form->add_text_box( 'business_zip_5' ); ?>
-                <?php $form->add_text_box( 'business_zip_4' ); ?>
+                <?php $form->add_text_box( 'business_zip_5' ); ?> - <?php $form->add_text_box( 'business_zip_4' ); ?>
             </p>
             
             <h4><?php _e( 'General Settings', 'LION' ) ?></h4>
@@ -190,12 +192,15 @@ class IT_Exchange_Advanced_US_Taxes_Add_On {
                 <?php $form->add_check_box( 'show_zero_tax' ); ?>
             </p>
             <p>
-                <label for="advanced-us-taxes-default_tax_class"><?php _e( 'Default Tax Class', 'LION' ) ?></label>
-                <?php $form->add_check_box( 'default_tax_class' ); ?>
+                <label for="advanced-us-taxes-us-tic"><?php _e( 'Default Tax Class', 'LION' ) ?></label>
+                <?php echo $settings['us-tic-desc'] . ' (' . $settings['us-tic'] . ')'; ?>
+                <br />
+                <?php $form->add_text_box( 'us-tic' ); ?> 
+                <?php $form->add_hidden( 'us-tic-desc' ); ?> 
             </p>
             <p>
-                <label for="advanced-us-taxes-tax_calc_address"><?php _e( 'Tax Calculation Address', 'LION' ) ?></label>
-                <?php $form->add_text_box( 'tax_calc_address' ); ?>
+                <label for="advanced-us-taxes-tax_calc_address"><?php _e( 'Tax Calculation Address', 'LION' ); ?></label>
+                <?php $form->add_drop_down( 'tax_calc_address', array( 'shipping' => __( 'Shipping Address', 'LION' ), 'billing' => __( 'Billing Address', 'LION' ) ) ); ?>
             </p>
 
 		</div>

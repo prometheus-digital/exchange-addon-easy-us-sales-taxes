@@ -27,13 +27,13 @@ include( 'lib/addon-settings.php' );
  * If you're building your own addon, it's likely that you will
  * need to do similar things.
 */
-//include( 'lib/addon-functions.php' );
+include( 'lib/addon-functions.php' );
 
 /**
  * Exchange Add-ons require several hooks in order to work properly. 
  * We've placed them all in one file to help add-on devs identify them more easily
 */
-//include( 'lib/required-hooks.php' );
+include( 'lib/required-hooks.php' );
 
 /**
  * We decided to place all AJAX hooked functions into this file, just for ease of use
@@ -43,4 +43,4 @@ include( 'lib/addon-settings.php' );
 /**
  * New Product Features added by the Exchange Membership Add-on.
 */
-//require( 'lib/product-features/load.php' );
+require( 'lib/product-features/load.php' );
