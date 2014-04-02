@@ -1,8 +1,8 @@
 <?php
 /**
- * This file contains functions for interacting with the addon
+ * iThemes Exchange Advanced U.S. Taxes Add-on
+ * @package exchange-addon-advanced-us-taxes
  * @since 1.0.0
- * @package IT_Exchange
 */
 
 function it_exchange_advanced_us_taxes_addon_get_taxes_for_cart(  $format_price=true, $clear_cache=false ) {

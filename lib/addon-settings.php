@@ -1,7 +1,7 @@
 <?php
 /**
- * iThemes Exchange Customer_Pricing Add-on
- * @package IT_Exchange_Addon_Customer_Pricing
+ * iThemes Exchange Advanced U.S. Taxes Add-on
+ * @package exchange-addon-advanced-us-taxes
  * @since 1.0.0
 */
 

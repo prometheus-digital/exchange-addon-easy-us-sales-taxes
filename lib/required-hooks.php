@@ -1,5 +1,11 @@
 <?php
 /**
+ * iThemes Exchange Advanced U.S. Taxes Add-on
+ * @package exchange-addon-advanced-us-taxes
+ * @since 1.0.0
+*/
+
+/**
  * Exchange Transaction Add-ons require several hooks in order to work properly. 
  * Most of these hooks are called in api/transactions.php and are named dynamically
  * so that individual add-ons can target them. eg: it_exchange_refund_url_for_stripe
