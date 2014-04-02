@@ -26,21 +26,21 @@ function it_exchange_advanced_us_taxes_settings_callback() {
 */
 function it_exchange_advanced_us_taxes_default_settings( $defaults ) {
 	$defaults = array(
-		'tax_cloud_api_id'   => '',
-		'tax_cloud_api_key'  => '',
-		'tax_cloud_verified' => false,
-		'usps_user_id'       => '',
-		'business_address_1' => '',
-		'business_address_2' => '',
-		'business_city'      => '',
-		'business_state'     => '',
-		'business_zip_5'     => '',
-		'business_zip_4'     => '',
-		'business_verified'  => false,
-		'tax_exemptions'     => false,
-		'show_zero_tax'      => false,
-		'default_tax_class'  => '',
-		'tax_calc_address'   => 'shipping',
+		'tax_cloud_api_id'     => '',
+		'tax_cloud_api_key'    => '',
+		'tax_cloud_verified'   => false,
+		'usps_user_id'         => '',
+		'business_address_1'   => '',
+		'business_address_2'   => '',
+		'business_city'        => '',
+		'business_state'       => '',
+		'business_zip_5'       => '',
+		'business_zip_4'       => '',
+		'business_verified'    => false,
+		'tax_exemptions'       => false,
+		'show_zero_tax'        => false,
+		'default_tax_class'    => '',
+		'tax_shipping_address' => false,
 	);
 	return $defaults;
 }
@@ -199,8 +199,8 @@ class IT_Exchange_Advanced_US_Taxes_Add_On {
                 <?php $form->add_hidden( 'us-tic-desc' ); ?> 
             </p>
             <p>
-                <label for="advanced-us-taxes-tax_calc_address"><?php _e( 'Tax Calculation Address', 'LION' ); ?></label>
-                <?php $form->add_drop_down( 'tax_calc_address', array( 'shipping' => __( 'Shipping Address', 'LION' ), 'billing' => __( 'Billing Address', 'LION' ) ) ); ?>
+                <label for="advanced-us-taxes-tax_calc_address"><?php _e( 'Tax Shipping Address?', 'LION' ); ?> <span class="tip" title="<?php _e( 'If a Shipping Address is available, we can use it to base the tax calculation, otherwise we will use the billing address.', 'LION' ); ?>">i</span></label>
+                <?php $form->add_check_box( 'tax_shipping_address' ); ?>
             </p>
 
 		</div>
@@ -326,7 +326,10 @@ class IT_Exchange_Advanced_US_Taxes_Add_On {
         if ( empty( $errors ) ) {
 	        try {
 	        	$args = array(
-					'body' => $verify_business_address,
+	        		'headers' => array(
+	        			'Content-Type' => 'application/json',
+	        		),
+					'body' => json_encode( $verify_business_address ),
 			    );
 	        	$result = wp_remote_post( ITE_TAXCLOUD_API . 'VerifyAddress', $args );
 				if ( is_wp_error( $result ) ) {

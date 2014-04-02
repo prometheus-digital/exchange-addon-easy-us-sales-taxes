@@ -9,11 +9,6 @@ if ( !defined( 'ITE_TAXCLOUD_API' ) )
 	define( 'ITE_TAXCLOUD_API', 'https://api.taxcloud.net/1.0/Taxcloud/' );
 
 /**
- * New API functions.
-*/
-//include( 'api/load.php' );
-
-/**
  * Exchange will build your add-on's settings page for you and link to it from our add-on
  * screen. You are free to link from it elsewhere as well if you'd like... or to not use our API
  * at all. This file has all the functions related to registering the page, printing the form, and saving
@@ -34,11 +29,6 @@ include( 'lib/addon-functions.php' );
  * We've placed them all in one file to help add-on devs identify them more easily
 */
 include( 'lib/required-hooks.php' );
-
-/**
- * We decided to place all AJAX hooked functions into this file, just for ease of use
-*/
-//include( 'lib/addon-ajax-hooks.php' );
 
 /**
  * New Product Features added by the Exchange Membership Add-on.

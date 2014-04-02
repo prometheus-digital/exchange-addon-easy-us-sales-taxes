@@ -6,6 +6,9 @@
  * We've placed them all in one file to help add-on devs identify them more easily
 */
 
+//For calculation shipping, we need to require billing addresses... incase a product doesn't have a shipping address and the shipping add-on is not enabled
+apply_filters( 'it_exchange_billing_address_purchase_requirement_enabled', '__return_true' );
+
 /**
  * Enqueues Advanced U.S. Taxes scripts to WordPress Dashboard
  *
@@ -47,7 +50,6 @@ function it_exchange_advanced_us_taxes_addon_admin_wp_enqueue_scripts( $hook_suf
 }
 add_action( 'admin_enqueue_scripts', 'it_exchange_advanced_us_taxes_addon_admin_wp_enqueue_scripts' );
 
-
 /**
  * Add Advanced U.S. Taxes to the content-cart totals and content-checkout loop
  *
@@ -57,19 +59,16 @@ add_action( 'admin_enqueue_scripts', 'it_exchange_advanced_us_taxes_addon_admin_
  * @return array
 */
 function it_exchange_advanced_us_taxes_addon_add_taxes_to_template_totals_loops( $elements ) {
-	$tax_options           = it_exchange_get_option( 'addon_taxes' );
-	$process_after_savings = ! empty( $tax_options['calculate-after-discounts'] );
-
 	// Locate the discounts key in elements array (if it exists)
 	$index = array_search( 'totals-savings', $elements );
 	if ( false === $index )
 		$index = -1;
-
-	// Bump index by 1 if calculating tax after discounts
-	if ( -1 != $index && $process_after_savings )
+		
+	// Bump index by 1 to show tax after discounts
+	if ( -1 != $index )
 		$index++;
 
-	array_splice( $elements, $index, 0, 'totals-taxes-simple' );
+	array_splice( $elements, $index, 0, 'advanced-us-taxes' );
 	return $elements;
 }
 add_filter( 'it_exchange_get_content_cart_totals_elements', 'it_exchange_advanced_us_taxes_addon_add_taxes_to_template_totals_loops' );
@@ -84,19 +83,16 @@ add_filter( 'it_exchange_get_content_checkout_totals_elements', 'it_exchange_adv
  * @return array
 */
 function it_exchange_advanced_us_taxes_addon_add_taxes_to_sw_template_totals_loops( $loops ) {
-	$tax_options           = it_exchange_get_option( 'addon_taxes' );
-	$process_after_savings = ! empty( $tax_options['calculate-after-discounts'] );
-
 	// Locate the discounts key in elements array (if it exists)
 	$index = array_search( 'discounts', $loops );
 	if ( false === $index )
 		$index = -1;
-
-	// Bump index by 1 if calculating tax after discounts
-	if ( -1 != $index && $process_after_savings )
+		
+	// Bump index by 1 to show tax after discounts
+	if ( -1 != $index )
 		$index++;
 
-	array_splice( $loops, $index, 0, 'taxes-simple' );
+	array_splice( $loops, $index, 0, 'advanced-us-taxes' );
 	return $loops;
 }
 add_filter( 'it_exchange_get_super-widget-checkout_after-cart-items_loops', 'it_exchange_advanced_us_taxes_addon_add_taxes_to_sw_template_totals_loops' );
@@ -139,8 +135,8 @@ add_filter( 'it_exchange_possible_template_paths', 'it_exchange_advanced_us_taxe
  * @param $total the total passed to us by Exchange.
  * @return
 */
-function it_exchange_advanced_us_taxes_addon_simple_modify_total( $total ) {
-	$taxes = it_exchange_advanced_us_taxes_addon_get_simple_taxes_for_cart( false );
+function it_exchange_advanced_us_taxes_addon_taxes_modify_total( $total ) {
+	$taxes = it_exchange_advanced_us_taxes_addon_get_taxes_for_cart( false );
 	return $total + $taxes;
 }
 add_filter( 'it_exchange_get_cart_total', 'it_exchange_advanced_us_taxes_addon_taxes_modify_total' );

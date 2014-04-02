@@ -216,9 +216,21 @@ class IT_Exchange_Product_Feature_Product_US_TIC {
 		switch ( $options['setting'] ) {
 			
 			case 'code':
-				return get_post_meta( $product_id, '_it-exchange-add-on-advanced-us-taxes-us-tic', true );
+				if ( $code = get_post_meta( $product_id, '_it-exchange-add-on-advanced-us-taxes-us-tic', true ) ) {
+					return $code;
+				} else { //default setting
+					$settings = it_exchange_get_option( 'addon_advanced_us_taxes' );
+					if ( !empty( $settings['us-tic'] ) )
+						return $settings['us-tic'];
+				}
 			case 'description':
-				return get_post_meta( $product_id, '_it-exchange-add-on-advanced-us-taxes-us-tic-desc', true );
+				if ( $desc = get_post_meta( $product_id, '_it-exchange-add-on-advanced-us-taxes-us-tic-desc', true ) ) {
+					return $desc;
+				} else { //default setting
+					$settings = it_exchange_get_option( 'addon_advanced_us_taxes' );
+					if ( !empty( $settings['us-tic-desc'] ) )
+						return $settings['us-tic-desc'];
+				}
 			
 		}
 		return false;
