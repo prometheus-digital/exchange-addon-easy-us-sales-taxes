@@ -57,6 +57,45 @@ function it_exchange_advanced_us_taxes_addon_admin_wp_enqueue_scripts( $hook_suf
 add_action( 'admin_enqueue_scripts', 'it_exchange_advanced_us_taxes_addon_admin_wp_enqueue_scripts' );
 
 /**
+ * Enqueues Advanced U.S. Taxes styles to WordPress Dashboard
+ *
+ * @since 1.0.0
+ *
+ * @return void
+*/
+function it_exchange_advanced_us_taxes_addon_admin_wp_enqueue_styles() {
+	global $post, $hook_suffix;
+
+	if ( isset( $_REQUEST['post_type'] ) ) {
+		$post_type = $_REQUEST['post_type'];
+	} else {
+		if ( isset( $_REQUEST['post'] ) ) {
+			$post_id = (int) $_REQUEST['post'];
+		} else if ( isset( $_REQUEST['post_ID'] ) ) {
+			$post_id = (int) $_REQUEST['post_ID'];
+		} else {
+			$post_id = 0;
+		}
+
+		if ( $post_id )
+			$post = get_post( $post_id );
+
+		if ( isset( $post ) && !empty( $post ) )
+			$post_type = $post->post_type;
+	}
+	
+	// Advanced US Taxes settings page
+	if ( ( isset( $post_type ) && 'it_exchange_prod' === $post_type )
+		|| ( !empty( $_GET['add-on-settings'] ) && 'exchange_page_it-exchange-addons' === $hook_suffix && 'advanced-us-taxes' === $_GET['add-on-settings'] ) ) {
+		
+		wp_enqueue_style( 'it-exchange-advanced-us-taxes-addon-admin-style', ITUtility::get_url_from_file( dirname( __FILE__ ) ) . '/styles/add-edit-product.css' );
+		
+	}
+
+}
+add_action( 'admin_print_styles', 'it_exchange_advanced_us_taxes_addon_admin_wp_enqueue_styles' );
+
+/**
  * Add Advanced U.S. Taxes to the content-cart totals and content-checkout loop
  *
  * @since 1.0.0

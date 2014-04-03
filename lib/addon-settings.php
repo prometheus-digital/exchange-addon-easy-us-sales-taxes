@@ -184,23 +184,32 @@ class IT_Exchange_Advanced_US_Taxes_Add_On {
             
             <h4><?php _e( 'General Settings', 'LION' ) ?></h4>
             <p>
-                <label for="advanced-us-taxes-tax_exemptions"><?php _e( 'Enable Tax Exemptions?', 'LION' ) ?></label>
                 <?php $form->add_check_box( 'tax_exemptions' ); ?>
+                <label for="tax_exemptions"><?php _e( 'Enable Tax Exemptions?', 'LION' ) ?></label>
             </p>
             <p>
-                <label for="advanced-us-taxes-show_zero_tax"><?php _e( 'Display Zero Tax?', 'LION' ) ?></label>
                 <?php $form->add_check_box( 'show_zero_tax' ); ?>
+                <label for="show_zero_tax"><?php _e( 'Display Zero Tax?', 'LION' ) ?></label>
+            </p>
+            <p>
+                <?php $form->add_check_box( 'tax_shipping_address' ); ?>
+                <label for="tax_shipping_address"><?php _e( 'Tax Shipping Address?', 'LION' ); ?> <span class="tip" title="<?php _e( 'If a Shipping Address is available, we can use it to base the tax calculation, otherwise we will use the billing address.', 'LION' ); ?>">i</span></label>
             </p>
             <p>
                 <label for="advanced-us-taxes-us-tic"><?php _e( 'Default Tax Class', 'LION' ) ?></label>
-                <?php echo $settings['us-tic-desc'] . ' (' . $settings['us-tic'] . ')'; ?>
-                <br />
+                <?php if ( !empty( $settings['us-tic-desc'] ) && !empty( $settings['us-tic'] ) ) { ?>
+                    <span class="it-exchange-tax-class-description"><?php echo $settings['us-tic-desc'] . ' (' . $settings['us-tic'] . ')'; ?></span>
+                    <br />
+                <?php } else if ( !empty( $settings['us-tic-desc'] ) ) { ?>
+                    <span class="it-exchange-tax-class-description"><?php echo $settings['us-tic-desc']; ?></span>
+                    <br />
+                <?php } else if ( !empty( $settings['us-tic'] ) ) { ?>
+                    <span ><?php echo $settings['us-tic']; ?></span>
+                    <br />
+                <?php } ?>
+                
                 <?php $form->add_text_box( 'us-tic' ); ?> 
                 <?php $form->add_hidden( 'us-tic-desc' ); ?> 
-            </p>
-            <p>
-                <label for="advanced-us-taxes-tax_calc_address"><?php _e( 'Tax Shipping Address?', 'LION' ); ?> <span class="tip" title="<?php _e( 'If a Shipping Address is available, we can use it to base the tax calculation, otherwise we will use the billing address.', 'LION' ); ?>">i</span></label>
-                <?php $form->add_check_box( 'tax_shipping_address' ); ?>
             </p>
 
 		</div>

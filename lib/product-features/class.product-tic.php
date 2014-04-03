@@ -128,11 +128,11 @@ class IT_Exchange_Product_Feature_Product_US_TIC {
             <label for="advanced-us-taxes-us-tic"><?php _e( 'Tax Class', 'LION' ) ?></label>
             <?php 
         	if ( !empty( $tax_code_desc ) && !empty( $tax_code ) )
-        		printf( '%s (%s)', $tax_code_desc, $tax_code );
+        		printf( '<span class="it-exchange-tax-class-description">%s (%s)</span>', $tax_code_desc, $tax_code );
         	else if ( !empty( $tax_code_desc ) )
-        		echo $tax_code_desc;
+        		echo '<span class="it-exchange-tax-class-description">' . $tax_code_desc . '</span>';
         	else if ( !empty( $tax_code ) )
-        		echo $tax_code;
+        		echo '<span class="it-exchange-tax-class-description">' . $tax_code . '</span>';
             ?>
             <br />
 	        <input type="text" name="it-exchange-add-on-advanced-us-taxes-us-tic" id="us-tic" value="<?php echo $tax_code; ?>" />
