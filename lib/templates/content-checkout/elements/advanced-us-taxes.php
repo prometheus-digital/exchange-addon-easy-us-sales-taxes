@@ -16,14 +16,14 @@
 ?>
 
 <?php do_action( 'it_exchange_content_checkout_before_advanced_us_taxes_element' ); ?>
-<div class="it-exchange-checkout-totals-title it-exchange-table-column">
+<div class="it-exchange-cart-totals-title it-exchange-table-column">
 	<?php do_action( 'it_exchange_content_checkout_before_advanced_us_taxes_label' ); ?>
 	<div class="it-exchange-table-column-inner">
 		<?php _e( 'Tax', 'LION' ); ?>
 	</div>
 	<?php do_action( 'it_exchange_content_checkout_after_advanced_us_taxes_label' ); ?>
 </div>
-<div class="it-exchange-checkout-totals-amount it-exchange-table-column">
+<div class="it-exchange-cart-totals-amount it-exchange-table-column">
 	<?php do_action( 'it_exchange_content_checkout_before_advanced_us_taxes_value' ); ?>
 	<div class="it-exchange-table-column-inner">
 		<?php echo it_exchange_advanced_us_taxes_addon_get_taxes_for_checkout(); ?>

@@ -26,7 +26,7 @@
 <div class="it-exchange-cart-totals-amount it-exchange-table-column">
 	<?php do_action( 'it_exchange_content_cart_before_advanced_us_taxes_value' ); ?>
 	<div class="it-exchange-table-column-inner">
-		<?php echo it_exchange_advanced_us_taxes_addon_get_taxes_for_cart(); ?>
+		<?php _e( 'Pending', 'LION' ); ?>
 	</div>
 	<?php do_action( 'it_exchange_content_cart_after_advanced_us_taxes_value' ); ?>
 </div>

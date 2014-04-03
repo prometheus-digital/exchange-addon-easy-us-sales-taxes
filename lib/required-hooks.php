@@ -142,7 +142,55 @@ add_filter( 'it_exchange_possible_template_paths', 'it_exchange_advanced_us_taxe
  * @return
 */
 function it_exchange_advanced_us_taxes_addon_taxes_modify_total( $total ) {
-	$taxes = it_exchange_advanced_us_taxes_addon_get_taxes_for_cart( false );
-	return $total + $taxes;
+	if ( it_exchange_is_page( 'checkout' ) ) //We only want to fire this on the checkout page!
+		$total += it_exchange_advanced_us_taxes_addon_get_taxes_for_checkout( false );
+	return $total;
 }
 add_filter( 'it_exchange_get_cart_total', 'it_exchange_advanced_us_taxes_addon_taxes_modify_total' );
+
+function it_exchange_advanced_us_taxes_verify_customer_address( $address, $customer_id ) {
+	if ( !empty( $address['country'] ) && 'US' !== $address['country'] )
+		return $address; //Can only verify US addresses
+	
+	$settings = it_exchange_get_option( 'addon_advanced_us_taxes' );
+	
+	$dest = array(
+		'Address1' => $address['address1'],
+		'Address2' => !empty( $address['address2'] ) ? $address['address2'] : '',
+		'City'     => !empty( $address['city'] ) ? $address['city'] : '',
+		'State'    => !empty( $address['state'] ) ? $address['state'] : '',
+		'Zip5'     => absint( substr( $address['zip'], 0, 5 ) ), // just get the first five
+	);
+    $dest['uspsUserId'] = $settings['usps_user_id'];
+
+	try {
+    	$args = array(
+    		'headers' => array(
+    			'Content-Type' => 'application/json',
+    		),
+			'body' => json_encode( $dest ),
+	    );
+    	$result = wp_remote_post( ITE_TAXCLOUD_API . 'VerifyAddress', $args );
+		if ( is_wp_error( $result ) ) {
+			throw new Exception( $result->get_error_message() );
+		} else if ( !empty( $result['body'] ) ) {
+			$body = json_decode( $result['body'] );
+			if ( 0 == $body->ErrNumber ) {
+				//set zip 4 with $body->Zip4
+				$address['zip4'] = $body->Zip4;
+			} else {
+				throw new Exception( sprintf( __( 'Unable to verify Address: %s', 'LION' ), $body->ErrDescription ) );
+			}
+		} else {
+			throw new Exception( __( 'Unable to verify Address: Unknown Error', 'LION' ) );
+		}
+    } 
+    catch( Exception $e ) {
+		it_exchange_add_message( 'error', sprintf( __( 'Address Error: %s', 'LION' ), $e->getMessage() ) );
+		return false;
+    }
+    
+    return $address;
+}
+add_filter( 'it_exchange_save_customer_billing_address', 'it_exchange_advanced_us_taxes_verify_customer_address', 10, 2 );
+add_filter( 'it_exchange_save_customer_shipping_address', 'it_exchange_advanced_us_taxes_verify_customer_address', 10, 2 );

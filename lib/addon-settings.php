@@ -265,7 +265,7 @@ class IT_Exchange_Advanced_US_Taxes_Add_On {
 			    );
 	        	$result = wp_remote_post( ITE_TAXCLOUD_API . 'Ping', $args );
 				if ( is_wp_error( $result ) ) {
-					throw( $result->get_error_message() );
+					throw new Exception( $result->get_error_message() );
 				} else if ( !empty( $result['body'] ) ) {
 					$body = json_decode( $result['body'] );
 					if ( !empty( $body->Messages ) ) {
@@ -333,7 +333,7 @@ class IT_Exchange_Advanced_US_Taxes_Add_On {
 			    );
 	        	$result = wp_remote_post( ITE_TAXCLOUD_API . 'VerifyAddress', $args );
 				if ( is_wp_error( $result ) ) {
-					throw( $result->get_error_message() );
+					throw new Exception( $result->get_error_message() );
 				} else if ( !empty( $result['body'] ) ) {
 					$body = json_decode( $result['body'] );
 					if ( 0 == $body->ErrNumber ) {
@@ -341,10 +341,10 @@ class IT_Exchange_Advanced_US_Taxes_Add_On {
 						$new_values['business_zip_4'] = $body->Zip4;
 						$new_values['business_verified'] = true;
 					} else {
-						throw( sprintf( __( 'Unable to verify Business Address: %s', 'LION' ), $body->ErrDescription ) );
+						throw new Exception( sprintf( __( 'Unable to verify Business Address: %s', 'LION' ), $body->ErrDescription ) );
 					}
 				} else {
-					throw( __( 'Unable to verify Business Address: Unknown Error', 'LION' ) );
+					throw new Exception( __( 'Unable to verify Business Address: Unknown Error', 'LION' ) );
 				}
 	        } 
 	        catch( Exception $e ) {
