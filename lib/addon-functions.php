@@ -11,8 +11,6 @@ function it_exchange_advanced_us_taxes_addon_get_taxes_for_checkout(  $format_pr
 	
 	$cart = it_exchange_get_cart_data();
 	
-	// set the cart id
-	$cart_id = '935434'; //CHANGEME
 	$origin = array(
 		'Address1' => $settings['business_address_1'],
 		'City'     => $settings['business_city'],
@@ -102,7 +100,7 @@ function it_exchange_advanced_us_taxes_addon_get_taxes_for_checkout(  $format_pr
 			'apiLoginID'        => $settings['tax_cloud_api_id'],
 			'apiKey'            => $settings['tax_cloud_api_key'],
 			'customerID'        => $customer->ID,
-			'cartID'            => $cart_id,
+			'cartID'            => it_exchange_get_session_id(),
 			'cartItems'         => $cart_items,
 			'origin'            => $origin,
 			'destination'       => $dest,
