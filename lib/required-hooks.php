@@ -239,48 +239,53 @@ add_filter( 'it_exchange_save_customer_shipping_address', 'it_exchange_advanced_
 function it_exchange_advanced_us_taxes_transaction_hook( $transaction_id ) {
 	$settings = it_exchange_get_option( 'addon_advanced_us_taxes' );
 	$customer = it_exchange_get_current_customer();
-			
-	$query = array(
-		'apiLoginID'     => $settings['tax_cloud_api_id'],
-		'apiKey'         => $settings['tax_cloud_api_key'],
-		'customerID'     => $customer->ID,
-		'cartID'         => it_exchange_get_session_id(),
-		'orderID'        => $transaction_id,
-		'dateAuthorized' => gmdate( DATE_ATOM ),
-		'dateCaptured'   => gmdate( DATE_ATOM )
-	);
+	$tax_cloud_session = it_exchange_get_session_data( 'addon_advanced_us_taxes' );
 	
-	try {
-		$args = array(
-			'headers' => array(
-				'Content-Type' => 'application/json',
-			),
-			'body' => json_encode( $query ),
-	    );
-		$result = wp_remote_post( ITE_TAXCLOUD_API . 'AuthorizedWithCapture', $args );
-	
-		if ( is_wp_error( $result ) ) {
-			throw new Exception( $result->get_error_message() );
-		} else if ( !empty( $result['body'] ) ) {
-			$body = json_decode( $result['body'] );
-			if ( 0 != $body->ResponseType ) {
-				update_post_meta( $transaction_id, '_it_exchange_advanced_us_taxes', $GLOBALS['it_exchange']['tax_cloud']['taxes'] );
-			    unset( $GLOBALS['it_exchange']['tax_cloud'] );
-				return;
-			} else {
-				$errors = array();
-				foreach( $body->Messages as $message ) {
-					$errors[] = $message->ResponseType . ' ' . $message->Message;
+	//If we don't have a tax cloud Cart ID, we cannot authorize and capture the tax
+	if ( !empty( $tax_cloud_session['cart_id'] ) ) {
+		$query = array(
+			'apiLoginID'     => $settings['tax_cloud_api_id'],
+			'apiKey'         => $settings['tax_cloud_api_key'],
+			'customerID'     => $customer->ID,
+			'cartID'         => $tax_cloud_session['cart_id'],
+			'orderID'        => $transaction_id,
+			'dateAuthorized' => gmdate( DATE_ATOM ),
+			'dateCaptured'   => gmdate( DATE_ATOM )
+		);
+		
+		try {
+			$args = array(
+				'headers' => array(
+					'Content-Type' => 'application/json',
+				),
+				'body' => json_encode( $query ),
+		    );
+			$result = wp_remote_post( ITE_TAXCLOUD_API . 'AuthorizedWithCapture', $args );
+		
+			if ( is_wp_error( $result ) ) {
+				throw new Exception( $result->get_error_message() );
+			} else if ( !empty( $result['body'] ) ) {
+				$body = json_decode( $result['body'] );
+				if ( 0 != $body->ResponseType ) {
+					update_post_meta( $transaction_id, '_it_exchange_advanced_us_taxes', $tax_cloud_session['taxes'] );
+				} else {
+					$errors = array();
+					foreach( $body->Messages as $message ) {
+						$errors[] = $message->ResponseType . ' ' . $message->Message;
+					}
+					throw new Exception( implode( ',', $errors ) );
 				}
-				throw new Exception( implode( ',', $errors ) );
+			} else {
+				throw new Exception( __( 'Unknown Error', 'LION' ) );
 			}
-		} else {
-			throw new Exception( __( 'Unknown Error', 'LION' ) );
 		}
+	    catch( Exception $e ) {
+			$error = sprintf( __( 'Unable to authorize transaction with TaxCloud.net: %s', 'LION' ), $e->getMessage() );
+			wp_mail( 'lew@ithemes.com', __( 'Error with Advanced U.S. Taxes', 'LION' ), $error );
+	    }
 	}
-    catch( Exception $e ) {
-		$error = sprintf( __( 'Unable to authorize transaction with TaxCloud.net: %s', 'LION' ), $e->getMessage() );
-		wp_mail( 'lew@ithemes.com', __( 'Error with Advanced U.S. Taxes', 'LION' ), $error );
-    }
+	
+	it_exchange_clear_session_data( 'addon_advanced_us_taxes' );
+	return;
 }
 add_action( 'it_exchange_add_transaction_success', 'it_exchange_advanced_us_taxes_transaction_hook' );
