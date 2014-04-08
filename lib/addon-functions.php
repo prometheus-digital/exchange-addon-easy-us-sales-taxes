@@ -59,11 +59,13 @@ function it_exchange_advanced_us_taxes_addon_get_taxes_for_cart(  $format_price=
 	$products = it_exchange_get_cart_products();
 	$products_hash = md5( maybe_serialize( $products ) );
 	
+	ITDebug::print_r( $GLOBALS['it_exchange']['tax_cloud'] );
+	
 	// If we don't have a cache of the taxes, we need to calculate one
 	// OR if we don't have a cache of the products_hash OR if the current cache doesn't match the current products hash
 	if ( empty( $GLOBALS['it_exchange']['tax_cloud']['taxes'] )
 		|| ( empty( $GLOBALS['it_exchange']['tax_cloud']['products_hash'] )
-		|| ( $GLOBALS['it_exchange']['tax_cloud']['products_hash'] !== $cart_hash ) ) ) {
+		|| ( $GLOBALS['it_exchange']['tax_cloud']['products_hash'] !== $products_hash ) ) ) {
 		
 		$product_count = it_exchange_get_cart_products_count( true );
 		$applied_coupons = it_exchange_get_applied_coupons();
@@ -140,7 +142,7 @@ function it_exchange_advanced_us_taxes_addon_get_taxes_for_cart(  $format_price=
 						$checkout_taxes += $item->TaxAmount;
 					}
 					$taxes = apply_filters( 'it_exchange_advanced_us_taxes_addon_get_taxes_for_cart', $checkout_taxes );
-					$GLOBALS['it_exchange']['tax_cloud']['cart_hash'] = $cart_hash;
+					$GLOBALS['it_exchange']['tax_cloud']['product_hash'] = $products_hash;
 				} else {
 					$errors = array();
 					foreach( $body->Messages as $message ) {

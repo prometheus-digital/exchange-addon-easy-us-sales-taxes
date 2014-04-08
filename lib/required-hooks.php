@@ -265,6 +265,7 @@ function it_exchange_advanced_us_taxes_transaction_hook( $transaction_id ) {
 			$body = json_decode( $result['body'] );
 			if ( 0 != $body->ResponseType ) {
 				update_post_meta( $transaction_id, '_it_exchange_advanced_us_taxes', $GLOBALS['it_exchange']['tax_cloud']['taxes'] );
+			    unset( $GLOBALS['it_exchange']['tax_cloud'] );
 				return;
 			} else {
 				$errors = array();
