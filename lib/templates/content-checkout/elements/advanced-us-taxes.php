@@ -26,7 +26,7 @@
 <div class="it-exchange-cart-totals-amount it-exchange-table-column">
 	<?php do_action( 'it_exchange_content_checkout_before_advanced_us_taxes_value' ); ?>
 	<div class="it-exchange-table-column-inner">
-		<?php echo it_exchange_advanced_us_taxes_addon_get_taxes_for_checkout(); ?>
+		<?php echo it_exchange_advanced_us_taxes_addon_get_taxes_for_cart(); ?>
 	</div>
 	<?php do_action( 'it_exchange_content_checkout_after_advanced_us_taxes_value' ); ?>
 </div>

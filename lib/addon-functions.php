@@ -5,10 +5,21 @@
  * @since 1.0.0
 */
 
-function it_exchange_advanced_us_taxes_addon_get_taxes_for_checkout(  $format_price=true, $clear_cache=false ) {
+function it_exchange_advanced_us_taxes_addon_get_taxes_for_confirmation( $format_price=true ) {
+	$taxes = 0;
+	if ( !empty( $GLOBALS['it_exchange']['transaction'] ) ) {
+		$transaction = $GLOBALS['it_exchange']['transaction'];
+		$taxes = get_post_meta( $transaction->ID, '_it_exchange_advanced_us_taxes', true );
+	}
+	if ( $format_price )
+		$taxes = it_exchange_format_price( $taxes );
+	return $taxes;	
+}
+
+function it_exchange_advanced_us_taxes_addon_get_taxes_for_cart(  $format_price=true, $clear_cache=false ) {
 	// Grab the tax rate
 	$settings  = it_exchange_get_option( 'addon_advanced_us_taxes' );
-	
+	$taxes = 0;
 	$cart = it_exchange_get_cart_data();
 	
 	$origin = array(
@@ -46,55 +57,57 @@ function it_exchange_advanced_us_taxes_addon_get_taxes_for_checkout(  $format_pr
 	}
 	
 	$products = it_exchange_get_cart_products();
-	$product_count = it_exchange_get_cart_products_count( true );
-	$applied_coupons = it_exchange_get_applied_coupons();
-	$customer = it_exchange_get_current_customer();
+	$products_hash = md5( maybe_serialize( $products ) );
+	
+	// If we don't have a cache of the taxes, we need to calculate one
+	// OR if we don't have a cache of the products_hash OR if the current cache doesn't match the current products hash
+	if ( empty( $GLOBALS['it_exchange']['tax_cloud']['taxes'] )
+		|| ( empty( $GLOBALS['it_exchange']['tax_cloud']['products_hash'] )
+		|| ( $GLOBALS['it_exchange']['tax_cloud']['products_hash'] !== $cart_hash ) ) ) {
 		
-	$tax_cloud_query = array();
-	$cart_items = array();
-	$i = 0;
-	//build the TaxCloud Query
-	foreach( $products as $product ) {
-		$price = it_exchange_get_cart_product_base_price( $product, false );
-		$product_tic = it_exchange_get_product_feature( $product['product_id'], 'us-tic', array( 'setting' => 'code' ) );
-		if ( !empty( $applied_coupons ) ) {
-			foreach( $applied_coupons as $type => $coupons ) {
-				foreach( $coupons as $coupon ) {
-					if ( 'cart' === $type ) {
-						if ( '%' === $coupon['amount_type'] ) {
-							$price *= ( $coupon['amount_number'] / 100 );
-						} else {
-							$price -= ( $coupon['amount_number'] / $product_count );
-						}
-					} else if ( 'product' === $type ) {
-						if ( $coupon['product_id'] === $product['product_id'] ) {
+		$product_count = it_exchange_get_cart_products_count( true );
+		$applied_coupons = it_exchange_get_applied_coupons();
+		$customer = it_exchange_get_current_customer();
+			
+		$cart_items = array();
+		$i = 0;
+		//build the TaxCloud Query
+		foreach( $products as $product ) {
+			$price = it_exchange_get_cart_product_base_price( $product, false );
+			$product_tic = it_exchange_get_product_feature( $product['product_id'], 'us-tic', array( 'setting' => 'code' ) );
+			if ( !empty( $applied_coupons ) ) {
+				foreach( $applied_coupons as $type => $coupons ) {
+					foreach( $coupons as $coupon ) {
+						if ( 'cart' === $type ) {
 							if ( '%' === $coupon['amount_type'] ) {
 								$price *= ( $coupon['amount_number'] / 100 );
 							} else {
 								$price -= ( $coupon['amount_number'] / $product_count );
 							}
+						} else if ( 'product' === $type ) {
+							if ( $coupon['product_id'] === $product['product_id'] ) {
+								if ( '%' === $coupon['amount_type'] ) {
+									$price *= ( $coupon['amount_number'] / 100 );
+								} else {
+									$price -= ( $coupon['amount_number'] / $product_count );
+								}
+							}
 						}
 					}
 				}
 			}
+			
+			$cart_items[] = array(
+				'Index'  => $i,
+				'TIC'    => $product_tic,
+				'ItemID' => $product['product_id'],
+				'Price'  => $price,
+				'Qty'    => $product['count'],
+			);
+			$i++;
 		}
 		
-		$cart_items[] = array(
-			'Index'  => $i,
-			'TIC'    => $product_tic,
-			'ItemID' => $product['product_id'],
-			'Price'  => $price,
-			'Qty'    => $product['count'],
-		);
-		$i++;
-	}
-	
-	$excempt_cert = null;
-	
-	// If we don't have a cached query, we need to create one or
-	// If the exist query has changed, we need to renew it.
-	if ( empty( $GLOBALS['it_exchange']['tax_cloud_query'] )
-		|| ( $GLOBALS['it_exchange']['tax_cloud_query'] !== $tax_cloud_query ) ) {
+		$excempt_cert = null;
 
 		$query = array(
 			'apiLoginID'        => $settings['tax_cloud_api_id'],
@@ -126,10 +139,8 @@ function it_exchange_advanced_us_taxes_addon_get_taxes_for_checkout(  $format_pr
 					foreach( $body->CartItemsResponse as $item ) {
 						$checkout_taxes += $item->TaxAmount;
 					}
-					$taxes = apply_filters( 'it_exchange_advanced_us_taxes_addon_get_taxes_for_checkout', $checkout_taxes );
-					if ( $format_price )
-						$taxes = it_exchange_format_price( $taxes );
-					return $taxes;
+					$taxes = apply_filters( 'it_exchange_advanced_us_taxes_addon_get_taxes_for_cart', $checkout_taxes );
+					$GLOBALS['it_exchange']['tax_cloud']['cart_hash'] = $cart_hash;
 				} else {
 					$errors = array();
 					foreach( $body->Messages as $message ) {
@@ -148,5 +159,9 @@ function it_exchange_advanced_us_taxes_addon_get_taxes_for_checkout(  $format_pr
         }
 	}
 	
-	return 0;
+	$GLOBALS['it_exchange']['tax_cloud']['taxes'] = $taxes;
+
+	if ( $format_price )
+		$taxes = it_exchange_format_price( $taxes );
+	return $taxes;
 }

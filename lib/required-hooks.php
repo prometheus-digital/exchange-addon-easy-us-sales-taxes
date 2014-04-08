@@ -103,7 +103,7 @@ add_action( 'admin_print_styles', 'it_exchange_advanced_us_taxes_addon_admin_wp_
  * @param array $elements list of existing elements
  * @return array
 */
-function it_exchange_advanced_us_taxes_addon_add_taxes_to_template_totals_loops( $elements ) {
+function it_exchange_advanced_us_taxes_addon_add_taxes_to_template_totals_elements( $elements ) {
 	// Locate the discounts key in elements array (if it exists)
 	$index = array_search( 'totals-savings', $elements );
 	if ( false === $index )
@@ -116,8 +116,9 @@ function it_exchange_advanced_us_taxes_addon_add_taxes_to_template_totals_loops(
 	array_splice( $elements, $index, 0, 'advanced-us-taxes' );
 	return $elements;
 }
-add_filter( 'it_exchange_get_content_cart_totals_elements', 'it_exchange_advanced_us_taxes_addon_add_taxes_to_template_totals_loops' );
-add_filter( 'it_exchange_get_content_checkout_totals_elements', 'it_exchange_advanced_us_taxes_addon_add_taxes_to_template_totals_loops' );
+add_filter( 'it_exchange_get_content_cart_totals_elements', 'it_exchange_advanced_us_taxes_addon_add_taxes_to_template_totals_elements' );
+add_filter( 'it_exchange_get_content_checkout_totals_elements', 'it_exchange_advanced_us_taxes_addon_add_taxes_to_template_totals_elements' );
+add_filter( 'it_exchange_get_content_confirmation_transaction_summary_elements', 'it_exchange_advanced_us_taxes_addon_add_taxes_to_template_totals_elements' );
 
 /**
  * Add Advanced U.S. Taxes to the super-widget-checkout totals loop
@@ -158,7 +159,8 @@ function it_exchange_advanced_us_taxes_addon_taxes_register_templates( $template
 	$templates = array(
 		'content-cart/elements/advanced-us-taxes.php',
 		'content-checkout/elements/advanced-us-taxes.php',
-		'super-widget-checkout/advanced-us-taxes.php',
+		'content-confirmation/elements/advanced-us-taxes.php',
+		'super-widget-checkout/loops/advanced-us-taxes.php',
 	);
 	foreach( $templates as $template ) {
 		if ( in_array( $template, (array) $template_names ) )
@@ -181,8 +183,7 @@ add_filter( 'it_exchange_possible_template_paths', 'it_exchange_advanced_us_taxe
  * @return
 */
 function it_exchange_advanced_us_taxes_addon_taxes_modify_total( $total ) {
-	if ( it_exchange_is_page( 'checkout' ) ) //We only want to fire this on the checkout page!
-		$total += it_exchange_advanced_us_taxes_addon_get_taxes_for_checkout( false );
+	$total += it_exchange_advanced_us_taxes_addon_get_taxes_for_cart( false );
 	return $total;
 }
 add_filter( 'it_exchange_get_cart_total', 'it_exchange_advanced_us_taxes_addon_taxes_modify_total' );
@@ -233,3 +234,52 @@ function it_exchange_advanced_us_taxes_verify_customer_address( $address, $custo
 }
 add_filter( 'it_exchange_save_customer_billing_address', 'it_exchange_advanced_us_taxes_verify_customer_address', 10, 2 );
 add_filter( 'it_exchange_save_customer_shipping_address', 'it_exchange_advanced_us_taxes_verify_customer_address', 10, 2 );
+
+
+function it_exchange_advanced_us_taxes_transaction_hook( $transaction_id ) {
+	$settings = it_exchange_get_option( 'addon_advanced_us_taxes' );
+	$customer = it_exchange_get_current_customer();
+			
+	$query = array(
+		'apiLoginID'     => $settings['tax_cloud_api_id'],
+		'apiKey'         => $settings['tax_cloud_api_key'],
+		'customerID'     => $customer->ID,
+		'cartID'         => it_exchange_get_session_id(),
+		'orderID'        => $transaction_id,
+		'dateAuthorized' => gmdate( DATE_ATOM ),
+		'dateCaptured'   => gmdate( DATE_ATOM )
+	);
+	
+	try {
+		$args = array(
+			'headers' => array(
+				'Content-Type' => 'application/json',
+			),
+			'body' => json_encode( $query ),
+	    );
+		$result = wp_remote_post( ITE_TAXCLOUD_API . 'AuthorizedWithCapture', $args );
+	
+		if ( is_wp_error( $result ) ) {
+			throw new Exception( $result->get_error_message() );
+		} else if ( !empty( $result['body'] ) ) {
+			$body = json_decode( $result['body'] );
+			if ( 0 != $body->ResponseType ) {
+				update_post_meta( $transaction_id, '_it_exchange_advanced_us_taxes', $GLOBALS['it_exchange']['tax_cloud']['taxes'] );
+				return;
+			} else {
+				$errors = array();
+				foreach( $body->Messages as $message ) {
+					$errors[] = $message->ResponseType . ' ' . $message->Message;
+				}
+				throw new Exception( implode( ',', $errors ) );
+			}
+		} else {
+			throw new Exception( __( 'Unknown Error', 'LION' ) );
+		}
+	}
+    catch( Exception $e ) {
+		$error = sprintf( __( 'Unable to authorize transaction with TaxCloud.net: %s', 'LION' ), $e->getMessage() );
+		wp_mail( 'lew@ithemes.com', __( 'Error with Advanced U.S. Taxes', 'LION' ), $error );
+    }
+}
+add_action( 'it_exchange_add_transaction_success', 'it_exchange_advanced_us_taxes_transaction_hook' );
