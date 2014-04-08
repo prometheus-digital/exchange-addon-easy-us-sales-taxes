@@ -47,10 +47,10 @@ function it_exchange_advanced_us_taxes_addon_admin_wp_enqueue_scripts( $hook_suf
 		|| ( !empty( $_GET['add-on-settings'] ) && 'exchange_page_it-exchange-addons' === $hook_suffix && 'advanced-us-taxes' === $_GET['add-on-settings'] ) ) {
 		
 		$deps = array( 'jquery' );
-		wp_enqueue_script( 'it-exchange-advanced-us-taxes-admin-js', ITUtility::get_url_from_file( dirname( __FILE__ ) ) . '/js/admin.js', $deps );
+		//wp_enqueue_script( 'it-exchange-advanced-us-taxes-admin-js', ITUtility::get_url_from_file( dirname( __FILE__ ) ) . '/js/admin.js', $deps );
 		
-		$deps = array( 'jquery', 'it-exchange-advanced-us-taxes-admin-js' );
-		wp_enqueue_script( 'it-exchange-advanced-us-taxes-addon-taxcloud-tic-selector', ITUtility::get_url_from_file( dirname( __FILE__ ) ) . '/js/jquery.tic2.public.js', $deps );
+		//$deps = array( 'jquery', 'it-exchange-advanced-us-taxes-admin-js' );
+		wp_enqueue_script( 'it-exchange-advanced-us-taxes-addon-taxcloud-tic-selector', ITUtility::get_url_from_file( dirname( __FILE__ ) ) . '/js/jquery.tic2.public.js', $deps, '', true );
 		
 	}
 }

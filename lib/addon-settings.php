@@ -197,19 +197,15 @@ class IT_Exchange_Advanced_US_Taxes_Add_On {
             </p>
             <p>
                 <label for="advanced-us-taxes-us-tic"><?php _e( 'Default Tax Class', 'LION' ) ?></label>
-                <?php if ( !empty( $settings['us-tic-desc'] ) && !empty( $settings['us-tic'] ) ) { ?>
-                    <span class="it-exchange-tax-class-description"><?php echo $settings['us-tic-desc'] . ' (' . $settings['us-tic'] . ')'; ?></span>
-                    <br />
-                <?php } else if ( !empty( $settings['us-tic-desc'] ) ) { ?>
-                    <span class="it-exchange-tax-class-description"><?php echo $settings['us-tic-desc']; ?></span>
-                    <br />
-                <?php } else if ( !empty( $settings['us-tic'] ) ) { ?>
-                    <span ><?php echo $settings['us-tic']; ?></span>
-                    <br />
-                <?php } ?>
                 
+                <script type="text/javascript">
+					//currentTic must be declared/set, even if TIC has not already been specified.
+					var currentTic = "<?php echo empty( $settings['us-tic'] ) ? '' : esc_js( $settings['us-tic'] ); ?>";
+					//the ID of the HTML form field to be replaced
+					var fieldID = "us-tic";
+				</script>
+			
                 <?php $form->add_text_box( 'us-tic' ); ?> 
-                <?php $form->add_hidden( 'us-tic-desc' ); ?> 
             </p>
 
 		</div>

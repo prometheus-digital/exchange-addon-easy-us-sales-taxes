@@ -109,15 +109,12 @@ class IT_Exchange_Product_Feature_Product_US_TIC {
 		$description = __( "blahblahbalh CHANGEME", 'LION' );
 		$description = apply_filters( 'it_exchange_product_us-tic_metabox_description', $description );
 		
-		$tax_code = it_exchange_get_product_feature( $product->ID, 'us-tic', array( 'setting' => 'code' ) );
-		$tax_code_desc = it_exchange_get_product_feature( $product->ID, 'us-tic', array( 'setting' => 'description' ) );
+		$tax_code = it_exchange_get_product_feature( $product->ID, 'us-tic' );
 				
 		if ( empty( $tax_code ) ) {
 			$settings = it_exchange_get_option( 'addon_advanced_us_taxes' );
 			if ( !empty( $settings['us-tic'] ) )
 				$tax_code = $settings['us-tic'];
-			if ( !empty( $settings['us-tic-desc'] ) )
-				$tax_code_desc = $settings['us-tic-desc'];
 		}
 
 		?>
@@ -126,17 +123,14 @@ class IT_Exchange_Product_Feature_Product_US_TIC {
 		<?php endif; ?>
 		<p>
             <label for="advanced-us-taxes-us-tic"><?php _e( 'Tax Class', 'LION' ) ?></label>
-            <?php 
-        	if ( !empty( $tax_code_desc ) && !empty( $tax_code ) )
-        		printf( '<span class="it-exchange-tax-class-description">%s (%s)</span>', $tax_code_desc, $tax_code );
-        	else if ( !empty( $tax_code_desc ) )
-        		echo '<span class="it-exchange-tax-class-description">' . $tax_code_desc . '</span>';
-        	else if ( !empty( $tax_code ) )
-        		echo '<span class="it-exchange-tax-class-description">' . $tax_code . '</span>';
-            ?>
-            <br />
-	        <input type="text" name="it-exchange-add-on-advanced-us-taxes-us-tic" id="us-tic" value="<?php echo $tax_code; ?>" />
-	        <input type="hidden" name="it-exchange-add-on-advanced-us-taxes-us-tic-desc" id="us-tic-desc" value="<?php echo $tax_code_desc; ?>" />
+            <script type="text/javascript">
+				//currentTic must be declared/set, even if TIC has not already been specified.
+				var currentTic = "<?php echo empty( $tax_code ) ? '' : esc_js( $tax_code ); ?>";
+				//the ID of the HTML form field to be replaced
+				var fieldID = "us-tic";
+			</script>
+			
+			<input type="text" name="it-exchange-add-on-advanced-us-taxes-us-tic" id="us-tic" value="<?php echo $tax_code; ?>" />
         </p>
 		<?php
 	}
@@ -166,13 +160,7 @@ class IT_Exchange_Product_Feature_Product_US_TIC {
 		$new_value = empty( $_POST['it-exchange-add-on-advanced-us-taxes-us-tic'] ) ? '' : $_POST['it-exchange-add-on-advanced-us-taxes-us-tic'] ;
 
 		// Save new value
-		it_exchange_update_product_feature( $product_id, 'us-tic', $new_value, array( 'setting' => 'code' ) );
-		
-		// Get new value from post
-		$new_value = empty( $_POST['it-exchange-add-on-advanced-us-taxes-us-tic-desc'] ) ? '' : $_POST['it-exchange-add-on-advanced-us-taxes-us-tic-desc'] ;
-		
-		// Save new value
-		it_exchange_update_product_feature( $product_id, 'us-tic', $new_value, array( 'setting' => 'description' ) );
+		it_exchange_update_product_feature( $product_id, 'us-tic', $new_value );
 
 	}
 
@@ -184,20 +172,8 @@ class IT_Exchange_Product_Feature_Product_US_TIC {
 	 * @param mixed $new_value the new value
 	 * @return bolean
 	*/
-	function save_feature( $product_id, $new_value, $options=array() ) {
-		$defaults['setting'] = 'code';
-		$options = ITUtility::merge_defaults( $options, $defaults );
-		
-		switch ( $options['setting'] ) {
-			
-			case 'code':
-				update_post_meta( $product_id, '_it-exchange-add-on-advanced-us-taxes-us-tic', $new_value );
-				break;
-			case 'description':
-				update_post_meta( $product_id, '_it-exchange-add-on-advanced-us-taxes-us-tic-desc', $new_value );
-				break;
-			
-		}
+	function save_feature( $product_id, $new_value ) {
+		update_post_meta( $product_id, '_it-exchange-add-on-advanced-us-taxes-us-tic', $new_value );
 		return true;
 	}
 
@@ -209,29 +185,13 @@ class IT_Exchange_Product_Feature_Product_US_TIC {
 	 * @param integer product_id the WordPress post ID
 	 * @return string product feature
 	*/
-	function get_feature( $existing, $product_id, $options=array() ) {
-		$defaults['setting'] = 'code';
-		$options = ITUtility::merge_defaults( $options, $defaults );
-		
-		switch ( $options['setting'] ) {
-			
-			case 'code':
-				if ( $code = get_post_meta( $product_id, '_it-exchange-add-on-advanced-us-taxes-us-tic', true ) ) {
-					return $code;
-				} else { //default setting
-					$settings = it_exchange_get_option( 'addon_advanced_us_taxes' );
-					if ( !empty( $settings['us-tic'] ) )
-						return $settings['us-tic'];
-				}
-			case 'description':
-				if ( $desc = get_post_meta( $product_id, '_it-exchange-add-on-advanced-us-taxes-us-tic-desc', true ) ) {
-					return $desc;
-				} else { //default setting
-					$settings = it_exchange_get_option( 'addon_advanced_us_taxes' );
-					if ( !empty( $settings['us-tic-desc'] ) )
-						return $settings['us-tic-desc'];
-				}
-			
+	function get_feature( $existing, $product_id ) {
+		if ( $code = get_post_meta( $product_id, '_it-exchange-add-on-advanced-us-taxes-us-tic', true ) ) {
+			return $code;
+		} else { //default setting
+			$settings = it_exchange_get_option( 'addon_advanced_us_taxes' );
+			if ( !empty( $settings['us-tic'] ) )
+				return $settings['us-tic'];
 		}
 		return false;
 	}
@@ -244,16 +204,13 @@ class IT_Exchange_Product_Feature_Product_US_TIC {
 	 * @param integer $product_id
 	 * @return boolean
 	*/
-	function product_has_feature( $result, $product_id, $options=array() ) {
-		$defaults['setting'] = 'code';
-		$options = ITUtility::merge_defaults( $options, $defaults );
-
+	function product_has_feature( $result, $product_id ) {
 		// Does this product type support this feature?
-		if ( false === $this->product_supports_feature( false, $product_id, $options ) )
+		if ( false === $this->product_supports_feature( false, $product_id ) )
 			return false;
 
 		// If it does support, does it have it?
-		return (boolean) $this->get_feature( false, $product_id, $options );
+		return (boolean) $this->get_feature( false, $product_id );
 	}
 
 	/**
