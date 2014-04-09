@@ -241,7 +241,6 @@ function it_exchange_advanced_us_taxes_transaction_hook( $transaction_id ) {
 	
 	//If we don't have a tax cloud Cart ID, we cannot authorize and capture the tax
 	if ( !empty( $tax_cloud_session['cart_id'] ) ) {
-		$exchange = it_exchnage_get_option( 'it_exchange' );
 		$settings = it_exchange_get_option( 'addon_advanced_us_taxes' );
 		$customer = it_exchange_get_current_customer();
 
@@ -282,6 +281,7 @@ function it_exchange_advanced_us_taxes_transaction_hook( $transaction_id ) {
 			}
 		}
 	    catch( Exception $e ) {
+			$exchange = it_exchange_get_option( 'settings_general' );
 			$error = sprintf( __( 'Unable to authorize transaction with TaxCloud.net: %s', 'LION' ), $e->getMessage() );
 			wp_mail( $exchange['company-email'], __( 'Error with Advanced U.S. Taxes', 'LION' ), $error );
 	    }
@@ -333,6 +333,7 @@ function it_exchange_advanced_us_taxes_transaction_refund( $transaction, $amount
 				}
 			}
 		    catch( Exception $e ) {
+				$exchange = it_exchange_get_option( 'settings_general' );
 				$error = sprintf( __( 'Unable to returning transaction with TaxCloud.net: %s', 'LION' ), $e->getMessage() );
 				wp_mail( $exchange['company-email'], __( 'Error with Advanced U.S. Taxes', 'LION' ), $error );
 		    }
