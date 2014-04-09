@@ -237,12 +237,14 @@ add_filter( 'it_exchange_save_customer_shipping_address', 'it_exchange_advanced_
 
 
 function it_exchange_advanced_us_taxes_transaction_hook( $transaction_id ) {
-	$settings = it_exchange_get_option( 'addon_advanced_us_taxes' );
-	$customer = it_exchange_get_current_customer();
 	$tax_cloud_session = it_exchange_get_session_data( 'addon_advanced_us_taxes' );
 	
 	//If we don't have a tax cloud Cart ID, we cannot authorize and capture the tax
 	if ( !empty( $tax_cloud_session['cart_id'] ) ) {
+		$exchange = it_exchnage_get_option( 'it_exchange' );
+		$settings = it_exchange_get_option( 'addon_advanced_us_taxes' );
+		$customer = it_exchange_get_current_customer();
+
 		$query = array(
 			'apiLoginID'     => $settings['tax_cloud_api_id'],
 			'apiKey'         => $settings['tax_cloud_api_key'],
@@ -276,12 +278,12 @@ function it_exchange_advanced_us_taxes_transaction_hook( $transaction_id ) {
 					throw new Exception( implode( ',', $errors ) );
 				}
 			} else {
-				throw new Exception( __( 'Unknown Error', 'LION' ) );
+				throw new Exception( __( 'Unknown error when trying to authorize and capture a transaction with TaxCloud.net', 'LION' ) );
 			}
 		}
 	    catch( Exception $e ) {
 			$error = sprintf( __( 'Unable to authorize transaction with TaxCloud.net: %s', 'LION' ), $e->getMessage() );
-			wp_mail( 'lew@ithemes.com', __( 'Error with Advanced U.S. Taxes', 'LION' ), $error );
+			wp_mail( $exchange['company-email'], __( 'Error with Advanced U.S. Taxes', 'LION' ), $error );
 	    }
 	}
 	
@@ -289,3 +291,52 @@ function it_exchange_advanced_us_taxes_transaction_hook( $transaction_id ) {
 	return;
 }
 add_action( 'it_exchange_add_transaction_success', 'it_exchange_advanced_us_taxes_transaction_hook' );
+
+function it_exchange_advanced_us_taxes_transaction_refund( $transaction, $amount, $date, $options ) {
+	if ( $taxes = update_post_meta( $transaction->ID, '_it_exchange_advanced_us_taxes', true ) ) {
+		//We have taxes
+		$total = it_exchange_get_transaction_total( $transaction->ID, false, true );
+		if ( 0 >= $total ) {
+			$settings = it_exchange_get_option( 'addon_advanced_us_taxes' );
+			//We've refunded the entire purchase, we need to report this to TaxCloud
+			//We cannot do individual product refunds only whole cart refunds
+			$query = array(
+				'apiLoginID'   => $settings['tax_cloud_api_id'],
+				'apiKey'       => $settings['tax_cloud_api_key'],
+				'orderID'      => $transaction->ID,
+				'cartItems'    => null,
+				'returnedDate' => gmdate( DATE_ATOM )
+			);
+			
+			try {
+				$args = array(
+					'headers' => array(
+						'Content-Type' => 'application/json',
+					),
+					'body' => json_encode( $query ),
+			    );
+				$result = wp_remote_post( ITE_TAXCLOUD_API . 'Returned', $args );
+			
+				if ( is_wp_error( $result ) ) {
+					throw new Exception( $result->get_error_message() );
+				} else if ( !empty( $result['body'] ) ) {
+					$body = json_decode( $result['body'] );
+					if ( 0 == $body->ResponseType ) {
+						$errors = array();
+						foreach( $body->Messages as $message ) {
+							$errors[] = $message->ResponseType . ' ' . $message->Message;
+						}
+						throw new Exception( implode( ',', $errors ) );
+					}
+				} else {
+					throw new Exception( __( 'Unknown error when trying to return transaction with TaxCloud.net', 'LION' ) );
+				}
+			}
+		    catch( Exception $e ) {
+				$error = sprintf( __( 'Unable to returning transaction with TaxCloud.net: %s', 'LION' ), $e->getMessage() );
+				wp_mail( $exchange['company-email'], __( 'Error with Advanced U.S. Taxes', 'LION' ), $error );
+		    }
+		}		
+	}
+}
+add_action( 'it_exchange_add_refund_to_transaction', 'it_exchange_advanced_us_taxes_transaction_refund', 10, 4 );
