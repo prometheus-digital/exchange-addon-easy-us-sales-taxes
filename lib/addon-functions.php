@@ -202,8 +202,8 @@ function it_exchange_advanced_us_taxes_addon_add_exemption() {
 		$args = array(
 			'action'    => 'it-exchange-advanced-us-tax-add-cert',
 			'TB_iframe' => 'true',
-			'width'     => '800',
-			'height'    => '500',
+			'width'     => '600',
+			'height'    => '550',
 		);
 		$url = add_query_arg( $args, get_admin_url() . 'admin-ajax.php' ); 	
 	
