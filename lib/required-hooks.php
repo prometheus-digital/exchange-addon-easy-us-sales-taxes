@@ -47,14 +47,41 @@ function it_exchange_advanced_us_taxes_addon_admin_wp_enqueue_scripts( $hook_suf
 		|| ( !empty( $_GET['add-on-settings'] ) && 'exchange_page_it-exchange-addons' === $hook_suffix && 'advanced-us-taxes' === $_GET['add-on-settings'] ) ) {
 		
 		$deps = array( 'jquery' );
-		//wp_enqueue_script( 'it-exchange-advanced-us-taxes-admin-js', ITUtility::get_url_from_file( dirname( __FILE__ ) ) . '/js/admin.js', $deps );
-		
-		//$deps = array( 'jquery', 'it-exchange-advanced-us-taxes-admin-js' );
 		wp_enqueue_script( 'it-exchange-advanced-us-taxes-addon-taxcloud-tic-selector', ITUtility::get_url_from_file( dirname( __FILE__ ) ) . '/js/jquery.tic2.public.js', $deps, '', true );
 		
 	}
+	
+	if ( 'user.php-it-exchange-advanced-us-taxes-manage-certs-thickbox' === $hook_suffix
+		|| 'user.php-it-exchange-advanced-us-taxes-add-cert-thickbox' === $hook_suffix ) {
+		
+		$deps = array( 'jquery' );
+		wp_enqueue_script( 'it-exchange-advanced-us-taxes-addon-thickbox-cert-management', ITUtility::get_url_from_file( dirname( __FILE__ ) ) . '/js/thickbox-cert-management.js', $deps );
+		wp_enqueue_style( 'it-exchange-advanced-us-taxes-addon-thickbox-cert-management', ITUtility::get_url_from_file( dirname( __FILE__ ) ) . '/styles/thickbox-cert-management.css' );
+
+
+	}
 }
 add_action( 'admin_enqueue_scripts', 'it_exchange_advanced_us_taxes_addon_admin_wp_enqueue_scripts' );
+
+/**
+ * Loads the frontend CSS on all exchange pages
+ *
+ * @since 0.4.0
+ *
+ * @return void
+*/
+function it_exchange_advanced_us_taxes_load_public_scripts( $current_view ) {
+	
+	// ****** CART/CHECKOUT SPECIFIC SCRIPTS *******
+	//if ( it_exchange_is_page( 'checkout' ) || it_exchange_is_page( 'cart' ) ) {
+
+		// Load country / state field sync if on checkout page
+	//	wp_enqueue_script( 'it-exchange-advanced-us-taxes-tic-tax-exempt', ITUtility::get_url_from_file( dirname( __FILE__ ) ) . '/js/jquery.tic.taxexempt.public.js', array( 'jquery' ), false, true );
+
+	//} // ****** END CART/CHECKOUT SPECIFIC SCRIPTS *******
+
+}
+add_action( 'wp_enqueue_scripts', 'it_exchange_advanced_us_taxes_load_public_scripts' );
 
 /**
  * Enqueues Advanced U.S. Taxes styles to WordPress Dashboard

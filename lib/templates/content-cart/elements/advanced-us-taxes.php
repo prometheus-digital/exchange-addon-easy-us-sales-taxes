@@ -20,6 +20,7 @@
 	<?php do_action( 'it_exchange_content_cart_before_advanced_us_taxes_label' ); ?>
 	<div class="it-exchange-table-column-inner">
 		<?php _e( 'Tax', 'LION' ); ?>
+		<?php echo it_exchange_advanced_us_taxes_addon_exemptions(); ?>
 	</div>
 	<?php do_action( 'it_exchange_content_cart_after_advanced_us_taxes_label' ); ?>
 </div>
