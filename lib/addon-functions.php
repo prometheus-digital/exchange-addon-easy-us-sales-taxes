@@ -172,44 +172,27 @@ function it_exchange_advanced_us_taxes_addon_get_taxes_for_cart(  $format_price=
 	return $taxes;
 }
 
-function it_exchange_advanced_us_taxes_addon_exemptions() {
+function it_exchange_advanced_us_taxes_addon_exemptions( $echo=false ) {
 	$output = '';
 	
-	if ( 1 ) {
-
-		add_thickbox();
-		$args = array(
-			'action'    => 'it-exchange-advanced-us-tax-certs',
-			'TB_iframe' => 'true',
-			'width'     => '600',
-			'height'    => '550',
-		);
-		$url = add_query_arg( $args, get_admin_url() . 'admin-ajax.php' ); 	
+	if ( is_user_logged_in() )
+		$output = '<p class="description"><a href="#" title="' . __( 'Manage Certificate Exemptions', 'LION' ) . '" id="it-exchange-advanced-us-tax-list-existing-certs">' . __( 'Are you Tax Exempt?', 'LION' ) . '</a></p>';
 	
-		$output .= '<p class="description"><a href="' . $url . '" title="' . __( 'Manage Certificate Exemptions', 'LION' ) . '" id="it-exchange-advanced-us-tax-certs" class="thickbox">' . __( 'Are you Tax Exempt?', 'LION' ) . '</a></p>';
-	
-	}
-	
-	echo $output;
+	if ( $echo )
+		echo $output;
+	else
+		return $output;
 }
 
-function it_exchange_advanced_us_taxes_addon_add_exemption() {
+function it_exchange_advanced_us_taxes_addon_add_exemption( $echo=false ) {
 	$output = '';
 	
-	if ( 1 ) {
-
-		add_thickbox();
-		$args = array(
-			'action'    => 'it-exchange-advanced-us-tax-add-cert',
-			'TB_iframe' => 'true',
-			'width'     => '600',
-			'height'    => '550',
-		);
-		$url = add_query_arg( $args, get_admin_url() . 'admin-ajax.php' ); 	
+	if ( is_user_logged_in() )
+		$output = '<p><a href="#" title="' . __( 'Manage Certificate Exemptions', 'LION' ) . '" id="it-exchange-advanced-us-tax-add-cert">' . __( 'Add a New Exemption', 'LION' ) . '</a></p>';
 	
-		$output .= '<p><a href="' . $url . '" title="' . __( 'Manage Certificate Exemptions', 'LION' ) . '" id="it-exchange-advanced-us-tax-add-cert" class="thickbox">' . __( 'Add a New Exemption', 'LION' ) . '</a></p>';
 	
-	}
-	
-	echo $output;
+	if ( $echo )
+		echo $output;
+	else
+		return $output;
 }
