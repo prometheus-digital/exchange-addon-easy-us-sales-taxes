@@ -197,6 +197,30 @@ function it_exchange_advanced_us_taxes_addon_remove_existing_cert() {
 }
 add_action( 'wp_ajax_it-exchange-aust-existing-remove-existing-cert', 'it_exchange_advanced_us_taxes_addon_remove_existing_cert' );
 
+function it_exchange_advanced_us_taxes_addon_use_existing_cert() {
+
+	$errors = array();
+
+	if ( !is_user_logged_in() ) {
+	
+		$errors[] = __( 'You must be logged in to use your Tax Exempt Certificates', 'LION' );
+		
+	} else {
+	
+		if ( !empty( $_POST ) ) {
+
+			error_log( var_export( it_exchange_is_page(), true ) );
+			wp_send_json_success( 'blah' );
+		    
+		}
+	
+	}
+
+	wp_send_json_error( $errors );
+
+}
+add_action( 'wp_ajax_it-exchange-aust-existing-use-existing-cert', 'it_exchange_advanced_us_taxes_addon_use_existing_cert' );
+
 /**
  * Ajax called from Thickbox to show the User's Add Product Screen.
  *
@@ -397,6 +421,8 @@ function it_exchange_advanced_us_taxes_addon_add_cert() {
 						
 					}
 					/**/
+					
+					error_log( it_exchange_is_page() );
 					
 					if ( 'single' == $_POST['exempt_type'] ) {
 						
