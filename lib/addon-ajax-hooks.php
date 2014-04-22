@@ -38,6 +38,8 @@ function it_exchange_advanced_us_taxes_addon_get_existing_certs() {
 						if ( !is_array( $result->GetExemptCertificatesResult->ExemptCertificates->ExemptionCertificate ) ) {
 							$cert = $result->GetExemptCertificatesResult->ExemptCertificates->ExemptionCertificate;
 							
+							//We're skipping Single Purchase certificates, because
+							//they're single purchase!
 							if ( !empty( $certs->Detail->SinglePurchase ) )
 								continue;
 						
@@ -51,6 +53,9 @@ function it_exchange_advanced_us_taxes_addon_get_existing_certs() {
 							
 						} else {
 							foreach ( $result->GetExemptCertificatesResult->ExemptCertificates->ExemptionCertificate as $cert ) {
+							
+								//We're skipping Single Purchase certificates, because
+								//they're single purchase!
 								if ( !empty( $certs->Detail->SinglePurchase ) )
 									continue;
 							

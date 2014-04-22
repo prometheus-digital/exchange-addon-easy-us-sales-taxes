@@ -420,9 +420,9 @@ function it_exchange_advanced_us_taxes_addon_list_existing_certificates_backbone
 			<p><?php _e( 'Date:', 'LION' ); ?> {{{ data.CreatedDate }}}</p>
 			<p><?php _e( 'Purpose:', 'LION' ); ?> {{{ data.PurchaserExemptionReason }}}</p>
 			<p>
-				<a href="#" id="it-exchange-aust-remove-existing-certificate" class="button" data-cert-id="{{{ data.CertificateID }}}">Remove</a>
-				<a href="#" id="it-exchange-aust-view-existing-certificate" class="view-existing-certificate button" data-cert-id="{{{ data.CertificateID }}}">View</a>
-				<a href="#" id="it-exchange-aust-use-existing-certificate" class="button" data-cert-id="{{{ data.CertificateID }}}">Use</a>
+				<a href="#" id="it-exchange-aust-remove-existing-certificate" class="button" data-cert-id="{{{ data.CertificateID }}}"><?php _e( 'Remove', 'LION' ); ?></a>
+				<!-- <a href="#" id="it-exchange-aust-view-existing-certificate" class="view-existing-certificate button" data-cert-id="{{{ data.CertificateID }}}">View</a> -->
+				<a href="#" id="it-exchange-aust-use-existing-certificate" class="button" data-cert-id="{{{ data.CertificateID }}}"><?php _e( 'Use', 'LION' ); ?></a>
 			</p>
 		</div>
 	</script>
