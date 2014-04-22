@@ -397,11 +397,13 @@ function it_exchange_advanced_us_taxes_addon_manage_certificates_backbone_templa
 			</div>
 			
 			<div id="it-exchange-advanced-us-taxes-exemption-manager-content-area">
-				<div id="it-exchange-advanced-us-taxes-exemption-manager-error-area"></div>
-				<img title="Create/register a new Exemption Certificate" src="//taxcloud.net/imgs/cert/new_certificate150x120.png" style="cursor:pointer;" height="120" width="150" align="left" />
-				<?php
-				echo it_exchange_advanced_us_taxes_addon_add_exemption();
-				?>
+				<div id="it-exchange-advanced-us-taxes-exemption-manager-add-new-certificates">
+					<div id="it-exchange-advanced-us-taxes-exemption-manager-error-area"></div>
+					<img title="Create/register a new Exemption Certificate" src="//taxcloud.net/imgs/cert/new_certificate150x120.png" style="cursor:pointer;" height="120" width="150" align="left" />
+					<?php
+					echo it_exchange_advanced_us_taxes_addon_add_exemption();
+					?>
+				</div>
 				<div id="it-exchange-advanced-us-taxes-exemption-manager-existing-certificates"></div>
 			</div>
 		</div>
@@ -412,18 +414,25 @@ function it_exchange_advanced_us_taxes_addon_manage_certificates_backbone_templa
 function it_exchange_advanced_us_taxes_addon_list_existing_certificates_backbone_template() {
 	?>
 	<script type="text/template" id="tmpl-it-exchange-advanced-us-taxes-list-certs-container">
-		<div id="it-exchange-advanced-us-taxes-exemption-manager-list-certs-content-area">
-
-			<a class="view-existing-certificate" data-cert-id="{{{ data.CertificateID }}}" href="#"><img title="Existing Exemption Certificate" src="//taxcloud.net/imgs/cert/exemption_certificate150x120.png" style="cursor:pointer;" height="120" width="150" align="left" /></a>
-			<p><?php _e( 'Issued To:', 'LION' ); ?> {{{ data.PurchaserFirstName }}} {{{ data.PurchaserLastName }}}</p>
-			<p><?php _e( 'Exempt State(s):', 'LION' ); ?> {{{ data.ExemptStates }}}</p>
-			<p><?php _e( 'Date:', 'LION' ); ?> {{{ data.CreatedDate }}}</p>
-			<p><?php _e( 'Purpose:', 'LION' ); ?> {{{ data.PurchaserExemptionReason }}}</p>
-			<p>
-				<a href="#" id="it-exchange-aust-remove-existing-certificate" class="button" data-cert-id="{{{ data.CertificateID }}}"><?php _e( 'Remove', 'LION' ); ?></a>
-				<!-- <a href="#" id="it-exchange-aust-view-existing-certificate" class="view-existing-certificate button" data-cert-id="{{{ data.CertificateID }}}">View</a> -->
-				<a href="#" id="it-exchange-aust-use-existing-certificate" class="button" data-cert-id="{{{ data.CertificateID }}}"><?php _e( 'Use', 'LION' ); ?></a>
-			</p>
+		<div class="it-exchange-advanced-us-taxes-exemption-manager-list-certs-content-area">
+			
+			<div class="it-exchange-advanced-us-taxes-existing-exemption-image">
+				<a class="view-existing-certificate" data-cert-id="{{{ data.CertificateID }}}" href="#">
+					<img title="Existing Exemption Certificate" src="//taxcloud.net/imgs/cert/exemption_certificate150x120.png" style="cursor:pointer;" height="120" width="150" />
+				</a>
+			</div>
+			<div class="it-exchange-advanced-us-taxes-existing-exemption-text">
+				<p>
+					<strong><?php _e( 'Issued To:', 'LION' ); ?></strong> {{{ data.PurchaserFirstName }}} {{{ data.PurchaserLastName }}}<br />
+					<strong><?php _e( 'Exempt State(s):', 'LION' ); ?></strong> {{{ data.ExemptStates }}}<br />
+					<strong><?php _e( 'Date:', 'LION' ); ?></strong> {{{ data.CreatedDate }}}<br />
+					<strong><?php _e( 'Purpose:', 'LION' ); ?></strong> {{{ data.PurchaserExemptionReason }}}<br />
+				<p>
+					<!-- <a href="#" id="it-exchange-aust-view-existing-certificate" class="view-existing-certificate button" data-cert-id="{{{ data.CertificateID }}}">View</a> -->
+					<a href="#" id="it-exchange-aust-use-existing-certificate" class="button" data-cert-id="{{{ data.CertificateID }}}"><?php _e( 'Use', 'LION' ); ?></a>
+					<a href="#" id="it-exchange-aust-remove-existing-certificate" class="button" data-cert-id="{{{ data.CertificateID }}}"><?php _e( 'Remove', 'LION' ); ?></a>
+				</p>
+			</div>
 		</div>
 	</script>
 	<?php

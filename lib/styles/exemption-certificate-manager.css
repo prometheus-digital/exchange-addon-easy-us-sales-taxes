@@ -21,9 +21,7 @@
 	text-decoration: none;
 }
 
-#it-exchange-advanced-us-taxes-exemption-manager-wrapper .it-exchange-aust-close-cert-manager a:hover {
-	color: #444;
-}
+#it-exchange-advanced-us-taxes-exemption-manager-wrapper .it-exchange-aust-close-cert-manager a:hover {color: #444;}
 
 #it-exchange-advanced-us-taxes-exemption-manager {
 	position: relative;
@@ -112,12 +110,34 @@
 	box-sizing: border-box;
 }
 
+#it-exchange-advanced-us-taxes-exemption-manager-add-new-certificates {
+	margin-bottom: 1em;
+	overflow:hidden;
+}
 /* Lew's Work Start */
 #it-exchange-advanced-us-taxes-exemption-manager-existing-certificates {
 	clear: both;
-	padding-top: 25px;
+	padding-top: 1em;
+	margin-top: 1em;
+	overflow:hidden;
+	border-top: 1px solid #ebebeb;
 }
 /* Lew's Work Stop */
+
+
+.it-exchange-advanced-us-taxes-exemption-manager-list-certs-content-area {padding:0 0 1em 0;margin-bottom:1em; border-bottom: 1px solid #ebebeb;overflow:hidden;}
+.it-exchange-advanced-us-taxes-exemption-manager-list-certs-content-area  .it-exchange-advanced-us-taxes-existing-exemption-image {
+	float:left;
+	margin-right: 1.5em;
+}
+.it-exchange-advanced-us-taxes-exemption-manager-list-certs-content-area  .it-exchange-advanced-us-taxes-existing-exemption-text {
+	float:left;
+}
+
+.it-exchange-advanced-us-taxes-exemption-manager-list-certs-content-area  .it-exchange-advanced-us-taxes-existing-exemption-text a {
+	margin-right: 1em;
+}
+
 
 @media screen and (max-width: 600px) {
 	#it-exchange-advanced-us-taxes-exemption-manager-content-area .it-exchange-advanced-us-taxes-add-exemption-section .it-exchange-exemption-section-half-width {
