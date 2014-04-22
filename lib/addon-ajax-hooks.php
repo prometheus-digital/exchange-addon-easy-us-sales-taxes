@@ -33,7 +33,6 @@ function it_exchange_advanced_us_taxes_addon_get_existing_certs() {
 			} else if ( isset( $result->GetExemptCertificatesResult->ResponseType ) ) {
 				if ( 'OK' == $result->GetExemptCertificatesResult->ResponseType ) {
 					$data = array();
-					wp_mail( 'lew@lewayotte.com', '$result', print_r( $result, true ) );
 					if ( !empty( $result->GetExemptCertificatesResult->ExemptCertificates->ExemptionCertificate ) ) {
 						if ( !is_array( $result->GetExemptCertificatesResult->ExemptCertificates->ExemptionCertificate ) ) {
 							$cert = $result->GetExemptCertificatesResult->ExemptCertificates->ExemptionCertificate;
