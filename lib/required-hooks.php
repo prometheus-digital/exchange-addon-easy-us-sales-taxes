@@ -80,9 +80,10 @@ function it_exchange_advanced_us_taxes_load_public_scripts( $current_view ) {
 		
 		wp_enqueue_style( 'ite-aut-addon-exemption-certificate-manager', $url_base . '/styles/exemption-certificate-manager.css' );
 		
-		//wp_localize_script( 'ite-aut-addon-exemption-certificate-manager', 'ite_aust_ajax', array( 'ajax_url' => admin_url( 'admin-ajax.php' ) ) );
+		wp_localize_script( 'ite-aut-addon-exemption-certificate-models', 'ite_aust_ajax', array( 'ajax_url' => admin_url( 'admin-ajax.php' ) ) );
 
 		
+		add_action( 'wp_footer', 'it_exchange_advanced_us_taxes_addon_manage_certificates_backbone_template' );
 		add_action( 'wp_footer', 'it_exchange_advanced_us_taxes_addon_list_existing_certificates_backbone_template' );
 		add_action( 'wp_footer', 'it_exchange_advanced_us_taxes_addon_add_new_certificate_backbone_template' );
 
@@ -378,60 +379,9 @@ function it_exchange_advanced_us_taxes_transaction_refund( $transaction, $amount
 }
 add_action( 'it_exchange_add_refund_to_transaction', 'it_exchange_advanced_us_taxes_transaction_refund', 10, 4 );
 
-function it_exchange_advanced_us_taxes_addon_list_existing_certificates_backbone_template() {
-
-	$errors = array();
-
-	//this stuff needs to be moved!
-	if ( is_user_logged_in() ) {
-	
-		$settings = it_exchange_get_option( 'addon_advanced_us_taxes' );
-		$customer = it_exchange_get_current_customer();
-
-		$query = array(
-			'apiLoginID'     => $settings['tax_cloud_api_id'],
-			'apiKey'         => $settings['tax_cloud_api_key'],
-			'customerID'     => $customer->ID,
-		);
-		
-		try {
-			$args = array(
-				'headers' => array(
-					'Content-Type' => 'application/json',
-				),
-				'body' => json_encode( $query ),
-		    );
-			$result = wp_remote_post( ITE_TAXCLOUD_API . 'GetExemptCertificates', $args );
-		
-			if ( is_wp_error( $result ) ) {
-				throw new Exception( $result->get_error_message() );
-			} else if ( !empty( $result['body'] ) ) {
-				$body = json_decode( $result['body'] );
-				if ( 0 != $body->ResponseType ) {
-					$exempt_certificates = $body->ExemptCertificates;
-				} else {
-					$errors = array();
-					foreach( $body->Messages as $message ) {
-						$errors[] = $message->ResponseType . ' ' . $message->Message;
-					}
-					throw new Exception( implode( ',', $errors ) );
-				}
-			} else {
-				throw new Exception( __( 'Unknown error when trying to authorize and capture a transaction with TaxCloud.net', 'LION' ) );
-			}
-		}
-	    catch( Exception $e ) {
-			$exchange = it_exchange_get_option( 'settings_general' );
-			$errors = sprintf( __( 'Unable to authorize transaction with TaxCloud.net: %s', 'LION' ), $e->getMessage() );
-	    }
-	} else {
-		
-		$errors[] = __( 'You must be logged in to apply for tax exemption', 'LION' );
-		
-	}
-	
+function it_exchange_advanced_us_taxes_addon_manage_certificates_backbone_template() {
 	?>
-	<script type="text/template" id="tmpl-it-exchange-advanced-us-taxes-list-certs-container">
+	<script type="text/template" id="tmpl-it-exchange-advanced-us-taxes-manage-certs-container">
 		<span class="it-exchange-aust-close-cert-manager"><a href="">&times;</a></span>
 		<div id="it-exchange-advanced-us-taxes-exemption-manager">
 			<div id="it-exchange-advanced-us-taxes-exemption-manager-title-area">
@@ -448,21 +398,32 @@ function it_exchange_advanced_us_taxes_addon_list_existing_certificates_backbone
 			
 			<div id="it-exchange-advanced-us-taxes-exemption-manager-content-area">
 				<div id="it-exchange-advanced-us-taxes-exemption-manager-error-area"></div>
-				<img title="Create/register a new Exemption Certificate" src="http://taxcloud.net/imgs/cert/new_certificate150x120.png" style="cursor:pointer;" height="120" width="150" align="left" />
+				<img title="Create/register a new Exemption Certificate" src="//taxcloud.net/imgs/cert/new_certificate150x120.png" style="cursor:pointer;" height="120" width="150" align="left" />
 				<?php
 				echo it_exchange_advanced_us_taxes_addon_add_exemption();
-			
-				if ( !empty( $exempt_certificates ) ) {
-					
-					foreach( $exempt_certificates as $cert ) {
-						
-						//do stuff
-						
-					}
-					
-				}
 				?>
+				<div id="it-exchange-advanced-us-taxes-exemption-manager-existing-certificates"></div>
 			</div>
+		</div>
+	</script>
+	<?php
+}
+
+function it_exchange_advanced_us_taxes_addon_list_existing_certificates_backbone_template() {
+	?>
+	<script type="text/template" id="tmpl-it-exchange-advanced-us-taxes-list-certs-container">
+		<div id="it-exchange-advanced-us-taxes-exemption-manager-list-certs-content-area">
+
+			<a class="view-existing-certificate" data-cert-id="{{{ data.CertificateID }}}" href="#"><img title="Existing Exemption Certificate" src="//taxcloud.net/imgs/cert/exemption_certificate150x120.png" style="cursor:pointer;" height="120" width="150" align="left" /></a>
+			<p><?php _e( 'Issued To:', 'LION' ); ?> {{{ data.PurchaserFirstName }}} {{{ data.PurchaserLastName }}}</p>
+			<p><?php _e( 'Exempt State(s):', 'LION' ); ?> {{{ data.ExemptStates }}}</p>
+			<p><?php _e( 'Date:', 'LION' ); ?> {{{ data.CreatedDate }}}</p>
+			<p><?php _e( 'Purpose:', 'LION' ); ?> {{{ data.PurchaserExemptionReason }}}</p>
+			<p>
+				<a href="#" id="it-exchange-aust-remove-existing-certificate" class="button" data-cert-id="{{{ data.CertificateID }}}">Remove</a>
+				<a href="#" id="it-exchange-aust-view-existing-certificate" class="view-existing-certificate button" data-cert-id="{{{ data.CertificateID }}}">View</a>
+				<a href="#" id="it-exchange-aust-use-existing-certificate" class="button" data-cert-id="{{{ data.CertificateID }}}">Use</a>
+			</p>
 		</div>
 	</script>
 	<?php

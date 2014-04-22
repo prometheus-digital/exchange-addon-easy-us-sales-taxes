@@ -5,12 +5,192 @@
  *
  * @since 1.0.0
 */
-function it_exchange_advanced_us_taxes_addon_get_certs() {	
-	error_log( 'it_exchange_advanced_us_taxes_addon_get_certs' );
-	//wp_send_json_error( 'it_exchange_advanced_us_taxes_addon_print_tax_certs' );
-	wp_send_json_success( 'it_exchange_advanced_us_taxes_addon_get_certs' );
+function it_exchange_advanced_us_taxes_addon_get_existing_certs() {	
+
+	if ( !is_user_logged_in() ) {
+	
+		$errors[] = __( 'You must be logged in to get your Tax Exempt Certificates', 'LION' );
+		
+	} else {
+	
+		$settings = it_exchange_get_option( 'addon_advanced_us_taxes' );
+		$customer = it_exchange_get_current_customer();
+
+		$query = array(
+			'apiLoginID'     => $settings['tax_cloud_api_id'],
+			'apiKey'         => $settings['tax_cloud_api_key'],
+			'customerID'     => $customer->ID,
+		);
+		
+		try {
+		
+			$soap_client = new SOAPClient( 'https://api.taxcloud.net/1.0/?wsdl', array( 'trace' => true, 'soap_version' => SOAP_1_2 ) );
+
+			$result = $soap_client->GetExemptCertificates( $query );
+			
+			if ( is_soap_fault( $result ) ) {
+				throw new Exception( $result->faultstring() );
+			} else if ( isset( $result->GetExemptCertificatesResult->ResponseType ) ) {
+				if ( 'OK' == $result->GetExemptCertificatesResult->ResponseType ) {
+					$data = array();
+					wp_mail( 'lew@lewayotte.com', '$result', print_r( $result, true ) );
+					if ( !empty( $result->GetExemptCertificatesResult->ExemptCertificates->ExemptionCertificate ) ) {
+						if ( !is_array( $result->GetExemptCertificatesResult->ExemptCertificates->ExemptionCertificate ) ) {
+							$cert = $result->GetExemptCertificatesResult->ExemptCertificates->ExemptionCertificate;
+							
+							if ( !empty( $certs->Detail->SinglePurchase ) )
+								continue;
+						
+							$new_cert['CertificateID']            = $cert->CertificateID;
+							$new_cert['PurchaserFirstName']       = $cert->Detail->PurchaserFirstName;
+							$new_cert['PurchaserLastName']        = !empty( $cert->Detail->PurchaserLastName ) ? $cert->Detail->PurchaserLastName : '';
+							$new_cert['ExemptStates']             = it_exchange_advanced_us_taxes_addon_convert_exempt_states_to_string( $cert->Detail->ExemptStates );
+							$new_cert['CreatedDate']              = it_exchange_advanced_us_taxes_addon_convert_exempt_createdate_to_date_format( $cert->Detail->CreatedDate );
+							$new_cert['PurchaserExemptionReason'] = it_exchange_advanced_us_taxes_addon_convert_reason_to_readable_string( $cert->Detail->PurchaserExemptionReason, $cert->Detail->PurchaserExemptionReason, $cert->Detail->PurchaserExemptionReasonValue );
+							$data[] = $new_cert;
+							
+						} else {
+							foreach ( $result->GetExemptCertificatesResult->ExemptCertificates->ExemptionCertificate as $cert ) {
+								if ( !empty( $certs->Detail->SinglePurchase ) )
+									continue;
+							
+								$new_cert['CertificateID']            = $cert->CertificateID;
+								$new_cert['PurchaserFirstName']       = $cert->Detail->PurchaserFirstName;
+								$new_cert['PurchaserLastName']        = !empty( $cert->Detail->PurchaserLastName ) ? $cert->Detail->PurchaserLastName : '';
+								$new_cert['ExemptStates']             = it_exchange_advanced_us_taxes_addon_convert_exempt_states_to_string( $cert->Detail->ExemptStates );
+								$new_cert['CreatedDate']              = it_exchange_advanced_us_taxes_addon_convert_exempt_createdate_to_date_format( $cert->Detail->CreatedDate );
+								$new_cert['PurchaserExemptionReason'] = it_exchange_advanced_us_taxes_addon_convert_reason_to_readable_string( $cert->Detail->PurchaserExemptionReason, $cert->Detail->PurchaserExemptionReason, $cert->Detail->PurchaserExemptionReasonValue );
+								$data[] = $new_cert;
+							}
+						}
+					}
+					wp_send_json_success( $data );
+				} else {
+					$local_errors = array();
+					foreach( $result->GetExemptCertificatesResult->Messages as $message ) {
+						$local_errors[] = $message->Message;
+					}
+					throw new Exception( implode( ',', $local_errors ) );
+				}
+			} else {
+				throw new Exception( __( 'Unknown error when adding certificate on TaxCloud.net', 'LION' ) );
+			}
+			
+		}
+	    catch( Exception $e ) {
+			$exchange = it_exchange_get_option( 'settings_general' );
+			$errors[] = sprintf( __( 'Unable to add certificate on TaxCloud.net: %s', 'LION' ), $e->getMessage() );
+	    }
+	    	
+		/*
+		try {
+			$args = array(
+				'headers' => array(
+					'Content-Type' => 'application/json',
+				),
+				'body' => json_encode( $query ),
+		    );
+			$result = wp_remote_post( ITE_TAXCLOUD_API . 'GetExemptCertificates', $args );
+		
+			if ( is_wp_error( $result ) ) {
+				throw new Exception( $result->get_error_message() );
+			} else if ( !empty( $result['body'] ) ) {
+				$body = json_decode( $result['body'] );
+				if ( 3 == $body->ResponseType ) {
+					$data = array();
+					foreach ( $body->ExemptCertificates as $certs ) {
+						$new_cert['CertificateID']            = $certs->CertificateID;
+						$new_cert['PurchaserFirstName']       = $certs->Detail->PurchaserFirstName;
+						$new_cert['PurchaserLastName']        = $certs->Detail->PurchaserLastName;
+						$new_cert['ExemptStates']             = $certs->Detail->ExemptStates;
+						$new_cert['CreatedDate']              = $certs->Detail->CreatedDate;
+						$new_cert['PurchaserExemptionReason'] = $certs->Detail->PurchaserExemptionReason;
+						$data[] = $new_cert;
+					}
+					die( json_encode( $data ) );
+					//wp_send_json_success( $data );
+				} else {
+					$errors = array();
+					foreach( $body->Messages as $message ) {
+						$errors[] = $message->ResponseType . ' ' . $message->Message;
+					}
+					throw new Exception( implode( ',', $errors ) );
+				}
+			} else {
+				throw new Exception( __( 'Unknown error when trying to authorize and capture a transaction with TaxCloud.net', 'LION' ) );
+			}
+		}
+	    catch( Exception $e ) {
+			$exchange = it_exchange_get_option( 'settings_general' );
+			$errors = sprintf( __( 'Unable to authorize transaction with TaxCloud.net: %s', 'LION' ), $e->getMessage() );
+	    }
+		/**/
+		
+	}
+	
+	wp_send_json_error( $errors );
+
 }
-add_action( 'wp_ajax_it-exchange-advanced-us-taxes-get-certs', 'it_exchange_advanced_us_taxes_addon_get_certs' );
+add_action( 'wp_ajax_it-exchange-aust-existing-get-existing-certs', 'it_exchange_advanced_us_taxes_addon_get_existing_certs' );
+
+function it_exchange_advanced_us_taxes_addon_remove_existing_cert() {
+
+	if ( !is_user_logged_in() ) {
+	
+		$errors[] = __( 'You must be logged in to remove your Tax Exempt Certificates', 'LION' );
+		
+	} else {
+	
+		if ( !empty( $_POST ) ) {
+	
+			$settings = it_exchange_get_option( 'addon_advanced_us_taxes' );
+			$customer = it_exchange_get_current_customer();
+	
+			$query = array(
+				'apiLoginID'     => $settings['tax_cloud_api_id'],
+				'apiKey'         => $settings['tax_cloud_api_key'],
+				'certificateID'  => $_POST['id'],
+			);
+		    	
+			try {
+				$args = array(
+					'headers' => array(
+						'Content-Type' => 'application/json',
+					),
+					'body' => json_encode( $query ),
+			    );
+				$result = wp_remote_post( ITE_TAXCLOUD_API . 'DeleteExemptCertificate', $args );
+			
+				if ( is_wp_error( $result ) ) {
+					throw new Exception( $result->get_error_message() );
+				} else if ( !empty( $result['body'] ) ) {
+					$body = json_decode( $result['body'] );
+					if ( 3 == $body->ResponseType ) {
+						wp_send_json_success();
+					} else {
+						$local_errors = array();
+						foreach( $body->Messages as $message ) {
+							$local_errors[] = $message->ResponseType . ' ' . $message->Message;
+						}
+						throw new Exception( implode( ',', $local_errors ) );
+					}
+				} else {
+					throw new Exception( __( 'Unknown error when trying to authorize and capture a transaction with TaxCloud.net', 'LION' ) );
+				}
+			}
+		    catch( Exception $e ) {
+				$exchange = it_exchange_get_option( 'settings_general' );
+				$errors = sprintf( __( 'Unable to authorize transaction with TaxCloud.net: %s', 'LION' ), $e->getMessage() );
+		    }
+		    
+		}
+	
+	}
+
+	wp_send_json_error( $errors );
+
+}
+add_action( 'wp_ajax_it-exchange-aust-existing-remove-existing-cert', 'it_exchange_advanced_us_taxes_addon_remove_existing_cert' );
 
 /**
  * Ajax called from Thickbox to show the User's Add Product Screen.
@@ -185,9 +365,9 @@ function it_exchange_advanced_us_taxes_addon_add_cert() {
 							$soap_client = new SOAPClient( 'https://api.taxcloud.net/1.0/?wsdl', array( 'trace' => true, 'soap_version' => SOAP_1_2 ) );
 		
 							$result = $soap_client->AddExemptCertificate( $query );
-							
-							if ( is_error( $result ) ) {
-								throw new Exception( $result->get_error_message() );
+											
+							if ( is_soap_fault( $result ) ) {
+								throw new Exception( $result->faultstring() );
 							} else if ( isset( $result->ResponseType ) ) {
 								if ( 'OK' == $result->ResponseType ) {
 									//add the certificate ID to a sessions variable

@@ -112,6 +112,13 @@
 	box-sizing: border-box;
 }
 
+/* Lew's Work Start */
+#it-exchange-advanced-us-taxes-exemption-manager-existing-certificates {
+	clear: both;
+	padding-top: 25px;
+}
+/* Lew's Work Stop */
+
 @media screen and (max-width: 600px) {
 	#it-exchange-advanced-us-taxes-exemption-manager-content-area .it-exchange-advanced-us-taxes-add-exemption-section .it-exchange-exemption-section-half-width {
 		float:none;

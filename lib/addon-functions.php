@@ -196,3 +196,45 @@ function it_exchange_advanced_us_taxes_addon_add_exemption( $echo=false ) {
 	else
 		return $output;
 }
+
+function it_exchange_advanced_us_taxes_addon_convert_exempt_states_to_string( $tax_cloud_states_object ) {
+	$states = array();
+	if ( !empty( $tax_cloud_states_object ) ) {
+		
+		foreach ( $tax_cloud_states_object as $state ) {
+			$states[] = $state->StateAbbr;
+		}
+		
+	}
+	return implode( ',', $states );
+}
+
+function it_exchange_advanced_us_taxes_addon_convert_exempt_createdate_to_date_format( $gm_date ) {
+    $format = empty( $format ) ? get_option( 'date_format' ) : $format;
+
+	$date = apply_filters( 'it_exchange_advanced_us_taxes_addon_convert_exempt_createdate_to_date_format', date_i18n( $format, strtotime( $gm_date ) ), $gm_date, $format );
+
+	return $date;
+}
+
+function it_exchange_advanced_us_taxes_addon_convert_reason_to_readable_string( $reason_string, $reason_explained ) {
+	$exemption_types = array(
+		'FederalGovernmentDepartment' => __( 'Federal Government Department', 'LION' ),
+		'StateOrLocalGovernmentName' => __( 'State or Local Government', 'LION' ),
+		'TribalGovernmentName' => __( 'Tribal Government', 'LION' ),
+		'ForeignDiplomat' => __( 'Foreign Diplomat', 'LION' ),
+		'CharitableOrganization' => __( 'Charitable Organization', 'LION' ),
+		'ReligiousOrEducationalOrganization' => __( 'Religious or Educational Organization', 'LION' ),
+		'Resale' => __( 'Resale', 'LION' ),
+		'AgriculturalProduction' => __( 'Agricultural Production', 'LION' ),
+		'IndustrialProductionOrManufacturing' => __( 'Industrial Production or Manufacturing', 'LION' ),
+		'DirectPayPermit' => __( 'Direct Pay Permit', 'LION' ),
+		'DirectMail' => __( 'Direct Mail', 'LION' ),
+		'Other' => __( 'Other', 'LION' ),
+	);
+	
+	if ( 'Other' === $reason_string )
+		return $reason_explained;
+	else
+		return !empty( $exemption_types[$reason_string] ) ? $exemption_types[$reason_string] : $reason_string;
+}
