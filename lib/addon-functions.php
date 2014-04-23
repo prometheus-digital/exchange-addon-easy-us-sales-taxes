@@ -181,7 +181,7 @@ function it_exchange_advanced_us_taxes_addon_exemptions( $echo=false ) {
 	$output = '';
 	
 	if ( is_user_logged_in() )
-		$output = '<p class="description"><a href="#" title="' . __( 'Manage Certificate Exemptions', 'LION' ) . '" id="it-exchange-advanced-us-tax-list-existing-certs">' . __( 'Are you Tax Exempt?', 'LION' ) . '</a></p>';
+		$output = '<div id="it-exchange-advanced-us-taxes-exempt-label" class="description"><a href="#" title="' . __( 'Manage Certificate Exemptions', 'LION' ) . '" id="it-exchange-advanced-us-tax-list-existing-certs">' . __( 'Tax Exempt?', 'LION' ) . '</a></div>';
 	
 	if ( $echo )
 		echo $output;

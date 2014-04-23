@@ -1,3 +1,5 @@
+#it-exchange-advanced-us-taxes-exempt-label { line-height: 1.2; font-size: .75em; }
+
 #it-exchange-advanced-us-taxes-exemption-manager-wrapper {background: #FFF;background: rgba(255,255,255,0.7);z-index: 100001;position: fixed;top: 0;right: 0;bottom: 0;left: 0;}
 #it-exchange-advanced-us-taxes-exemption-manager-wrapper .it-exchange-aust-close-cert-manager {position: fixed;top: 10px;right: 10px;}
 #it-exchange-advanced-us-taxes-exemption-manager-wrapper .it-exchange-aust-close-cert-manager a {color: #222;font-size: 3em;line-height: 1em;text-decoration: none;}
