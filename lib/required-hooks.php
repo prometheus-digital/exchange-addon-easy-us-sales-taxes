@@ -65,7 +65,8 @@ add_action( 'admin_enqueue_scripts', 'it_exchange_advanced_us_taxes_addon_admin_
 function it_exchange_advanced_us_taxes_load_public_scripts( $current_view ) {
 	
 	// ****** CART/CHECKOUT SPECIFIC SCRIPTS *******
-	if ( it_exchange_is_page( 'checkout' ) || it_exchange_is_page( 'cart' ) ) {
+	if ( it_exchange_is_page( 'checkout' ) || it_exchange_is_page( 'cart' ) 
+		|| it_exchange_in_superwidget() ) {
 
 		$url_base = ITUtility::get_url_from_file( dirname( __FILE__ ) );
 
@@ -80,7 +81,7 @@ function it_exchange_advanced_us_taxes_load_public_scripts( $current_view ) {
 		
 		wp_enqueue_style( 'ite-aut-addon-exemption-certificate-manager', $url_base . '/styles/exemption-certificate-manager.css' );
 		
-		wp_localize_script( 'ite-aut-addon-exemption-certificate-models', 'ite_aust_ajax', array( 'ajax_url' => admin_url( 'admin-ajax.php' ) ) );
+		//wp_localize_script( 'ite-aut-addon-exemption-certificate-models', 'ite_aust_ajax', array( 'ajax_url' => admin_url( 'admin-ajax.php' ) ) );
 
 		
 		add_action( 'wp_footer', 'it_exchange_advanced_us_taxes_addon_manage_certificates_backbone_template' );
@@ -92,6 +93,7 @@ function it_exchange_advanced_us_taxes_load_public_scripts( $current_view ) {
 
 }
 add_action( 'wp_enqueue_scripts', 'it_exchange_advanced_us_taxes_load_public_scripts' );
+add_action( 'it_exchange_enqueue_super_widget_scripts', 'it_exchange_advanced_us_taxes_load_public_scripts' );
 
 /**
  * Enqueues Advanced U.S. Taxes styles to WordPress Dashboard

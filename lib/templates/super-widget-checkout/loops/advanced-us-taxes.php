@@ -19,6 +19,7 @@
 <div class="cart-taxes cart-totals-row">
 	<?php do_action( 'it_exchange_super_widget_checkout_begin_advanced_us_taxes_element' ); ?>
 	<?php _e( 'Tax', 'LION' ) . _x( ':', 'Used in superwidget for taxes. eg Tax: ', 'LION' ); ?> <?php esc_attr_e( it_exchange_advanced_us_taxes_addon_get_taxes_for_cart() ); ?>
+	<p><?php echo it_exchange_advanced_us_taxes_addon_exemptions(); ?></p>
 	<?php do_action( 'it_exchange_super_widget_checkout_end_advanced_us_taxes_element' ); ?>
 </div>
 <?php do_action( 'it_exchange_super_widget_checkout_after_advanced_us_taxes_element' ); ?>

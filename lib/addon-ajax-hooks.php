@@ -208,7 +208,7 @@ function it_exchange_advanced_us_taxes_addon_use_existing_cert() {
 	
 		if ( !empty( $_POST ) ) {
 
-			error_log( var_export( it_exchange_is_page(), true ) );
+			error_log( var_export( wp_referer_field( 'false' ), true ) );
 			wp_send_json_success( 'blah' );
 		    
 		}
