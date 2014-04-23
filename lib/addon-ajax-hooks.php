@@ -206,10 +206,14 @@ function it_exchange_advanced_us_taxes_addon_use_existing_cert() {
 		
 	} else {
 	
-		if ( !empty( $_POST ) ) {
-
-			error_log( var_export( wp_referer_field( 'false' ), true ) );
-			wp_send_json_success( 'blah' );
+		if ( !empty( $_POST ) && !empty( $_POST['cert_id'] ) ) {
+			
+			$tax_cloud_session = it_exchange_get_session_data( 'addon_advanced_us_taxes' );
+			$tax_cloud_session['exempt_certificate'] = array( 'CertificateID' => $_POST['cert_id'] );
+			$tax_cloud_session['new_certificate'] = true;
+			it_exchange_update_session_data( 'addon_advanced_us_taxes', $tax_cloud_session );
+			
+			wp_send_json_success();
 		    
 		}
 	
@@ -421,11 +425,18 @@ function it_exchange_advanced_us_taxes_addon_add_cert() {
 					}
 					/**/
 					
-					error_log( it_exchange_is_page() );
-					
 					if ( 'single' == $_POST['exempt_type'] ) {
 						
-						//add the query to a session variable
+						// w/ Tax Cloud, if it is a single use certificate, we do not add it to their database
+						// with the AddExemptCertificate API, it gets added to the tax query 
+						// in it_exchange_advanced_us_taxes_addon_get_taxes_for_cart()
+						$tax_cloud_session = it_exchange_get_session_data( 'addon_advanced_us_taxes' );
+						$cert = $query['exemptCert'];
+						unset( $cert['CertificateID']);
+						$tax_cloud_session['exempt_certificate'] = $cert;
+						$tax_cloud_session['new_certificate'] = true;
+						it_exchange_update_session_data( 'addon_advanced_us_taxes', $tax_cloud_session );
+						wp_send_json_success( 'it-aust-single-cert-added' );
 						
 					} else {
 

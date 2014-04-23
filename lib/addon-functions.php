@@ -59,109 +59,114 @@ function it_exchange_advanced_us_taxes_addon_get_taxes_for_cart(  $format_price=
 	
 	$products = it_exchange_get_cart_products();
 	$products_hash = md5( maybe_serialize( $products ) );
-		
-	// If we don't have a cache of the taxes, we need to calculate one
-	// OR if we don't have a cache of the products_hash OR if the current cache doesn't match the current products hash
-	if ( empty( $tax_cloud_session['taxes'] ) ) {
-		if ( empty( $tax_cloud_session['products_hash'] )
-			|| $tax_cloud_session['products_hash'] !== $products_hash ) {
-		
-			$product_count = it_exchange_get_cart_products_count( true );
-			$applied_coupons = it_exchange_get_applied_coupons();
-			$customer = it_exchange_get_current_customer();
-				
-			$cart_items = array();
-			$i = 0;
-			//build the TaxCloud Query
-			foreach( $products as $product ) {
-				$price = it_exchange_get_cart_product_base_price( $product, false );
-				$product_tic = it_exchange_get_product_feature( $product['product_id'], 'us-tic', array( 'setting' => 'code' ) );
-				if ( !empty( $applied_coupons ) ) {
-					foreach( $applied_coupons as $type => $coupons ) {
-						foreach( $coupons as $coupon ) {
-							if ( 'cart' === $type ) {
+			
+	// if we don't have a cache of the products_hash OR if the current cache doesn't match the current products hash
+	if ( empty( $tax_cloud_session['products_hash'] )
+		|| $tax_cloud_session['products_hash'] !== $products_hash 
+		|| !empty( $tax_cloud_session['new_certificate'] ) ) {
+	
+		$product_count = it_exchange_get_cart_products_count( true );
+		$applied_coupons = it_exchange_get_applied_coupons();
+		$customer = it_exchange_get_current_customer();
+			
+		$cart_items = array();
+		$i = 0;
+		//build the TaxCloud Query
+		foreach( $products as $product ) {
+			$price = it_exchange_get_cart_product_base_price( $product, false );
+			$product_tic = it_exchange_get_product_feature( $product['product_id'], 'us-tic', array( 'setting' => 'code' ) );
+			if ( !empty( $applied_coupons ) ) {
+				foreach( $applied_coupons as $type => $coupons ) {
+					foreach( $coupons as $coupon ) {
+						if ( 'cart' === $type ) {
+							if ( '%' === $coupon['amount_type'] ) {
+								$price *= ( $coupon['amount_number'] / 100 );
+							} else {
+								$price -= ( $coupon['amount_number'] / $product_count );
+							}
+						} else if ( 'product' === $type ) {
+							if ( $coupon['product_id'] === $product['product_id'] ) {
 								if ( '%' === $coupon['amount_type'] ) {
 									$price *= ( $coupon['amount_number'] / 100 );
 								} else {
 									$price -= ( $coupon['amount_number'] / $product_count );
 								}
-							} else if ( 'product' === $type ) {
-								if ( $coupon['product_id'] === $product['product_id'] ) {
-									if ( '%' === $coupon['amount_type'] ) {
-										$price *= ( $coupon['amount_number'] / 100 );
-									} else {
-										$price -= ( $coupon['amount_number'] / $product_count );
-									}
-								}
 							}
 						}
 					}
 				}
-				
-				$cart_items[] = array(
-					'Index'  => $i,
-					'TIC'    => $product_tic,
-					'ItemID' => $product['product_id'],
-					'Price'  => $price,
-					'Qty'    => $product['count'],
-				);
-				$i++;
 			}
 			
-			$excempt_cert = null;
-	
-			$query = array(
-				'apiLoginID'        => $settings['tax_cloud_api_id'],
-				'apiKey'            => $settings['tax_cloud_api_key'],
-				'customerID'        => $customer->ID,
-				'cartID'            => '',
-				'cartItems'         => $cart_items,
-				'origin'            => $origin,
-				'destination'       => $dest,
-				'deliveredBySeller' => FALSE,
-				'exemptCert'        => $excempt_cert,
+			$cart_items[] = array(
+				'Index'  => $i,
+				'TIC'    => $product_tic,
+				'ItemID' => $product['product_id'],
+				'Price'  => $price,
+				'Qty'    => $product['count'],
 			);
-			
-			try {
-	        	$args = array(
-	        		'headers' => array(
-	        			'Content-Type' => 'application/json',
-	        		),
-					'body' => json_encode( $query ),
-			    );
-	        	$result = wp_remote_post( ITE_TAXCLOUD_API . 'Lookup', $args );
-	
-				if ( is_wp_error( $result ) ) {
-					throw new Exception( $result->get_error_message() );
-				} else if ( !empty( $result['body'] ) ) {
-					$body = json_decode( $result['body'] );
-					if ( 0 != $body->ResponseType ) {
-						$checkout_taxes = 0;
-						foreach( $body->CartItemsResponse as $item ) {
-							$checkout_taxes += $item->TaxAmount;
-						}
-						$taxes = apply_filters( 'it_exchange_advanced_us_taxes_addon_get_taxes_for_cart', $checkout_taxes );
-						$tax_cloud_session['cart_id'] = $body->CartID; //we need this to authorize and capture the tax
-						$tax_cloud_session['products_hash'] = $products_hash;
-					} else {
-						$errors = array();
-						foreach( $body->Messages as $message ) {
-							$errors[] = $message->Message;
-						}
-						throw new Exception( sprintf( __( 'Unable to calculate Tax: %s', 'LION' ), implode( ',', $errors ) ) );
-	
-					}
-				} else {
-					throw new Exception( __( 'Unable to verify calculate Tax: Unknown Error', 'LION' ) );
-				}
-	        } 
-	        catch( Exception $e ) {
-				$errors[] = $e->getMessage();
-				$new_values['business_verified'] = false;
-	        }
+			$i++;
 		}
+
+		if ( !empty( $tax_cloud_session['exempt_certificate'] ) ) {		
+			$exempt_cert = $tax_cloud_session['exempt_certificate'];
+			$tax_cloud_session['new_certificate'] = false;
+		} else {
+			$exempt_cert = null;
+		}
+
+		$query = array(
+			'apiLoginID'        => $settings['tax_cloud_api_id'],
+			'apiKey'            => $settings['tax_cloud_api_key'],
+			'customerID'        => $customer->ID,
+			'cartID'            => '',
+			'cartItems'         => $cart_items,
+			'origin'            => $origin,
+			'destination'       => $dest,
+			'deliveredBySeller' => FALSE,
+			'exemptCert'        => $exempt_cert,
+		);
+		
+		try {
+        	$args = array(
+        		'headers' => array(
+        			'Content-Type' => 'application/json',
+        		),
+				'body' => json_encode( $query ),
+		    );
+        	$result = wp_remote_post( ITE_TAXCLOUD_API . 'Lookup', $args );
+
+			if ( is_wp_error( $result ) ) {
+				throw new Exception( $result->get_error_message() );
+			} else if ( !empty( $result['body'] ) ) {
+				$body = json_decode( $result['body'] );
+				if ( 0 != $body->ResponseType ) {
+					$checkout_taxes = 0;
+					foreach( $body->CartItemsResponse as $item ) {
+						$checkout_taxes += $item->TaxAmount;
+					}
+					$taxes = apply_filters( 'it_exchange_advanced_us_taxes_addon_get_taxes_for_cart', $checkout_taxes );
+					$tax_cloud_session['cart_id'] = $body->CartID; //we need this to authorize and capture the tax
+					$tax_cloud_session['products_hash'] = $products_hash;
+				} else {
+					$errors = array();
+					foreach( $body->Messages as $message ) {
+						$errors[] = $message->Message;
+					}
+					throw new Exception( sprintf( __( 'Unable to calculate Tax: %s', 'LION' ), implode( ',', $errors ) ) );
+
+				}
+			} else {
+				throw new Exception( __( 'Unable to verify calculate Tax: Unknown Error', 'LION' ) );
+			}
+        } 
+        catch( Exception $e ) {
+			$errors[] = $e->getMessage();
+			$new_values['business_verified'] = false;
+        }
 	} else {
+	
 		$taxes = $tax_cloud_session['taxes'];
+		
 	}
 				
 	$tax_cloud_session['taxes'] = $taxes;

@@ -64,11 +64,12 @@ add_action( 'admin_enqueue_scripts', 'it_exchange_advanced_us_taxes_addon_admin_
 */
 function it_exchange_advanced_us_taxes_load_public_scripts( $current_view ) {
 	
-	// ****** CART/CHECKOUT SPECIFIC SCRIPTS *******
-	if ( it_exchange_is_page( 'checkout' ) || it_exchange_is_page( 'cart' ) 
-		|| it_exchange_in_superwidget() ) {
+	if ( it_exchange_is_page( 'checkout' ) || it_exchange_in_superwidget() ) {
 
 		$url_base = ITUtility::get_url_from_file( dirname( __FILE__ ) );
+		
+		if ( it_exchange_is_page( 'checkout' ) )
+			wp_enqueue_script( 'ite-aut-addon-checkout-page-var',  $url_base . '/js/checkout-page.js' );
 
 		$deps = array( 'jquery', 'wp-backbone', 'underscore' );
 		wp_enqueue_script( 'ite-aut-addon-exemption-certificate-models',  $url_base . '/js/models/exemption-certificate-models.js', $deps );
@@ -81,15 +82,11 @@ function it_exchange_advanced_us_taxes_load_public_scripts( $current_view ) {
 		
 		wp_enqueue_style( 'ite-aut-addon-exemption-certificate-manager', $url_base . '/styles/exemption-certificate-manager.css' );
 		
-		//wp_localize_script( 'ite-aut-addon-exemption-certificate-models', 'ite_aust_ajax', array( 'ajax_url' => admin_url( 'admin-ajax.php' ) ) );
-
-		
 		add_action( 'wp_footer', 'it_exchange_advanced_us_taxes_addon_manage_certificates_backbone_template' );
 		add_action( 'wp_footer', 'it_exchange_advanced_us_taxes_addon_list_existing_certificates_backbone_template' );
 		add_action( 'wp_footer', 'it_exchange_advanced_us_taxes_addon_add_new_certificate_backbone_template' );
 
 	}
-	// ****** END CART/CHECKOUT SPECIFIC SCRIPTS *******
 
 }
 add_action( 'wp_enqueue_scripts', 'it_exchange_advanced_us_taxes_load_public_scripts' );
@@ -155,7 +152,7 @@ function it_exchange_advanced_us_taxes_addon_add_taxes_to_template_totals_elemen
 	array_splice( $elements, $index, 0, 'advanced-us-taxes' );
 	return $elements;
 }
-add_filter( 'it_exchange_get_content_cart_totals_elements', 'it_exchange_advanced_us_taxes_addon_add_taxes_to_template_totals_elements' );
+//add_filter( 'it_exchange_get_content_cart_totals_elements', 'it_exchange_advanced_us_taxes_addon_add_taxes_to_template_totals_elements' );
 add_filter( 'it_exchange_get_content_checkout_totals_elements', 'it_exchange_advanced_us_taxes_addon_add_taxes_to_template_totals_elements' );
 add_filter( 'it_exchange_get_content_confirmation_transaction_summary_elements', 'it_exchange_advanced_us_taxes_addon_add_taxes_to_template_totals_elements' );
 
@@ -196,7 +193,7 @@ function it_exchange_advanced_us_taxes_addon_taxes_register_templates( $template
 	// Bail if not looking for one of our templates
 	$add_path = false;
 	$templates = array(
-		'content-cart/elements/advanced-us-taxes.php',
+	//	'content-cart/elements/advanced-us-taxes.php',
 		'content-checkout/elements/advanced-us-taxes.php',
 		'content-confirmation/elements/advanced-us-taxes.php',
 		'super-widget-checkout/loops/advanced-us-taxes.php',
@@ -222,7 +219,8 @@ add_filter( 'it_exchange_possible_template_paths', 'it_exchange_advanced_us_taxe
  * @return
 */
 function it_exchange_advanced_us_taxes_addon_taxes_modify_total( $total ) {
-	$total += it_exchange_advanced_us_taxes_addon_get_taxes_for_cart( false );
+	if ( it_exchange_is_page( 'checkout' ) )
+		$total += it_exchange_advanced_us_taxes_addon_get_taxes_for_cart( false );
 	return $total;
 }
 add_filter( 'it_exchange_get_cart_total', 'it_exchange_advanced_us_taxes_addon_taxes_modify_total' );
