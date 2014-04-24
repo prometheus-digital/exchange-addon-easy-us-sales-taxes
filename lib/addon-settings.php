@@ -38,7 +38,6 @@ function it_exchange_advanced_us_taxes_default_settings( $defaults ) {
 		'business_zip_4'       => '',
 		'business_verified'    => false,
 		'tax_exemptions'       => false,
-		'show_zero_tax'        => false,
 		'default_tax_class'    => '',
 		'tax_shipping_address' => false,
 	);
@@ -141,9 +140,19 @@ class IT_Exchange_Advanced_US_Taxes_Add_On {
 		?>
 		
         <div class="it-exchange-addon-settings it-exchange-advanced-us-taxes-addon-settings">
-            <h4><?php _e( 'Tax Cloud Settings', 'LION' ) ?></h4>
+            <h4>
+            	<?php _e( 'Tax Cloud Settings', 'LION' ) ?> 
+                <?php 
+                if ( !empty( $settings['tax_cloud_verified'] ) )
+               		$hidden_class = '';
+               	else
+               		$hidden_class = 'hidden';
+               		
+               	echo '<img src="' . ITUtility::get_url_from_file( dirname( __FILE__ ) ) . '/images/check.png" class="check ' . $hidden_class . '" id="it-exchange-aust-taxcloud-verified" title="' . __( 'Tax Cloud Settings Verified', 'LION' ) . '" height="15" >';
+                ?>
+            </h4>
             <p>
-                <label for="advanced-us-taxes-tax_cloud_api_id"><?php _e( 'TaxCloud API ID', 'LION' ) ?> <span class="tip" title="<?php _e( 'CHANGEME CHANGEME CHANGEME', 'LION' ); ?>">i</span></label>
+                <label for="advanced-us-taxes-tax_cloud_api_id"><?php _e( 'TaxCloud API ID', 'LION' ) ?> <span class="tip" title="<?php _e( 'CHANGEME CHANGEME CHANGEME', 'LION' ); ?>">i</span> </label>
                 <?php $form->add_text_box( 'tax_cloud_api_id' ); ?>
             </p>
             <p>
@@ -157,7 +166,17 @@ class IT_Exchange_Advanced_US_Taxes_Add_On {
                 <?php $form->add_text_box( 'usps_user_id' ); ?>
             </p>
             
-            <h4><?php _e( 'Primary Business Address', 'LION' ) ?></h4>
+            <h4>
+            	<?php _e( 'Primary Business Address', 'LION' ) ?>
+                <?php 
+                if ( !empty( $settings['business_verified'] ) )
+               		$hidden_class = '';
+               	else
+               		$hidden_class = 'hidden';
+               		
+               	echo '<img src="' . ITUtility::get_url_from_file( dirname( __FILE__ ) ) . '/images/check.png" class="check ' . $hidden_class . '" id="it-exchange-aust-business-verified" title="' . __( 'Business Address Verified', 'LION' ) . '" height="15">';
+                ?>
+            </h4>
             <p>
                 <label for="advanced-us-taxes-business_address_1"><?php _e( 'Address 1', 'LION' ) ?></label>
                 <?php $form->add_text_box( 'business_address_1' ); ?>
@@ -186,10 +205,6 @@ class IT_Exchange_Advanced_US_Taxes_Add_On {
             <p>
                 <?php $form->add_check_box( 'tax_exemptions' ); ?>
                 <label for="tax_exemptions"><?php _e( 'Enable Tax Exemptions?', 'LION' ) ?></label>
-            </p>
-            <p>
-                <?php $form->add_check_box( 'show_zero_tax' ); ?>
-                <label for="show_zero_tax"><?php _e( 'Display Zero Tax?', 'LION' ) ?></label>
             </p>
             <p>
                 <?php $form->add_check_box( 'tax_shipping_address' ); ?>

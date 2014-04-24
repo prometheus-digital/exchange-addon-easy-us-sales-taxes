@@ -107,7 +107,7 @@ function it_exchange_advanced_us_taxes_addon_get_taxes_for_cart(  $format_price=
 			$i++;
 		}
 
-		if ( !empty( $tax_cloud_session['exempt_certificate'] ) ) {		
+		if ( !empty( $settings['tax_exemptions'] ) && !empty( $tax_cloud_session['exempt_certificate'] ) ) {		
 			$exempt_cert = $tax_cloud_session['exempt_certificate'];
 			$tax_cloud_session['new_certificate'] = false;
 		} else {
@@ -179,8 +179,9 @@ function it_exchange_advanced_us_taxes_addon_get_taxes_for_cart(  $format_price=
 
 function it_exchange_advanced_us_taxes_addon_exemptions( $echo=false ) {
 	$output = '';
+	$settings = it_exchange_get_option( 'addon_advanced_us_taxes' );
 	
-	if ( is_user_logged_in() )
+	if ( is_user_logged_in() && !empty( $settings['tax_exemptions'] ) )
 		$output = '<div id="it-exchange-advanced-us-taxes-exempt-label" class="description"><a href="#" title="' . __( 'Manage Certificate Exemptions', 'LION' ) . '" id="it-exchange-advanced-us-tax-list-existing-certs">' . __( 'Tax Exempt?', 'LION' ) . '</a></div>';
 	
 	if ( $echo )

@@ -52,6 +52,13 @@ function it_exchange_advanced_us_taxes_addon_admin_wp_enqueue_scripts( $hook_suf
 		wp_enqueue_script( 'it-exchange-advanced-us-taxes-addon-taxcloud-tic-selector', $url_base . '/js/jquery.tic2.public.js', $deps, '', true );
 		
 	}
+	
+	if ( !empty( $_GET['add-on-settings'] ) && 'exchange_page_it-exchange-addons' === $hook_suffix && 'advanced-us-taxes' === $_GET['add-on-settings'] ) {
+	
+		$deps = array( 'jquery' );
+		wp_enqueue_script( 'it-exchange-advanced-us-taxes-addon-admin-js', $url_base . '/js/admin.js' );
+
+	}
 }
 add_action( 'admin_enqueue_scripts', 'it_exchange_advanced_us_taxes_addon_admin_wp_enqueue_scripts' );
 
@@ -63,8 +70,10 @@ add_action( 'admin_enqueue_scripts', 'it_exchange_advanced_us_taxes_addon_admin_
  * @return void
 */
 function it_exchange_advanced_us_taxes_load_public_scripts( $current_view ) {
+
+	$settings = it_exchange_get_option( 'addon_advanced_us_taxes' );
 	
-	if ( it_exchange_is_page( 'checkout' ) || it_exchange_in_superwidget() ) {
+	if ( !empty( $settings['tax_exemptions'] ) && ( it_exchange_is_page( 'checkout' ) || it_exchange_in_superwidget() ) ) {
 
 		$url_base = ITUtility::get_url_from_file( dirname( __FILE__ ) );
 		
@@ -152,7 +161,6 @@ function it_exchange_advanced_us_taxes_addon_add_taxes_to_template_totals_elemen
 	array_splice( $elements, $index, 0, 'advanced-us-taxes' );
 	return $elements;
 }
-//add_filter( 'it_exchange_get_content_cart_totals_elements', 'it_exchange_advanced_us_taxes_addon_add_taxes_to_template_totals_elements' );
 add_filter( 'it_exchange_get_content_checkout_totals_elements', 'it_exchange_advanced_us_taxes_addon_add_taxes_to_template_totals_elements' );
 add_filter( 'it_exchange_get_content_confirmation_transaction_summary_elements', 'it_exchange_advanced_us_taxes_addon_add_taxes_to_template_totals_elements' );
 
@@ -193,7 +201,6 @@ function it_exchange_advanced_us_taxes_addon_taxes_register_templates( $template
 	// Bail if not looking for one of our templates
 	$add_path = false;
 	$templates = array(
-	//	'content-cart/elements/advanced-us-taxes.php',
 		'content-checkout/elements/advanced-us-taxes.php',
 		'content-confirmation/elements/advanced-us-taxes.php',
 		'super-widget-checkout/loops/advanced-us-taxes.php',
@@ -388,12 +395,6 @@ function it_exchange_advanced_us_taxes_addon_manage_certificates_backbone_templa
 				<h3 class="it-exchange-aust-tax-emeption-title">
 					<?php _e( 'Tax Exemption Manager', 'LION' ); ?>
 				</h3>
-				<!--
-				<span class="it-exchange-aust-close-cert-manager">
-					<a href="">&times;</a>
-				</span>
-				
-				-->
 			</div>
 			
 			<div id="it-exchange-advanced-us-taxes-exemption-manager-content-area">
@@ -466,11 +467,6 @@ function it_exchange_advanced_us_taxes_addon_add_new_certificate_backbone_templa
 				<h3 class="it-exchange-aust-tax-emeption-title">
 					<?php _e( 'Tax Exemption Manager', 'LION' ); ?>
 				</h3>
-				<!--
-				<span class="it-exchange-aust-close-cert-manager">
-					<a href="">&times;</a>
-				</span>
-				-->
 			</div>
 		
 			<div id="it-exchange-advanced-us-taxes-exemption-manager-content-area">
