@@ -106,7 +106,7 @@ class IT_Exchange_Product_Feature_Product_US_TIC {
 	*/
 	function print_metabox( $product ) {
 		// Set description
-		$description = __( "blahblahbalh CHANGEME", 'LION' );
+		$description = __( 'To ensure your customers are charged the correct rates and benefit from any available exemptions, you need to select an appropriate Tax Class for each item.', 'LION' );
 		$description = apply_filters( 'it_exchange_product_us-tic_metabox_description', $description );
 		
 		$tax_code = it_exchange_get_product_feature( $product->ID, 'us-tic' );

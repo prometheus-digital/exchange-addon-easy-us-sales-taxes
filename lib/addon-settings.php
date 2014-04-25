@@ -152,17 +152,17 @@ class IT_Exchange_Advanced_US_Taxes_Add_On {
                 ?>
             </h4>
             <p>
-                <label for="advanced-us-taxes-tax_cloud_api_id"><?php _e( 'TaxCloud API ID', 'LION' ) ?> <span class="tip" title="<?php _e( 'CHANGEME CHANGEME CHANGEME', 'LION' ); ?>">i</span> </label>
+                <label for="advanced-us-taxes-tax_cloud_api_id"><?php _e( 'TaxCloud API ID', 'LION' ) ?> <span class="tip" title="<?php _e( 'At TaxCloud.net, Go to Websites click Add website to obtain the required API ID and API Key.', 'LION' ); ?>">i</span> </label>
                 <?php $form->add_text_box( 'tax_cloud_api_id' ); ?>
             </p>
             <p>
-                <label for="advanced-us-taxes-tax_cloud_api_key"><?php _e( 'TaxCloud API Key', 'LION' ) ?> <span class="tip" title="<?php _e( 'CHANGEME CHANGEME CHANGEME', 'LION' ); ?>">i</span></label>
+                <label for="advanced-us-taxes-tax_cloud_api_key"><?php _e( 'TaxCloud API Key', 'LION' ) ?> <span class="tip" title="<?php _e( 'At TaxCloud.net, Go to Websites click Add website to obtain the required API ID and API Key.', 'LION' ); ?>">i</span></label>
                 <?php $form->add_text_box( 'tax_cloud_api_key' ); ?>
             </p>
             
             <h4><?php _e( 'USPS Settings', 'LION' ) ?></h4>
             <p>
-                <label for="advanced-us-taxes-usps_user_id"><?php _e( 'USPS API User ID', 'LION' ) ?> <span class="tip" title="<?php _e( 'CHANGEME CHANGEME CHANGEME', 'LION' ); ?>">i</span></label>
+                <label for="advanced-us-taxes-usps_user_id"><?php _e( 'USPS API User ID', 'LION' ) ?> <span class="tip" title="<?php _e( 'Sign up for a USPS WebTools User ID at https://www.usps.com/business/web-tools-apis/welcome.htm and paste it into this field.', 'LION' ); ?>">i</span></label>
                 <?php $form->add_text_box( 'usps_user_id' ); ?>
             </p>
             
