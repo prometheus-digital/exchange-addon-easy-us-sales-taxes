@@ -12,7 +12,8 @@
  * We've placed them all in one file to help add-on devs identify them more easily
 */
 
-//For calculation shipping, we need to require billing addresses... incase a product doesn't have a shipping address and the shipping add-on is not enabled
+//For calculation shipping, we need to require billing addresses... 
+//incase a product doesn't have a shipping address and the shipping add-on is not enabled
 apply_filters( 'it_exchange_billing_address_purchase_requirement_enabled', '__return_true' );
 
 /**
@@ -65,7 +66,7 @@ add_action( 'admin_enqueue_scripts', 'it_exchange_advanced_us_taxes_addon_admin_
 /**
  * Loads the frontend CSS on all exchange pages
  *
- * @since 0.4.0
+ * @since 1.0.0
  *
  * @return void
 */
@@ -195,7 +196,7 @@ add_filter( 'it_exchange_get_super-widget-checkout_after-cart-items_loops', 'it_
  *
  * @param array $template_path existing array of paths Exchange will look in for templates
  * @param array $template_names existing array of file names Exchange is looking for in $template_paths directories
- * @return array
+ * @return array Modified template paths
 */
 function it_exchange_advanced_us_taxes_addon_taxes_register_templates( $template_paths, $template_names ) {
 	// Bail if not looking for one of our templates
@@ -218,12 +219,12 @@ function it_exchange_advanced_us_taxes_addon_taxes_register_templates( $template
 add_filter( 'it_exchange_possible_template_paths', 'it_exchange_advanced_us_taxes_addon_taxes_register_templates', 10, 2 );
 
 /**
- * Adjusts the cart total
+ * Adjusts the cart total if on a checkout page
  *
  * @since 1.0.0
  *
- * @param $total the total passed to us by Exchange.
- * @return
+ * @param int $total the total passed to us by Exchange.
+ * @return int New Total
 */
 function it_exchange_advanced_us_taxes_addon_taxes_modify_total( $total ) {
 	if ( it_exchange_is_page( 'checkout' ) )
@@ -232,6 +233,15 @@ function it_exchange_advanced_us_taxes_addon_taxes_modify_total( $total ) {
 }
 add_filter( 'it_exchange_get_cart_total', 'it_exchange_advanced_us_taxes_addon_taxes_modify_total' );
 
+/**
+ * Verify Customer Address(es) in TaxCloud's API for tax calculation
+ *
+ * @since 1.0.0
+ *
+ * @param array $address Customers billing or shipping address.
+ * @param int $customer_id Customer's WordPress ID
+ * @return mixed Verified Address or false if failed
+*/
 function it_exchange_advanced_us_taxes_verify_customer_address( $address, $customer_id ) {
 	if ( !empty( $address['country'] ) && 'US' !== $address['country'] )
 		return $address; //Can only verify US addresses
@@ -279,7 +289,13 @@ function it_exchange_advanced_us_taxes_verify_customer_address( $address, $custo
 add_filter( 'it_exchange_save_customer_billing_address', 'it_exchange_advanced_us_taxes_verify_customer_address', 10, 2 );
 add_filter( 'it_exchange_save_customer_shipping_address', 'it_exchange_advanced_us_taxes_verify_customer_address', 10, 2 );
 
-
+/**
+ * Authorize and capture successful transactions in TaxCloud's API
+ *
+ * @since 1.0.0
+ *
+ * @param int $transaction_id Transaction ID
+*/
 function it_exchange_advanced_us_taxes_transaction_hook( $transaction_id ) {
 	$tax_cloud_session = it_exchange_get_session_data( 'addon_advanced_us_taxes' );
 	
@@ -336,8 +352,19 @@ function it_exchange_advanced_us_taxes_transaction_hook( $transaction_id ) {
 }
 add_action( 'it_exchange_add_transaction_success', 'it_exchange_advanced_us_taxes_transaction_hook' );
 
+/**
+ * Refund transactions in TaxCloud's API
+ * (We can only do full refunds)
+ *
+ * @since 1.0.0
+ *
+ * @param object $transaction Exchange Transaction Object
+ * @param int $amount Amount being refunded
+ * @param string $date Date of refund
+ * @param array $options Options
+*/
 function it_exchange_advanced_us_taxes_transaction_refund( $transaction, $amount, $date, $options ) {
-	if ( $taxes = update_post_meta( $transaction->ID, '_it_exchange_advanced_us_taxes', true ) ) {
+	if ( $taxes = get_post_meta( $transaction->ID, '_it_exchange_advanced_us_taxes', true ) ) {
 		//We have taxes
 		$total = it_exchange_get_transaction_total( $transaction->ID, false, true );
 		if ( 0 >= $total ) {
@@ -384,8 +411,47 @@ function it_exchange_advanced_us_taxes_transaction_refund( $transaction, $amount
 		}		
 	}
 }
-add_action( 'it_exchange_add_refund_to_transaction', 'it_exchange_advanced_us_taxes_transaction_refund', 10, 4 );
+add_action( 'it_exchange_add_refund_to_transaction', 'it_exchange_advanced_us_taxes_transaction_refund', 15, 4 );
 
+/**
+ * Helper function to convert returned Exempt Reason strings from TaxCloud's API to readable string
+ *
+ * @since 1.0.0
+ *
+ * @param string $reason_string TaxCloud Primary Reason
+ * @param string $reason_explained TaxCloud Other Reason
+ * @return string Readably string (mostly just addes spaces)
+*/
+function it_exchange_advanced_us_taxes_addon_convert_reason_to_readable_string( $reason_string, $reason_explained ) {
+	$exemption_types = array(
+		'FederalGovernmentDepartment' => __( 'Federal Government Department', 'LION' ),
+		'StateOrLocalGovernmentName' => __( 'State or Local Government', 'LION' ),
+		'TribalGovernmentName' => __( 'Tribal Government', 'LION' ),
+		'ForeignDiplomat' => __( 'Foreign Diplomat', 'LION' ),
+		'CharitableOrganization' => __( 'Charitable Organization', 'LION' ),
+		'ReligiousOrEducationalOrganization' => __( 'Religious or Educational Organization', 'LION' ),
+		'Resale' => __( 'Resale', 'LION' ),
+		'AgriculturalProduction' => __( 'Agricultural Production', 'LION' ),
+		'IndustrialProductionOrManufacturing' => __( 'Industrial Production or Manufacturing', 'LION' ),
+		'DirectPayPermit' => __( 'Direct Pay Permit', 'LION' ),
+		'DirectMail' => __( 'Direct Mail', 'LION' ),
+		'Other' => __( 'Other', 'LION' ),
+	);
+	
+	if ( 'Other' === $reason_string )
+		return $reason_explained;
+	else
+		return !empty( $exemption_types[$reason_string] ) ? $exemption_types[$reason_string] : $reason_string;
+}
+
+/**
+ * Backbone template for primary Tax Exemption Manager screen.
+ * Invoked by wp.template() and WordPress 
+ *
+ * add_action( 'wp_footer', 'it_exchange_advanced_us_taxes_addon_manage_certificates_backbone_template' );
+ *
+ * @since 1.0.0
+ */
 function it_exchange_advanced_us_taxes_addon_manage_certificates_backbone_template() {
 	?>
 	<script type="text/template" id="tmpl-it-exchange-advanced-us-taxes-manage-certs-container">
@@ -412,6 +478,14 @@ function it_exchange_advanced_us_taxes_addon_manage_certificates_backbone_templa
 	<?php
 }
 
+/**
+ * Backbone template for listing all existing certificates in the Tax Exemption Manager.
+ * Invoked by wp.template() and WordPress 
+ *
+ * Called by add_action( 'wp_footer', 'it_exchange_advanced_us_taxes_addon_list_existing_certificates_backbone_template' );
+ *
+ * @since 1.0.0
+ */
 function it_exchange_advanced_us_taxes_addon_list_existing_certificates_backbone_template() {
 	?>
 	<script type="text/template" id="tmpl-it-exchange-advanced-us-taxes-list-certs-container">
@@ -439,6 +513,14 @@ function it_exchange_advanced_us_taxes_addon_list_existing_certificates_backbone
 	<?php
 }
 
+/**
+ * Backbone template for Add New Tax Exemptions screen.
+ * Invoked by wp.template() and WordPress 
+ *
+ * Called by add_action( 'wp_footer', 'it_exchange_advanced_us_taxes_addon_add_new_certificate_backbone_template' );
+ *
+ * @since 1.0.0
+ */
 function it_exchange_advanced_us_taxes_addon_add_new_certificate_backbone_template() {
 
 	$errors = array();

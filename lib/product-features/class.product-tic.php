@@ -3,8 +3,8 @@
  * This will control email messages with any product types that register email message support.
  * By default, it registers a metabox on the product's add/edit screen and provides HTML / data for the frontend.
  *
- * @since 1.7.22 
- * @package IT_Exchange
+ * @since 1.0.0 
+ * @package exchange-addon-advanced-us-taxes
 */
 
 
@@ -13,7 +13,7 @@ class IT_Exchange_Product_Feature_Product_US_TIC {
 	/**
 	 * Constructor. Registers hooks
 	 *
-	 * @since 1.7.22
+	 * @since 1.0.0
 	 * @return void
 	*/
 	function IT_Exchange_Product_Feature_Product_US_TIC() {
@@ -32,7 +32,7 @@ class IT_Exchange_Product_Feature_Product_US_TIC {
 	/**
 	 * Register the product feature and add it to enabled product-type addons
 	 *
-	 * @since 1.7.22
+	 * @since 1.0.0
 	*/
 	function add_feature_support_to_product_types() {
 		// Register the product feature
@@ -50,7 +50,7 @@ class IT_Exchange_Product_Feature_Product_US_TIC {
 	/**
 	 * Register's the metabox for any product type that supports the feature
 	 *
-	 * @since 1.7.22
+	 * @since 1.0.0
 	 * @return void
 	*/
 	function init_feature_metaboxes() {
@@ -91,7 +91,7 @@ class IT_Exchange_Product_Feature_Product_US_TIC {
 	 *
 	 * Hooked to it_exchange_product_metabox_callback_[product-type] where product type supports the feature
 	 *
-	 * @since 1.7.22
+	 * @since 1.0.0
 	 * @return void
 	*/
 	function register_metabox() {
@@ -101,7 +101,7 @@ class IT_Exchange_Product_Feature_Product_US_TIC {
 	/**
 	 * This echos the feature metabox.
 	 *
-	 * @since 1.7.22
+	 * @since 1.0.0
 	 * @return void
 	*/
 	function print_metabox( $product ) {
@@ -138,7 +138,7 @@ class IT_Exchange_Product_Feature_Product_US_TIC {
 	/**
 	 * This saves the value
 	 *
-	 * @since 1.7.22 
+	 * @since 1.0.0 
 	 * @param object $post wp post object
 	 * @return void
 	*/
@@ -167,7 +167,7 @@ class IT_Exchange_Product_Feature_Product_US_TIC {
 	/**
 	 * This updates the feature for a product
 	 *
-	 * @since 1.7.22
+	 * @since 1.0.0
 	 * @param integer $product_id the product id
 	 * @param mixed $new_value the new value
 	 * @return bolean
@@ -180,7 +180,7 @@ class IT_Exchange_Product_Feature_Product_US_TIC {
 	/**
 	 * Return the product's features
 	 *
-	 * @since 1.7.22
+	 * @since 1.0.0
 	 * @param mixed $existing the values passed in by the WP Filter API. Ignored here.
 	 * @param integer product_id the WordPress post ID
 	 * @return string product feature
@@ -199,7 +199,7 @@ class IT_Exchange_Product_Feature_Product_US_TIC {
 	/**
 	 * Does the product have the feature?
 	 *
-	 * @since 1.7.22
+	 * @since 1.0.0
 	 * @param mixed $result Not used by core
 	 * @param integer $product_id
 	 * @return boolean
@@ -219,7 +219,7 @@ class IT_Exchange_Product_Feature_Product_US_TIC {
 	 * This is different than if it has the feature, a product can
 	 * support a feature but might not have the feature set.
 	 *
-	 * @since 1.7.22
+	 * @since 1.0.0
 	 * @param mixed $result Not used by core
 	 * @param integer $product_id
 	 * @return boolean

@@ -1,7 +1,12 @@
 <?php
+/**
+ * Includes all of our AJAX functions
+ * @since 1.0.0
+ * @package exchange-addon-advanced-us-taxes
+*/
 
 /**
- * Ajax called from Thickbox to show the User's Add Product Screen.
+ * Ajax called from Backbone modal to get existing tax exempt certificates from TaxCloud.
  *
  * @since 1.0.0
 */
@@ -24,7 +29,7 @@ function it_exchange_advanced_us_taxes_addon_get_existing_certs() {
 		
 		try {
 		
-			$soap_client = new SOAPClient( 'https://api.taxcloud.net/1.0/?wsdl', array( 'trace' => true, 'soap_version' => SOAP_1_2 ) );
+			$soap_client = new SOAPClient( ITE_TAXCLOUD_WSDL, array( 'trace' => true, 'soap_version' => SOAP_1_2 ) );
 
 			$result = $soap_client->GetExemptCertificates( $query );
 			
@@ -137,6 +142,11 @@ function it_exchange_advanced_us_taxes_addon_get_existing_certs() {
 }
 add_action( 'wp_ajax_it-exchange-aust-existing-get-existing-certs', 'it_exchange_advanced_us_taxes_addon_get_existing_certs' );
 
+/**
+ * Ajax called from Backbone modal to remove existing tax exempt certificates from TaxCloud.
+ *
+ * @since 1.0.0
+*/
 function it_exchange_advanced_us_taxes_addon_remove_existing_cert() {
 
 	if ( !is_user_logged_in() ) {
@@ -196,6 +206,11 @@ function it_exchange_advanced_us_taxes_addon_remove_existing_cert() {
 }
 add_action( 'wp_ajax_it-exchange-aust-existing-remove-existing-cert', 'it_exchange_advanced_us_taxes_addon_remove_existing_cert' );
 
+/**
+ * Ajax called from Backbone modal to use a given tax exempt certificates from TaxCloud.
+ *
+ * @since 1.0.0
+*/
 function it_exchange_advanced_us_taxes_addon_use_existing_cert() {
 
 	$errors = array();
@@ -225,7 +240,7 @@ function it_exchange_advanced_us_taxes_addon_use_existing_cert() {
 add_action( 'wp_ajax_it-exchange-aust-existing-use-existing-cert', 'it_exchange_advanced_us_taxes_addon_use_existing_cert' );
 
 /**
- * Ajax called from Thickbox to show the User's Add Product Screen.
+ * Ajax called from Backbone modal to add new tax exempt certificates to TaxCloud.
  *
  * @since 1.0.0
 */
@@ -394,7 +409,7 @@ function it_exchange_advanced_us_taxes_addon_add_cert() {
 				
 						try {
 						
-							$soap_client = new SOAPClient( 'https://api.taxcloud.net/1.0/?wsdl', array( 'trace' => true, 'soap_version' => SOAP_1_2 ) );
+							$soap_client = new SOAPClient( ITE_TAXCLOUD_WSDL, array( 'trace' => true, 'soap_version' => SOAP_1_2 ) );
 		
 							$result = $soap_client->AddExemptCertificate( $query );
 											

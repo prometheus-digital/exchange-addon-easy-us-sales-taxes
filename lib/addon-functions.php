@@ -5,17 +5,15 @@
  * @since 1.0.0
 */
 
-function it_exchange_advanced_us_taxes_addon_get_taxes_for_confirmation( $format_price=true ) {
-	$taxes = 0;
-	if ( !empty( $GLOBALS['it_exchange']['transaction'] ) ) {
-		$transaction = $GLOBALS['it_exchange']['transaction'];
-		$taxes = get_post_meta( $transaction->ID, '_it_exchange_advanced_us_taxes', true );
-	}
-	if ( $format_price )
-		$taxes = it_exchange_format_price( $taxes );
-	return $taxes;	
-}
-
+/**
+ * Gets tax information from TaxCloud based on products in cart
+ *
+ * @since 1.0.0
+ *
+ * @param bool $format_price Whether or not to format the price or leave as a float
+ * @param bool $clear_cache Whether or not to force clear any cached tax values
+ * @return string The calculated tax from TaxCloud
+*/
 function it_exchange_advanced_us_taxes_addon_get_taxes_for_cart(  $format_price=true, $clear_cache=false ) {
 	// Grab the tax rate
 	$settings  = it_exchange_get_option( 'addon_advanced_us_taxes' );
@@ -61,7 +59,7 @@ function it_exchange_advanced_us_taxes_addon_get_taxes_for_cart(  $format_price=
 	$products_hash = md5( maybe_serialize( $products ) );
 			
 	// if we don't have a cache of the products_hash OR if the current cache doesn't match the current products hash
-	if ( empty( $tax_cloud_session['products_hash'] )
+	if ( $clear_cache || empty( $tax_cloud_session['products_hash'] )
 		|| $tax_cloud_session['products_hash'] !== $products_hash 
 		|| !empty( $tax_cloud_session['new_certificate'] ) ) {
 	
@@ -177,6 +175,14 @@ function it_exchange_advanced_us_taxes_addon_get_taxes_for_cart(  $format_price=
 	return $taxes;
 }
 
+/**
+ * Helper function to output Tax Exempt link on Super Widget and Checkout page
+ *
+ * @since 1.0.0
+ *
+ * @param bool $echo Whether or not return or echo the output
+ * @return mixed The HTML output
+*/
 function it_exchange_advanced_us_taxes_addon_exemptions( $echo=false ) {
 	$output = '';
 	$settings = it_exchange_get_option( 'addon_advanced_us_taxes' );
@@ -190,6 +196,14 @@ function it_exchange_advanced_us_taxes_addon_exemptions( $echo=false ) {
 		return $output;
 }
 
+/**
+ * Helper function to output Add New Tax Exemption link on Super Widget and Checkout page
+ *
+ * @since 1.0.0
+ *
+ * @param bool $echo Whether or not return or echo the output
+ * @return mixed The HTML output
+*/
 function it_exchange_advanced_us_taxes_addon_add_exemption( $echo=false ) {
 	$output = '';
 	
@@ -203,6 +217,14 @@ function it_exchange_advanced_us_taxes_addon_add_exemption( $echo=false ) {
 		return $output;
 }
 
+/**
+ * Helper function to convert returned state abbreviations from TaxCloud's API to readable string
+ *
+ * @since 1.0.0
+ *
+ * @param object $tax_cloud_states_object TaxCloud States object
+ * @return string Comma separated list of States
+*/
 function it_exchange_advanced_us_taxes_addon_convert_exempt_states_to_string( $tax_cloud_states_object ) {
 	$states = array();
 	if ( !empty( $tax_cloud_states_object ) ) {
@@ -215,32 +237,18 @@ function it_exchange_advanced_us_taxes_addon_convert_exempt_states_to_string( $t
 	return implode( ',', $states );
 }
 
+/**
+ * Helper function to convert returned creation date from TaxCloud's API to readable string
+ *
+ * @since 1.0.0
+ *
+ * @param string $gm_date TaxCloud Creation Date string
+ * @return string WordPress formated date string
+*/
 function it_exchange_advanced_us_taxes_addon_convert_exempt_createdate_to_date_format( $gm_date ) {
     $format = empty( $format ) ? get_option( 'date_format' ) : $format;
 
 	$date = apply_filters( 'it_exchange_advanced_us_taxes_addon_convert_exempt_createdate_to_date_format', date_i18n( $format, strtotime( $gm_date ) ), $gm_date, $format );
 
 	return $date;
-}
-
-function it_exchange_advanced_us_taxes_addon_convert_reason_to_readable_string( $reason_string, $reason_explained ) {
-	$exemption_types = array(
-		'FederalGovernmentDepartment' => __( 'Federal Government Department', 'LION' ),
-		'StateOrLocalGovernmentName' => __( 'State or Local Government', 'LION' ),
-		'TribalGovernmentName' => __( 'Tribal Government', 'LION' ),
-		'ForeignDiplomat' => __( 'Foreign Diplomat', 'LION' ),
-		'CharitableOrganization' => __( 'Charitable Organization', 'LION' ),
-		'ReligiousOrEducationalOrganization' => __( 'Religious or Educational Organization', 'LION' ),
-		'Resale' => __( 'Resale', 'LION' ),
-		'AgriculturalProduction' => __( 'Agricultural Production', 'LION' ),
-		'IndustrialProductionOrManufacturing' => __( 'Industrial Production or Manufacturing', 'LION' ),
-		'DirectPayPermit' => __( 'Direct Pay Permit', 'LION' ),
-		'DirectMail' => __( 'Direct Mail', 'LION' ),
-		'Other' => __( 'Other', 'LION' ),
-	);
-	
-	if ( 'Other' === $reason_string )
-		return $reason_explained;
-	else
-		return !empty( $exemption_types[$reason_string] ) ? $exemption_types[$reason_string] : $reason_string;
 }

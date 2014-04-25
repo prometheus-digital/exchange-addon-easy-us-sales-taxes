@@ -7,6 +7,9 @@
 
 if ( !defined( 'ITE_TAXCLOUD_API' ) )
 	define( 'ITE_TAXCLOUD_API', 'https://api.taxcloud.net/1.0/Taxcloud/' );
+	
+if ( !defined( 'ITE_TAXCLOUD_WSDL' ) )
+	define( 'ITE_TAXCLOUD_WSDL', 'https://api.taxcloud.net/1.0/?wsdl' );
 
 /**
  * Exchange will build your add-on's settings page for you and link to it from our add-on

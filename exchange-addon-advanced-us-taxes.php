@@ -1,7 +1,7 @@
 <?php
 /*
  * Plugin Name: iThemes Exchange - Advanced U.S. Taxes
- * Version: 1.0.2
+ * Version: 1.0.0
  * Description: Adds Advanced U.S. Taxes to iThemes Exchange with the power of TaxCloud.net
  * Plugin URI: http://ithemes.com/exchange/advanced-us-taxes/
  * Author: iThemes

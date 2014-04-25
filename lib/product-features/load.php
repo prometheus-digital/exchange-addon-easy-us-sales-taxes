@@ -2,7 +2,7 @@
 /**
  * Includes all of our product features
  * @since 1.0.0
- * @package IT_Exchange_Addon_Advanced_US_Taxes
+ * @package exchange-addon-advanced-us-taxes
 */
 
 // Product Feature: Tax Classes
