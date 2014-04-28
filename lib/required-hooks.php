@@ -26,7 +26,7 @@ apply_filters( 'it_exchange_billing_address_purchase_requirement_enabled', '__re
 */
 function it_exchange_advanced_us_taxes_addon_admin_wp_enqueue_scripts( $hook_suffix ) {
 	global $post;
-		
+			
 	if ( isset( $_REQUEST['post_type'] ) ) {
 		$post_type = $_REQUEST['post_type'];
 	} else {
@@ -46,7 +46,7 @@ function it_exchange_advanced_us_taxes_addon_admin_wp_enqueue_scripts( $hook_suf
 	
 	$url_base = ITUtility::get_url_from_file( dirname( __FILE__ ) );
 	
-	if ( ( isset( $post_type ) && 'it_exchange_prod' === $post_type )
+	if ( ( isset( $post_type ) && 'it_exchange_prod' === $post_type && ( 'post-new.php' === $hook_suffix || 'post.php' === $hook_suffix ) )
 		|| ( !empty( $_GET['add-on-settings'] ) && 'exchange_page_it-exchange-addons' === $hook_suffix && 'advanced-us-taxes' === $_GET['add-on-settings'] ) ) {
 		
 		$deps = array( 'jquery' );
