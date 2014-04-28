@@ -6,6 +6,26 @@
 */
 
 /**
+ * Gets tax information from transaction meta
+ *
+ * @since 1.0.0
+ *
+ * @param bool $format_price Whether or not to format the price or leave as a float
+ * @return string The calculated tax from TaxCloud
+*/
+
+function it_exchange_advanced_us_taxes_addon_get_taxes_for_confirmation( $format_price=true ) {
+    $taxes = 0;
+    if ( !empty( $GLOBALS['it_exchange']['transaction'] ) ) {
+        $transaction = $GLOBALS['it_exchange']['transaction'];
+        $taxes = get_post_meta( $transaction->ID, '_it_exchange_advanced_us_taxes', true );
+    }
+    if ( $format_price )
+        $taxes = it_exchange_format_price( $taxes );
+    return $taxes;  
+}
+
+/**
  * Gets tax information from TaxCloud based on products in cart
  *
  * @since 1.0.0
