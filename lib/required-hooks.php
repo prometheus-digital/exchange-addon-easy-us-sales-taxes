@@ -5,16 +5,47 @@
  * @since 1.0.0
 */
 
-/**
- * Exchange Transaction Add-ons require several hooks in order to work properly. 
- * Most of these hooks are called in api/transactions.php and are named dynamically
- * so that individual add-ons can target them. eg: it_exchange_refund_url_for_stripe
- * We've placed them all in one file to help add-on devs identify them more easily
-*/
-
 //For calculation shipping, we need to require billing addresses... 
 //incase a product doesn't have a shipping address and the shipping add-on is not enabled
 add_filter( 'it_exchange_billing_address_purchase_requirement_enabled', '__return_true' );
+
+
+/**
+ * Shows the nag when needed.
+ *
+ * @since 1.0.0
+ *
+ * @return void
+*/
+function it_exchange_advanced_us_taxes_addon_show_conflict_nag() {
+    if ( ! empty( $_REQUEST['it_exchange_advanced_us_taxes-dismiss-conflict-nag'] ) )
+        update_option( 'it-exchange-advanced-us-taxes-conflict-nag', true );
+
+    if ( true == (boolean) get_option( 'it-exchange-advanced-us-taxes-conflict-nag' ) )
+        return;
+
+	$taxes_addons = it_exchange_get_addons( array( 'options' => 'taxes' ) );
+	
+	if ( 1 < count( $taxes_addons ) ) {
+		?>
+		<div id="it-exchange-advanced-us-taxes-conflict-nag" class="it-exchange-nag">
+			<?php
+			$nag_dismiss = add_query_arg( array( 'it_exchange_advanced_us_taxes-dismiss-conflict-nag' => true ) );
+			echo __( 'Warning, you have multiple taxes add-ons enabled, you may need to disable one to avoid conflicts.', 'LION' );
+			?>
+			<a class="dismiss btn" href="<?php esc_attr_e( $nag_dismiss ); ?>">&times;</a>
+		</div>
+		<script type="text/javascript">
+			jQuery( document ).ready( function() {
+				if ( jQuery( '.wrap > h2' ).length == '1' ) {
+					jQuery("#it-exchange-advanced-us-taxes-conflict-nag").insertAfter( '.wrap > h2' ).addClass( 'after-h2' );
+				}
+			});
+		</script>
+		<?php
+	}
+}
+add_action( 'admin_notices', 'it_exchange_advanced_us_taxes_addon_show_conflict_nag' );
 
 /**
  * Enqueues Advanced U.S. Taxes scripts to WordPress Dashboard
