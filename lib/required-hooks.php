@@ -14,7 +14,7 @@
 
 //For calculation shipping, we need to require billing addresses... 
 //incase a product doesn't have a shipping address and the shipping add-on is not enabled
-apply_filters( 'it_exchange_billing_address_purchase_requirement_enabled', '__return_true' );
+add_filter( 'it_exchange_billing_address_purchase_requirement_enabled', '__return_true' );
 
 /**
  * Enqueues Advanced U.S. Taxes scripts to WordPress Dashboard
