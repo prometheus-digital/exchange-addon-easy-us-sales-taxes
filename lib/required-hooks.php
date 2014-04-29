@@ -31,7 +31,7 @@ function it_exchange_advanced_us_taxes_addon_show_conflict_nag() {
 		<div id="it-exchange-advanced-us-taxes-conflict-nag" class="it-exchange-nag">
 			<?php
 			$nag_dismiss = add_query_arg( array( 'it_exchange_advanced_us_taxes-dismiss-conflict-nag' => true ) );
-			echo __( 'Warning, you have multiple taxes add-ons enabled, you may need to disable one to avoid conflicts.', 'LION' );
+			echo __( 'Warning: You have multiple tax add-ons enabled. You may need to disable one to avoid conflicts.', 'LION' );
 			?>
 			<a class="dismiss btn" href="<?php esc_attr_e( $nag_dismiss ); ?>">&times;</a>
 		</div>
