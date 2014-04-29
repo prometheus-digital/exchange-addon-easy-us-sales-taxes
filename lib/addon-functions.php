@@ -59,8 +59,12 @@ function it_exchange_advanced_us_taxes_addon_get_taxes_for_cart(  $format_price=
 		$address = it_exchange_get_cart_billing_address();
 	
 	if ( !empty( $address['address1'] ) && !empty( $address['zip'] ) ) {
-		if ( !empty( $address['country'] ) && 'US' !== $address['country'] )
-			return 0; //This is US taxes any other country and we don't need to calculate the tax
+		if ( !empty( $address['country'] ) && 'US' !== $address['country'] ) {
+			//This is US taxes any other country and we don't need to calculate the tax
+			if ( $format_price )
+				$taxes = it_exchange_format_price( $taxes ); //zero
+			return $taxes;
+		}
 		
 		$dest = array(
 			'Address1' => $address['address1'],
@@ -72,7 +76,9 @@ function it_exchange_advanced_us_taxes_addon_get_taxes_for_cart(  $format_price=
 		if ( !empty( $address['zip4'] ) )
 			$dest['Zip4'] = $address['zip4'];
 	} else {
-		return 0;
+		if ( $format_price )
+			$taxes = it_exchange_format_price( $taxes ); //zero
+		return $taxes;
 	}
 	
 	$products = it_exchange_get_cart_products();
