@@ -75,6 +75,14 @@ function it_exchange_advanced_us_taxes_addon_get_taxes_for_cart(  $format_price=
 		);
 		if ( !empty( $address['zip4'] ) )
 			$dest['Zip4'] = $address['zip4'];
+		
+		$serialized_dest = maybe_serialize( $dest );
+		
+		//We want to store the destination, in case it changes so we know we need to generate tax from TaxCloud
+		if ( empty( $tax_cloud_session['destination'] ) || $serialized_dest != $tax_cloud_session['destination'] ) {
+			$tax_cloud_session['destination'] = $serialized_dest;
+			$clear_cache = true; //force a new API call to TaxCloud to get the new tax
+		}
 	} else {
 		if ( $format_price )
 			$taxes = it_exchange_format_price( $taxes ); //zero
