@@ -24,7 +24,7 @@ function it_exchange_advanced_us_taxes_addon_show_conflict_nag() {
     if ( true == (boolean) get_option( 'it-exchange-advanced-us-taxes-conflict-nag' ) )
         return;
 
-	$taxes_addons = it_exchange_get_addons( array( 'options' => 'taxes' ) );
+	$taxes_addons = it_exchange_get_enabled_addons( array( 'category' => 'taxes' ) );
 	
 	if ( 1 < count( $taxes_addons ) ) {
 		?>
