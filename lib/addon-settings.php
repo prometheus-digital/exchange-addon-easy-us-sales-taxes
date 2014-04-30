@@ -152,11 +152,11 @@ class IT_Exchange_Advanced_US_Taxes_Add_On {
                 ?>
             </h4>
             <p>
-                <label for="advanced-us-taxes-tax_cloud_api_id"><?php _e( 'TaxCloud API ID', 'LION' ) ?> <span class="tip" title="<?php _e( 'At TaxCloud.net, Go to Websites click Add website to obtain the required API ID and API Key.', 'LION' ); ?>">i</span> </label>
+                <label for="advanced-us-taxes-tax_cloud_api_id"><?php _e( 'TaxCloud API ID', 'LION' ) ?> <span class="tip" title="<?php _e( 'At TaxCloud.net, go to Websites click Add website to obtain the required API ID and API Key.', 'LION' ); ?>">i</span> </label>
                 <?php $form->add_text_box( 'tax_cloud_api_id' ); ?>
             </p>
             <p>
-                <label for="advanced-us-taxes-tax_cloud_api_key"><?php _e( 'TaxCloud API Key', 'LION' ) ?> <span class="tip" title="<?php _e( 'At TaxCloud.net, Go to Websites click Add website to obtain the required API ID and API Key.', 'LION' ); ?>">i</span></label>
+                <label for="advanced-us-taxes-tax_cloud_api_key"><?php _e( 'TaxCloud API Key', 'LION' ) ?> <span class="tip" title="<?php _e( 'At TaxCloud.net, go to Websites click Add website to obtain the required API ID and API Key.', 'LION' ); ?>">i</span></label>
                 <?php $form->add_text_box( 'tax_cloud_api_key' ); ?>
             </p>
             
