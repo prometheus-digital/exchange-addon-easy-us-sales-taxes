@@ -258,7 +258,7 @@ add_filter( 'it_exchange_possible_template_paths', 'it_exchange_advanced_us_taxe
  * @return int New Total
 */
 function it_exchange_advanced_us_taxes_addon_taxes_modify_total( $total ) {
-	if ( it_exchange_is_page( 'checkout' ) )
+	if ( !it_exchange_is_page( 'cart' ) ) //we just don't want to modify anything on the cart page
 		$total += it_exchange_advanced_us_taxes_addon_get_taxes_for_cart( false );
 	return $total;
 }
@@ -296,13 +296,20 @@ function it_exchange_advanced_us_taxes_verify_customer_address( $address, $custo
 			'body' => json_encode( $dest ),
 	    );
     	$result = wp_remote_post( ITE_TAXCLOUD_API . 'VerifyAddress', $args );
+		
 		if ( is_wp_error( $result ) ) {
 			throw new Exception( $result->get_error_message() );
 		} else if ( !empty( $result['body'] ) ) {
 			$body = json_decode( $result['body'] );
 			if ( 0 == $body->ErrNumber ) {
 				//set zip 4 with $body->Zip4
-				$address['zip4'] = $body->Zip4;
+				$address['address1'] = $body->Address1;
+				$address['city']     = $body->City;
+				$address['state']    = $body->State;
+				$address['zip5']     = $body->Zip5;
+				$address['zip4']     = $body->Zip4;
+			} else if ( 97 == $body->ErrNumber ) {
+				//This is a non-blocking error, no changes needed
 			} else {
 				throw new Exception( sprintf( __( 'Unable to verify Address: %s', 'LION' ), $body->ErrDescription ) );
 			}

@@ -357,9 +357,20 @@ class IT_Exchange_Advanced_US_Taxes_Add_On {
 				} else if ( !empty( $result['body'] ) ) {
 					$body = json_decode( $result['body'] );
 					if ( 0 == $body->ErrNumber ) {
-						//set zip 4 with $body->Zip4
-						$new_values['business_zip_4'] = $body->Zip4;
+						$new_values['business_address_1'] = $body->Address1;
+						$new_values['business_address_2'] = $body->Address2;
+						$new_values['business_city']      = $body->City;
+						$new_values['business_state']     = $body->State;
+						$new_values['business_zip_5']     = $body->Zip5;
+						$new_values['business_zip_4']     = $body->Zip4;
 						$new_values['business_verified'] = true;
+					} else if ( 97 == $body->ErrNumber ) {
+						//do nothing, this is a non-blocking error
+						$new_values['business_address_1'] = $values['business_address_1'];
+						$new_values['business_address_2'] = $values['business_address_2'];
+						$new_values['business_city']      = $values['business_city'];
+						$new_values['business_state']     = $values['business_state'];
+						$new_values['business_zip_5']     = $values['business_zip_5'];
 					} else {
 						throw new Exception( sprintf( __( 'Unable to verify Business Address: %s', 'LION' ), $body->ErrDescription ) );
 					}
