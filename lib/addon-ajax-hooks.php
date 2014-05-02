@@ -2,7 +2,7 @@
 /**
  * Includes all of our AJAX functions
  * @since 1.0.0
- * @package exchange-addon-advanced-us-taxes
+ * @package exchange-addon-easy-us-sales-taxes
 */
 
 /**
@@ -10,7 +10,7 @@
  *
  * @since 1.0.0
 */
-function it_exchange_advanced_us_taxes_addon_get_existing_certs() {	
+function it_exchange_easy_us_sales_taxes_addon_get_existing_certs() {	
 
 	if ( !is_user_logged_in() ) {
 	
@@ -18,7 +18,7 @@ function it_exchange_advanced_us_taxes_addon_get_existing_certs() {
 		
 	} else {
 	
-		$settings = it_exchange_get_option( 'addon_advanced_us_taxes' );
+		$settings = it_exchange_get_option( 'addon_easy_us_sales_taxes' );
 		$customer = it_exchange_get_current_customer();
 
 		$query = array(
@@ -50,9 +50,9 @@ function it_exchange_advanced_us_taxes_addon_get_existing_certs() {
 							$new_cert['CertificateID']            = $cert->CertificateID;
 							$new_cert['PurchaserFirstName']       = $cert->Detail->PurchaserFirstName;
 							$new_cert['PurchaserLastName']        = !empty( $cert->Detail->PurchaserLastName ) ? $cert->Detail->PurchaserLastName : '';
-							$new_cert['ExemptStates']             = it_exchange_advanced_us_taxes_addon_convert_exempt_states_to_string( $cert->Detail->ExemptStates );
-							$new_cert['CreatedDate']              = it_exchange_advanced_us_taxes_addon_convert_exempt_createdate_to_date_format( $cert->Detail->CreatedDate );
-							$new_cert['PurchaserExemptionReason'] = it_exchange_advanced_us_taxes_addon_convert_reason_to_readable_string( $cert->Detail->PurchaserExemptionReason, $cert->Detail->PurchaserExemptionReason, $cert->Detail->PurchaserExemptionReasonValue );
+							$new_cert['ExemptStates']             = it_exchange_easy_us_sales_taxes_addon_convert_exempt_states_to_string( $cert->Detail->ExemptStates );
+							$new_cert['CreatedDate']              = it_exchange_easy_us_sales_taxes_addon_convert_exempt_createdate_to_date_format( $cert->Detail->CreatedDate );
+							$new_cert['PurchaserExemptionReason'] = it_exchange_easy_us_sales_taxes_addon_convert_reason_to_readable_string( $cert->Detail->PurchaserExemptionReason, $cert->Detail->PurchaserExemptionReason, $cert->Detail->PurchaserExemptionReasonValue );
 							$data[] = $new_cert;
 							
 						} else {
@@ -66,9 +66,9 @@ function it_exchange_advanced_us_taxes_addon_get_existing_certs() {
 								$new_cert['CertificateID']            = $cert->CertificateID;
 								$new_cert['PurchaserFirstName']       = $cert->Detail->PurchaserFirstName;
 								$new_cert['PurchaserLastName']        = !empty( $cert->Detail->PurchaserLastName ) ? $cert->Detail->PurchaserLastName : '';
-								$new_cert['ExemptStates']             = it_exchange_advanced_us_taxes_addon_convert_exempt_states_to_string( $cert->Detail->ExemptStates );
-								$new_cert['CreatedDate']              = it_exchange_advanced_us_taxes_addon_convert_exempt_createdate_to_date_format( $cert->Detail->CreatedDate );
-								$new_cert['PurchaserExemptionReason'] = it_exchange_advanced_us_taxes_addon_convert_reason_to_readable_string( $cert->Detail->PurchaserExemptionReason, $cert->Detail->PurchaserExemptionReason, $cert->Detail->PurchaserExemptionReasonValue );
+								$new_cert['ExemptStates']             = it_exchange_easy_us_sales_taxes_addon_convert_exempt_states_to_string( $cert->Detail->ExemptStates );
+								$new_cert['CreatedDate']              = it_exchange_easy_us_sales_taxes_addon_convert_exempt_createdate_to_date_format( $cert->Detail->CreatedDate );
+								$new_cert['PurchaserExemptionReason'] = it_exchange_easy_us_sales_taxes_addon_convert_reason_to_readable_string( $cert->Detail->PurchaserExemptionReason, $cert->Detail->PurchaserExemptionReason, $cert->Detail->PurchaserExemptionReasonValue );
 								$data[] = $new_cert;
 							}
 						}
@@ -140,14 +140,14 @@ function it_exchange_advanced_us_taxes_addon_get_existing_certs() {
 	wp_send_json_error( $errors );
 
 }
-add_action( 'wp_ajax_it-exchange-aust-existing-get-existing-certs', 'it_exchange_advanced_us_taxes_addon_get_existing_certs' );
+add_action( 'wp_ajax_it-exchange-aust-existing-get-existing-certs', 'it_exchange_easy_us_sales_taxes_addon_get_existing_certs' );
 
 /**
  * Ajax called from Backbone modal to remove existing tax exempt certificates from TaxCloud.
  *
  * @since 1.0.0
 */
-function it_exchange_advanced_us_taxes_addon_remove_existing_cert() {
+function it_exchange_easy_us_sales_taxes_addon_remove_existing_cert() {
 
 	if ( !is_user_logged_in() ) {
 	
@@ -157,7 +157,7 @@ function it_exchange_advanced_us_taxes_addon_remove_existing_cert() {
 	
 		if ( !empty( $_POST ) ) {
 	
-			$settings = it_exchange_get_option( 'addon_advanced_us_taxes' );
+			$settings = it_exchange_get_option( 'addon_easy_us_sales_taxes' );
 			$customer = it_exchange_get_current_customer();
 	
 			$query = array(
@@ -204,14 +204,14 @@ function it_exchange_advanced_us_taxes_addon_remove_existing_cert() {
 	wp_send_json_error( $errors );
 
 }
-add_action( 'wp_ajax_it-exchange-aust-existing-remove-existing-cert', 'it_exchange_advanced_us_taxes_addon_remove_existing_cert' );
+add_action( 'wp_ajax_it-exchange-aust-existing-remove-existing-cert', 'it_exchange_easy_us_sales_taxes_addon_remove_existing_cert' );
 
 /**
  * Ajax called from Backbone modal to use a given tax exempt certificates from TaxCloud.
  *
  * @since 1.0.0
 */
-function it_exchange_advanced_us_taxes_addon_use_existing_cert() {
+function it_exchange_easy_us_sales_taxes_addon_use_existing_cert() {
 
 	$errors = array();
 
@@ -223,10 +223,10 @@ function it_exchange_advanced_us_taxes_addon_use_existing_cert() {
 	
 		if ( !empty( $_POST ) && !empty( $_POST['cert_id'] ) ) {
 			
-			$tax_cloud_session = it_exchange_get_session_data( 'addon_advanced_us_taxes' );
+			$tax_cloud_session = it_exchange_get_session_data( 'addon_easy_us_sales_taxes' );
 			$tax_cloud_session['exempt_certificate'] = array( 'CertificateID' => $_POST['cert_id'] );
 			$tax_cloud_session['new_certificate'] = true;
-			it_exchange_update_session_data( 'addon_advanced_us_taxes', $tax_cloud_session );
+			it_exchange_update_session_data( 'addon_easy_us_sales_taxes', $tax_cloud_session );
 			
 			wp_send_json_success();
 		    
@@ -237,14 +237,14 @@ function it_exchange_advanced_us_taxes_addon_use_existing_cert() {
 	wp_send_json_error( $errors );
 
 }
-add_action( 'wp_ajax_it-exchange-aust-existing-use-existing-cert', 'it_exchange_advanced_us_taxes_addon_use_existing_cert' );
+add_action( 'wp_ajax_it-exchange-aust-existing-use-existing-cert', 'it_exchange_easy_us_sales_taxes_addon_use_existing_cert' );
 
 /**
  * Ajax called from Backbone modal to add new tax exempt certificates to TaxCloud.
  *
  * @since 1.0.0
 */
-function it_exchange_advanced_us_taxes_addon_add_cert() {	
+function it_exchange_easy_us_sales_taxes_addon_add_cert() {	
 	
 	$output = '';
 	$errors = array();
@@ -257,9 +257,9 @@ function it_exchange_advanced_us_taxes_addon_add_cert() {
 	
 		if ( ! empty( $_POST ) ) {
 			
-			if ( wp_verify_nonce( $_POST['_wpnonce'], 'it-exchange-advanced-us-taxes-new-cert' ) ) {
+			if ( wp_verify_nonce( $_POST['_wpnonce'], 'it-exchange-easy-us-sales-taxes-new-cert' ) ) {
 		
-				$settings = it_exchange_get_option( 'addon_advanced_us_taxes' );
+				$settings = it_exchange_get_option( 'addon_easy_us_sales_taxes' );
 				$customer = it_exchange_get_current_customer();
 						
 		        if ( empty( $_POST['exempt_state'] ) ) {
@@ -444,13 +444,13 @@ function it_exchange_advanced_us_taxes_addon_add_cert() {
 						
 						// w/ Tax Cloud, if it is a single use certificate, we do not add it to their database
 						// with the AddExemptCertificate API, it gets added to the tax query 
-						// in it_exchange_advanced_us_taxes_addon_get_taxes_for_cart()
-						$tax_cloud_session = it_exchange_get_session_data( 'addon_advanced_us_taxes' );
+						// in it_exchange_easy_us_sales_taxes_addon_get_taxes_for_cart()
+						$tax_cloud_session = it_exchange_get_session_data( 'addon_easy_us_sales_taxes' );
 						$cert = $query['exemptCert'];
 						unset( $cert['CertificateID']);
 						$tax_cloud_session['exempt_certificate'] = $cert;
 						$tax_cloud_session['new_certificate'] = true;
-						it_exchange_update_session_data( 'addon_advanced_us_taxes', $tax_cloud_session );
+						it_exchange_update_session_data( 'addon_easy_us_sales_taxes', $tax_cloud_session );
 						wp_send_json_success( 'it-aust-single-cert-added' );
 						
 					} else {
@@ -503,4 +503,4 @@ function it_exchange_advanced_us_taxes_addon_add_cert() {
 	
 	wp_send_json_error( $errors );
 }
-add_action( 'wp_ajax_it-exchange-advanced-us-taxes-add-cert', 'it_exchange_advanced_us_taxes_addon_add_cert' );
+add_action( 'wp_ajax_it-exchange-easy-us-sales-taxes-add-cert', 'it_exchange_easy_us_sales_taxes_addon_add_cert' );

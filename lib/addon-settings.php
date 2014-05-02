@@ -1,7 +1,7 @@
 <?php
 /**
  * iThemes Exchange Advanced U.S. Taxes Add-on
- * @package exchange-addon-advanced-us-taxes
+ * @package exchange-addon-easy-us-sales-taxes
  * @since 1.0.0
 */
 
@@ -13,7 +13,7 @@
  * @since 1.0.0
  * @return void
 */
-function it_exchange_advanced_us_taxes_settings_callback() {
+function it_exchange_easy_us_sales_taxes_settings_callback() {
 	$IT_Exchange_Advanced_US_Taxes_Add_On = new IT_Exchange_Advanced_US_Taxes_Add_On();
 	$IT_Exchange_Advanced_US_Taxes_Add_On->print_settings_page();
 }
@@ -24,7 +24,7 @@ function it_exchange_advanced_us_taxes_settings_callback() {
  * @since 1.0.0
  * @return array settings
 */
-function it_exchange_advanced_us_taxes_default_settings( $defaults ) {
+function it_exchange_easy_us_sales_taxes_default_settings( $defaults ) {
 	$defaults = array(
 		'tax_cloud_api_id'     => '',
 		'tax_cloud_api_key'    => '',
@@ -42,7 +42,7 @@ function it_exchange_advanced_us_taxes_default_settings( $defaults ) {
 	);
 	return $defaults;
 }
-add_filter( 'it_storage_get_defaults_exchange_addon_advanced_us_taxes', 'it_exchange_advanced_us_taxes_default_settings' );
+add_filter( 'it_storage_get_defaults_exchange_addon_easy_us_sales_taxes', 'it_exchange_easy_us_sales_taxes_default_settings' );
 
 class IT_Exchange_Advanced_US_Taxes_Add_On {
 
@@ -88,22 +88,22 @@ class IT_Exchange_Advanced_US_Taxes_Add_On {
 		$this->_current_page   = empty( $_GET['page'] ) ? false : $_GET['page'];
 		$this->_current_add_on = empty( $_GET['add-on-settings'] ) ? false : $_GET['add-on-settings'];
 
-		if ( ! empty( $_POST ) && $this->_is_admin && 'it-exchange-addons' == $this->_current_page && 'advanced-us-taxes' == $this->_current_add_on ) {
-			add_action( 'it_exchange_save_add_on_settings_advanced_us_taxes', array( $this, 'save_settings' ) );
-			do_action( 'it_exchange_save_add_on_settings_advanced_us_taxes' );
+		if ( ! empty( $_POST ) && $this->_is_admin && 'it-exchange-addons' == $this->_current_page && 'easy-us-sales-taxes' == $this->_current_add_on ) {
+			add_action( 'it_exchange_save_add_on_settings_easy_us_sales_taxes', array( $this, 'save_settings' ) );
+			do_action( 'it_exchange_save_add_on_settings_easy_us_sales_taxes' );
 		}
 	}
 
 	function print_settings_page() {
-		$settings = it_exchange_get_option( 'addon_advanced_us_taxes', true );
+		$settings = it_exchange_get_option( 'addon_easy_us_sales_taxes', true );
 	
 		$form_values  = empty( $this->error_message ) ? $settings : ITForm::get_post_data();
 		$form_options = array(
-			'id'      => apply_filters( 'it_exchange_add_on_advanced_us_taxes', 'it-exchange-add-on-advanced-us-taxes-settings' ),
-			'enctype' => apply_filters( 'it_exchange_add_on_advanced_us_taxes_settings_form_enctype', false ),
-			'action'  => 'admin.php?page=it-exchange-addons&add-on-settings=advanced-us-taxes',
+			'id'      => apply_filters( 'it_exchange_add_on_easy_us_sales_taxes', 'it-exchange-add-on-easy-us-sales-taxes-settings' ),
+			'enctype' => apply_filters( 'it_exchange_add_on_easy_us_sales_taxes_settings_form_enctype', false ),
+			'action'  => 'admin.php?page=it-exchange-addons&add-on-settings=easy-us-sales-taxes',
 		);
-		$form         = new ITForm( $form_values, array( 'prefix' => 'it-exchange-add-on-advanced-us-taxes' ) );
+		$form         = new ITForm( $form_values, array( 'prefix' => 'it-exchange-add-on-easy-us-sales-taxes' ) );
 
 		if ( ! empty ( $this->status_message ) )
 			ITUtility::show_status_message( $this->status_message );
@@ -115,30 +115,30 @@ class IT_Exchange_Advanced_US_Taxes_Add_On {
 			<?php screen_icon( 'it-exchange' ); ?>
 			<h2><?php _e( 'Advanced U.S. Taxes Settings', 'LION' ); ?></h2>
 
-			<?php do_action( 'it_exchange_advanced_us_taxes_settings_page_top' ); ?>
+			<?php do_action( 'it_exchange_easy_us_sales_taxes_settings_page_top' ); ?>
 			<?php do_action( 'it_exchange_addon_settings_page_top' ); ?>
 
-			<?php $form->start_form( $form_options, 'it-exchange-advanced-us-taxes-settings' ); ?>
-				<?php do_action( 'it_exchange_advanced_us_taxes_settings_form_top' ); ?>
-				<?php $this->get_advanced_us_taxes_form_table( $form, $form_values ); ?>
-				<?php do_action( 'it_exchange_advanced_us_taxes_settings_form_bottom' ); ?>
+			<?php $form->start_form( $form_options, 'it-exchange-easy-us-sales-taxes-settings' ); ?>
+				<?php do_action( 'it_exchange_easy_us_sales_taxes_settings_form_top' ); ?>
+				<?php $this->get_easy_us_sales_taxes_form_table( $form, $form_values ); ?>
+				<?php do_action( 'it_exchange_easy_us_sales_taxes_settings_form_bottom' ); ?>
 				<p class="submit">
 					<?php $form->add_submit( 'submit', array( 'value' => __( 'Save Changes', 'LION' ), 'class' => 'button button-primary button-large' ) ); ?>
 				</p>
 			<?php $form->end_form(); ?>
-			<?php do_action( 'it_exchange_advanced_us_taxes_settings_page_bottom' ); ?>
+			<?php do_action( 'it_exchange_easy_us_sales_taxes_settings_page_bottom' ); ?>
 			<?php do_action( 'it_exchange_addon_settings_page_bottom' ); ?>
 		</div>
 		<?php
 	}
 
-	function get_advanced_us_taxes_form_table( $form, $settings = array() ) {
+	function get_easy_us_sales_taxes_form_table( $form, $settings = array() ) {
 		if ( !empty( $settings ) )
 			foreach ( $settings as $key => $var )
 				$form->set_option( $key, $var );
 		?>
 		
-        <div class="it-exchange-addon-settings it-exchange-advanced-us-taxes-addon-settings">
+        <div class="it-exchange-addon-settings it-exchange-easy-us-sales-taxes-addon-settings">
             <h4>
             	<?php _e( 'Tax Cloud Settings', 'LION' ) ?> 
                 <?php 
@@ -151,17 +151,17 @@ class IT_Exchange_Advanced_US_Taxes_Add_On {
                 ?>
             </h4>
             <p>
-                <label for="advanced-us-taxes-tax_cloud_api_id"><?php _e( 'TaxCloud API ID', 'LION' ) ?> <span class="tip" title="<?php _e( 'At TaxCloud.net, go to Websites click Add website to obtain the required API ID and API Key.', 'LION' ); ?>">i</span> </label>
+                <label for="easy-us-sales-taxes-tax_cloud_api_id"><?php _e( 'TaxCloud API ID', 'LION' ) ?> <span class="tip" title="<?php _e( 'At TaxCloud.net, go to Websites click Add website to obtain the required API ID and API Key.', 'LION' ); ?>">i</span> </label>
                 <?php $form->add_text_box( 'tax_cloud_api_id' ); ?>
             </p>
             <p>
-                <label for="advanced-us-taxes-tax_cloud_api_key"><?php _e( 'TaxCloud API Key', 'LION' ) ?> <span class="tip" title="<?php _e( 'At TaxCloud.net, go to Websites click Add website to obtain the required API ID and API Key.', 'LION' ); ?>">i</span></label>
+                <label for="easy-us-sales-taxes-tax_cloud_api_key"><?php _e( 'TaxCloud API Key', 'LION' ) ?> <span class="tip" title="<?php _e( 'At TaxCloud.net, go to Websites click Add website to obtain the required API ID and API Key.', 'LION' ); ?>">i</span></label>
                 <?php $form->add_text_box( 'tax_cloud_api_key' ); ?>
             </p>
             
             <h4><?php _e( 'USPS Settings', 'LION' ) ?></h4>
             <p>
-                <label for="advanced-us-taxes-usps_user_id"><?php _e( 'USPS API User ID', 'LION' ) ?> <span class="tip" title="<?php _e( 'Sign up for a USPS WebTools User ID at https://www.usps.com/business/web-tools-apis/welcome.htm and paste it into this field.', 'LION' ); ?>">i</span></label>
+                <label for="easy-us-sales-taxes-usps_user_id"><?php _e( 'USPS API User ID', 'LION' ) ?> <span class="tip" title="<?php _e( 'Sign up for a USPS WebTools User ID at https://www.usps.com/business/web-tools-apis/welcome.htm and paste it into this field.', 'LION' ); ?>">i</span></label>
                 <?php $form->add_text_box( 'usps_user_id' ); ?>
             </p>
             
@@ -177,26 +177,26 @@ class IT_Exchange_Advanced_US_Taxes_Add_On {
                 ?>
             </h4>
             <p>
-                <label for="advanced-us-taxes-business_address_1"><?php _e( 'Address 1', 'LION' ) ?></label>
+                <label for="easy-us-sales-taxes-business_address_1"><?php _e( 'Address 1', 'LION' ) ?></label>
                 <?php $form->add_text_box( 'business_address_1' ); ?>
             </p>
             <p>
-                <label for="advanced-us-taxes-business_address_2"><?php _e( 'Address 2', 'LION' ) ?></label>
+                <label for="easy-us-sales-taxes-business_address_2"><?php _e( 'Address 2', 'LION' ) ?></label>
                 <?php $form->add_text_box( 'business_address_2' ); ?>
             </p>
             <p>
-                <label for="advanced-us-taxes-business_city"><?php _e( 'City', 'LION' ) ?></label>
+                <label for="easy-us-sales-taxes-business_city"><?php _e( 'City', 'LION' ) ?></label>
                 <?php $form->add_text_box( 'business_city' ); ?>
             </p>
             <p>
-                <label for="advanced-us-taxes-business_state"><?php _e( 'State', 'LION' ) ?></label>
+                <label for="easy-us-sales-taxes-business_state"><?php _e( 'State', 'LION' ) ?></label>
                 <?php 
                 $states = it_exchange_get_data_set( 'states', array( 'country' => 'US', 'include-territories' => true ) );
                 $form->add_drop_down( 'business_state', $states ); 
                 ?>
             </p>
             <p>
-                <label for="advanced-us-taxes-business_zip_5"><?php _e( 'Zip Code', 'LION' ) ?></label>
+                <label for="easy-us-sales-taxes-business_zip_5"><?php _e( 'Zip Code', 'LION' ) ?></label>
                 <?php $form->add_text_box( 'business_zip_5' ); ?> - <?php $form->add_text_box( 'business_zip_4' ); ?>
             </p>
             
@@ -206,7 +206,7 @@ class IT_Exchange_Advanced_US_Taxes_Add_On {
                 <label for="tax_exemptions"><?php _e( 'Enable Tax Exemptions?', 'LION' ) ?></label>
             </p>
             <p>
-                <label for="advanced-us-taxes-us-tic"><?php _e( 'Default Tax Class', 'LION' ) ?></label>
+                <label for="easy-us-sales-taxes-us-tic"><?php _e( 'Default Tax Class', 'LION' ) ?></label>
                 
                 <script type="text/javascript">
 					//currentTic must be declared/set, even if TIC has not already been specified.
@@ -231,17 +231,17 @@ class IT_Exchange_Advanced_US_Taxes_Add_On {
     function save_settings() {
     	global $new_values; //We set this as global here to modify it in the error check
     	
-        $defaults = it_exchange_get_option( 'addon_advanced_us_taxes' );
+        $defaults = it_exchange_get_option( 'addon_easy_us_sales_taxes' );
         $new_values = wp_parse_args( ITForm::get_post_data(), $defaults );
         
         // Check nonce
-        if ( ! wp_verify_nonce( $_POST['_wpnonce'], 'it-exchange-advanced-us-taxes-settings' ) ) {
+        if ( ! wp_verify_nonce( $_POST['_wpnonce'], 'it-exchange-easy-us-sales-taxes-settings' ) ) {
             $this->error_message = __( 'Error. Please try again', 'LION' );
             return;
         }
 
-        $errors = apply_filters( 'it_exchange_add_on_advanced_us_taxes_validate_settings', $this->get_form_errors( $new_values ), $new_values );
-        if ( ! $errors && it_exchange_save_option( 'addon_advanced_us_taxes', $new_values ) ) {
+        $errors = apply_filters( 'it_exchange_add_on_easy_us_sales_taxes_validate_settings', $this->get_form_errors( $new_values ), $new_values );
+        if ( ! $errors && it_exchange_save_option( 'addon_easy_us_sales_taxes', $new_values ) ) {
             ITUtility::show_status_message( __( 'Settings saved.', 'LION' ) );
         } else if ( $errors ) {
             $errors = implode( '<br />', $errors );

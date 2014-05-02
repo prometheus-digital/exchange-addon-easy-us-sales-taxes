@@ -1,12 +1,12 @@
 <?php
 /*
- * Plugin Name: iThemes Exchange - Advanced U.S. Taxes
+ * Plugin Name: iThemes Exchange - Easy U.S. Sales Taxes
  * Version: 1.0.0
- * Description: Adds Advanced U.S. Taxes to iThemes Exchange with the power of TaxCloud.net
- * Plugin URI: http://ithemes.com/exchange/advanced-us-taxes/
+ * Description: Adds Easy U.S. Sales Taxes to iThemes Exchange with the power of TaxCloud.
+ * Plugin URI: http://ithemes.com/exchange/easy-us-sales-taxes/
  * Author: iThemes
  * Author URI: http://ithemes.com
- * iThemes Package: exchange-addon-advanced-use-taxes
+ * iThemes Package: exchange-addon-easy-us-sales-taxes
  
  * Installation:
  * 1. Download and unzip the latest release zip file.
@@ -23,24 +23,24 @@
  *
  * @return void
 */
-function it_exchange_register_advanced_us_taxes_addon() {
+function it_exchange_register_easy_us_sales_taxes_addon() {
 	$options = array(
-		'name'              => __( 'Advanced U.S. Taxes', 'LION' ),
-		'description'       => __( 'With the power of TaxCloud.net, store owners can now charge the proper tax for product classes.', 'LION' ),
+		'name'              => __( 'Easy U.S. Sales Taxes', 'LION' ),
+		'description'       => __( 'With the power of TaxCloud, store owners can now charge the proper tax for product classes.', 'LION' ),
 		'author'            => 'iThemes',
-		'author_url'        => 'http://ithemes.com/exchange/advanced-us-taxes/',
+		'author_url'        => 'http://ithemes.com/exchange/easy-us-sales-taxes/',
 		'icon'              => ITUtility::get_url_from_file( dirname( __FILE__ ) . '/lib/images/taxes50px.png' ),
 		'file'              => dirname( __FILE__ ) . '/init.php',
 		'category'          => 'taxes',
 		'basename'          => plugin_basename( __FILE__ ),
 		'labels'      => array(
-			'singular_name' => __( 'Advanced U.S. Taxes', 'LION' ),
+			'singular_name' => __( 'Easy U.S. Sales Taxes', 'LION' ),
 		),
-		'settings-callback' => 'it_exchange_advanced_us_taxes_settings_callback',
+		'settings-callback' => 'it_exchange_easy_us_sales_taxes_settings_callback',
 	);
-	it_exchange_register_addon( 'advanced-us-taxes', $options );
+	it_exchange_register_addon( 'easy-us-sales-taxes', $options );
 }
-add_action( 'it_exchange_register_addons', 'it_exchange_register_advanced_us_taxes_addon' );
+add_action( 'it_exchange_register_addons', 'it_exchange_register_easy_us_sales_taxes_addon' );
 
 /**
  * Loads the translation data for WordPress
@@ -49,10 +49,10 @@ add_action( 'it_exchange_register_addons', 'it_exchange_register_advanced_us_tax
  * @since 1.0.0
  * @return void
 */
-function it_exchange_advanced_us_taxes_set_textdomain() {
+function it_exchange_easy_us_sales_taxes_set_textdomain() {
 	load_plugin_textdomain( 'LION', false, dirname( plugin_basename( __FILE__  ) ) . '/lang/' );
 }
-//add_action( 'plugins_loaded', 'it_exchange_advanced_us_taxes_set_textdomain' );
+//add_action( 'plugins_loaded', 'it_exchange_easy_us_sales_taxes_set_textdomain' );
 
 /**
  * Registers Plugin with iThemes updater class
@@ -62,8 +62,8 @@ function it_exchange_advanced_us_taxes_set_textdomain() {
  * @param object $updater ithemes updater object
  * @return void
 */
-function ithemes_exchange_addon_advanced_us_taxes_updater_register( $updater ) { 
-	$updater->register( 'exchange-addon-advanced-us-taxes', __FILE__ );
+function ithemes_exchange_addon_easy_us_sales_taxes_updater_register( $updater ) { 
+	$updater->register( 'exchange-addon-easy-us-sales-taxes', __FILE__ );
 }
-add_action( 'ithemes_updater_register', 'ithemes_exchange_addon_advanced_us_taxes_updater_register' );
+add_action( 'ithemes_updater_register', 'ithemes_exchange_addon_easy_us_sales_taxes_updater_register' );
 require( dirname( __FILE__ ) . '/lib/updater/load.php' );

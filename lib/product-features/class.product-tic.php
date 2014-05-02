@@ -4,7 +4,7 @@
  * By default, it registers a metabox on the product's add/edit screen and provides HTML / data for the frontend.
  *
  * @since 1.0.0 
- * @package exchange-addon-advanced-us-taxes
+ * @package exchange-addon-easy-us-sales-taxes
 */
 
 
@@ -112,7 +112,7 @@ class IT_Exchange_Product_Feature_Product_US_TIC {
 		$tax_code = it_exchange_get_product_feature( $product->ID, 'us-tic' );
 				
 		if ( empty( $tax_code ) ) {
-			$settings = it_exchange_get_option( 'addon_advanced_us_taxes' );
+			$settings = it_exchange_get_option( 'addon_easy_us_sales_taxes' );
 			if ( !empty( $settings['us-tic'] ) )
 				$tax_code = $settings['us-tic'];
 		}
@@ -122,7 +122,7 @@ class IT_Exchange_Product_Feature_Product_US_TIC {
 			<p class="order-description"><?php echo $description; ?></p>
 		<?php endif; ?>
 		<p>
-            <label for="advanced-us-taxes-us-tic"><?php _e( 'Tax Class', 'LION' ) ?></label>
+            <label for="easy-us-sales-taxes-us-tic"><?php _e( 'Tax Class', 'LION' ) ?></label>
             <script type="text/javascript">
 				//currentTic must be declared/set, even if TIC has not already been specified.
 				var currentTic = "<?php echo empty( $tax_code ) ? '' : esc_js( $tax_code ); ?>";
@@ -130,7 +130,7 @@ class IT_Exchange_Product_Feature_Product_US_TIC {
 				var fieldID = "us-tic";
 			</script>
 			
-			<input type="text" name="it-exchange-add-on-advanced-us-taxes-us-tic" id="us-tic" value="<?php echo $tax_code; ?>" />
+			<input type="text" name="it-exchange-add-on-easy-us-sales-taxes-us-tic" id="us-tic" value="<?php echo $tax_code; ?>" />
         </p>
 		<?php
 	}
@@ -157,7 +157,7 @@ class IT_Exchange_Product_Feature_Product_US_TIC {
 			return;
 
 		// Get new value from post
-		$new_value = empty( $_POST['it-exchange-add-on-advanced-us-taxes-us-tic'] ) ? '' : $_POST['it-exchange-add-on-advanced-us-taxes-us-tic'] ;
+		$new_value = empty( $_POST['it-exchange-add-on-easy-us-sales-taxes-us-tic'] ) ? '' : $_POST['it-exchange-add-on-easy-us-sales-taxes-us-tic'] ;
 
 		// Save new value
 		it_exchange_update_product_feature( $product_id, 'us-tic', $new_value );
@@ -173,7 +173,7 @@ class IT_Exchange_Product_Feature_Product_US_TIC {
 	 * @return bolean
 	*/
 	function save_feature( $product_id, $new_value ) {
-		update_post_meta( $product_id, '_it-exchange-add-on-advanced-us-taxes-us-tic', $new_value );
+		update_post_meta( $product_id, '_it-exchange-add-on-easy-us-sales-taxes-us-tic', $new_value );
 		return true;
 	}
 
@@ -186,10 +186,10 @@ class IT_Exchange_Product_Feature_Product_US_TIC {
 	 * @return string product feature
 	*/
 	function get_feature( $existing, $product_id ) {
-		if ( $code = get_post_meta( $product_id, '_it-exchange-add-on-advanced-us-taxes-us-tic', true ) ) {
+		if ( $code = get_post_meta( $product_id, '_it-exchange-add-on-easy-us-sales-taxes-us-tic', true ) ) {
 			return $code;
 		} else { //default setting
-			$settings = it_exchange_get_option( 'addon_advanced_us_taxes' );
+			$settings = it_exchange_get_option( 'addon_easy_us_sales_taxes' );
 			if ( !empty( $settings['us-tic'] ) )
 				return $settings['us-tic'];
 		}

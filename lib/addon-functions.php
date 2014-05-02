@@ -1,7 +1,7 @@
 <?php
 /**
  * iThemes Exchange Advanced U.S. Taxes Add-on
- * @package exchange-addon-advanced-us-taxes
+ * @package exchange-addon-easy-us-sales-taxes
  * @since 1.0.0
 */
 
@@ -14,11 +14,11 @@
  * @return string The calculated tax from TaxCloud
 */
 
-function it_exchange_advanced_us_taxes_addon_get_taxes_for_confirmation( $format_price=true ) {
+function it_exchange_easy_us_sales_taxes_addon_get_taxes_for_confirmation( $format_price=true ) {
     $taxes = 0;
     if ( !empty( $GLOBALS['it_exchange']['transaction'] ) ) {
         $transaction = $GLOBALS['it_exchange']['transaction'];
-        $taxes = get_post_meta( $transaction->ID, '_it_exchange_advanced_us_taxes', true );
+        $taxes = get_post_meta( $transaction->ID, '_it_exchange_easy_us_sales_taxes', true );
     }
     if ( $format_price )
         $taxes = it_exchange_format_price( $taxes );
@@ -34,12 +34,12 @@ function it_exchange_advanced_us_taxes_addon_get_taxes_for_confirmation( $format
  * @param bool $clear_cache Whether or not to force clear any cached tax values
  * @return string The calculated tax from TaxCloud
 */
-function it_exchange_advanced_us_taxes_addon_get_taxes_for_cart(  $format_price=true, $clear_cache=false ) {
+function it_exchange_easy_us_sales_taxes_addon_get_taxes_for_cart(  $format_price=true, $clear_cache=false ) {
 	// Grab the tax rate
-	$settings  = it_exchange_get_option( 'addon_advanced_us_taxes' );
+	$settings  = it_exchange_get_option( 'addon_easy_us_sales_taxes' );
 	$taxes = 0;
 	$cart = it_exchange_get_cart_data();
-	$tax_cloud_session = it_exchange_get_session_data( 'addon_advanced_us_taxes' );
+	$tax_cloud_session = it_exchange_get_session_data( 'addon_easy_us_sales_taxes' );
 	
 	$origin = array(
 		'Address1' => $settings['business_address_1'],
@@ -196,7 +196,7 @@ function it_exchange_advanced_us_taxes_addon_get_taxes_for_cart(  $format_price=
 					foreach( $body->CartItemsResponse as $item ) {
 						$checkout_taxes += $item->TaxAmount;
 					}
-					$taxes = apply_filters( 'it_exchange_advanced_us_taxes_addon_get_taxes_for_cart', $checkout_taxes );
+					$taxes = apply_filters( 'it_exchange_easy_us_sales_taxes_addon_get_taxes_for_cart', $checkout_taxes );
 					$tax_cloud_session['cart_id'] = $body->CartID; //we need this to authorize and capture the tax
 					$tax_cloud_session['products_hash'] = $products_hash;
 				} else {
@@ -222,7 +222,7 @@ function it_exchange_advanced_us_taxes_addon_get_taxes_for_cart(  $format_price=
 	}
 				
 	$tax_cloud_session['taxes'] = $taxes;
-	it_exchange_update_session_data( 'addon_advanced_us_taxes', $tax_cloud_session );
+	it_exchange_update_session_data( 'addon_easy_us_sales_taxes', $tax_cloud_session );
 
 	if ( $format_price )
 		$taxes = it_exchange_format_price( $taxes );
@@ -237,12 +237,12 @@ function it_exchange_advanced_us_taxes_addon_get_taxes_for_cart(  $format_price=
  * @param bool $echo Whether or not return or echo the output
  * @return mixed The HTML output
 */
-function it_exchange_advanced_us_taxes_addon_exemptions( $echo=false ) {
+function it_exchange_easy_us_sales_taxes_addon_exemptions( $echo=false ) {
 	$output = '';
-	$settings = it_exchange_get_option( 'addon_advanced_us_taxes' );
+	$settings = it_exchange_get_option( 'addon_easy_us_sales_taxes' );
 	
 	if ( is_user_logged_in() && !empty( $settings['tax_exemptions'] ) )
-		$output = '<div id="it-exchange-advanced-us-taxes-exempt-label" class="description"><a href="#" title="' . __( 'Manage Certificate Exemptions', 'LION' ) . '" id="it-exchange-advanced-us-tax-list-existing-certs">' . __( 'Tax Exempt?', 'LION' ) . '</a></div>';
+		$output = '<div id="it-exchange-easy-us-sales-taxes-exempt-label" class="description"><a href="#" title="' . __( 'Manage Certificate Exemptions', 'LION' ) . '" id="it-exchange-easy-us-sales-tax-list-existing-certs">' . __( 'Tax Exempt?', 'LION' ) . '</a></div>';
 	
 	if ( $echo )
 		echo $output;
@@ -258,11 +258,11 @@ function it_exchange_advanced_us_taxes_addon_exemptions( $echo=false ) {
  * @param bool $echo Whether or not return or echo the output
  * @return mixed The HTML output
 */
-function it_exchange_advanced_us_taxes_addon_add_exemption( $echo=false ) {
+function it_exchange_easy_us_sales_taxes_addon_add_exemption( $echo=false ) {
 	$output = '';
 	
 	if ( is_user_logged_in() )
-		$output = '<a href="#" title="' . __( 'Manage Certificate Exemptions', 'LION' ) . '" id="it-exchange-advanced-us-tax-add-cert">' . __( 'Add a New Exemption', 'LION' ) . '</a>';
+		$output = '<a href="#" title="' . __( 'Manage Certificate Exemptions', 'LION' ) . '" id="it-exchange-easy-us-sales-tax-add-cert">' . __( 'Add a New Exemption', 'LION' ) . '</a>';
 	
 	
 	if ( $echo )
@@ -279,7 +279,7 @@ function it_exchange_advanced_us_taxes_addon_add_exemption( $echo=false ) {
  * @param object $tax_cloud_states_object TaxCloud States object
  * @return string Comma separated list of States
 */
-function it_exchange_advanced_us_taxes_addon_convert_exempt_states_to_string( $tax_cloud_states_object ) {
+function it_exchange_easy_us_sales_taxes_addon_convert_exempt_states_to_string( $tax_cloud_states_object ) {
 	$states = array();
 	if ( !empty( $tax_cloud_states_object ) ) {
 		
@@ -299,10 +299,10 @@ function it_exchange_advanced_us_taxes_addon_convert_exempt_states_to_string( $t
  * @param string $gm_date TaxCloud Creation Date string
  * @return string WordPress formated date string
 */
-function it_exchange_advanced_us_taxes_addon_convert_exempt_createdate_to_date_format( $gm_date ) {
+function it_exchange_easy_us_sales_taxes_addon_convert_exempt_createdate_to_date_format( $gm_date ) {
     $format = empty( $format ) ? get_option( 'date_format' ) : $format;
 
-	$date = apply_filters( 'it_exchange_advanced_us_taxes_addon_convert_exempt_createdate_to_date_format', date_i18n( $format, strtotime( $gm_date ) ), $gm_date, $format );
+	$date = apply_filters( 'it_exchange_easy_us_sales_taxes_addon_convert_exempt_createdate_to_date_format', date_i18n( $format, strtotime( $gm_date ) ), $gm_date, $format );
 
 	return $date;
 }
