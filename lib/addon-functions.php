@@ -51,8 +51,8 @@ function it_exchange_advanced_us_taxes_addon_get_taxes_for_cart(  $format_price=
 	if ( !empty( $settings['business_address_2'] ) )
 		$origin['Address2'] = $settings['business_address_2'];
 	
-	if ( $settings['tax_shipping_address'] )
-		$address = it_exchange_get_cart_shipping_address();
+	//We always wnat to get the Shipping Address if it's available...
+	$address = it_exchange_get_cart_shipping_address();
 	
 	//We at minimum need the Address1 and Zip
 	if ( empty( $address['address1'] ) && empty( $address['zip'] ) ) 
@@ -91,8 +91,16 @@ function it_exchange_advanced_us_taxes_addon_get_taxes_for_cart(  $format_price=
 	
 	$products = it_exchange_get_cart_products();
 	$products_hash = md5( maybe_serialize( $products ) );
+	
+	$shipping_cost = it_exchange_get_cart_shipping_cost( false, false );
+	if ( empty( $tax_cloud_session['shipping_cost'] ) 
+		|| $tax_cloud_session['shipping_cost'] != $shipping_cost ) {
+		$tax_cloud_session['shipping_cost'] = $shipping_cost;
+		$clear_cache = true;
+	}
 			
-	// if we don't have a cache of the products_hash OR if the current cache doesn't match the current products hash
+	// if we don't have a cache of the products_hash 
+	// OR if the current cache doesn't match the current products hash
 	if ( $clear_cache || empty( $tax_cloud_session['products_hash'] )
 		|| $tax_cloud_session['products_hash'] !== $products_hash 
 		|| !empty( $tax_cloud_session['new_certificate'] ) ) {
@@ -138,7 +146,19 @@ function it_exchange_advanced_us_taxes_addon_get_taxes_for_cart(  $format_price=
 			);
 			$i++;
 		}
-
+		
+		//Add shipping, let TaxCloud decide if it needs to be taxed
+		//TIC for Shipping is always 11010
+		if ( !empty( $shipping_cost ) ) {
+			$cart_items[] = array(
+				'Index'  => $i,
+				'TIC'    => '11010',
+				'ItemID' => 'Shipping',
+				'Price'  => $shipping_cost,
+				'Qty'    => 1,
+			);
+		}
+		
 		if ( !empty( $settings['tax_exemptions'] ) && !empty( $tax_cloud_session['exempt_certificate'] ) ) {		
 			$exempt_cert = $tax_cloud_session['exempt_certificate'];
 			$tax_cloud_session['new_certificate'] = false;

@@ -39,7 +39,6 @@ function it_exchange_advanced_us_taxes_default_settings( $defaults ) {
 		'business_verified'    => false,
 		'tax_exemptions'       => false,
 		'default_tax_class'    => '',
-		'tax_shipping_address' => false,
 	);
 	return $defaults;
 }
@@ -205,10 +204,6 @@ class IT_Exchange_Advanced_US_Taxes_Add_On {
             <p>
                 <?php $form->add_check_box( 'tax_exemptions' ); ?>
                 <label for="tax_exemptions"><?php _e( 'Enable Tax Exemptions?', 'LION' ) ?></label>
-            </p>
-            <p>
-                <?php $form->add_check_box( 'tax_shipping_address' ); ?>
-                <label for="tax_shipping_address"><?php _e( 'Tax Shipping Address?', 'LION' ); ?> <span class="tip" title="<?php _e( 'If a Shipping Address is available, we can use it to base the tax calculation, otherwise we will use the billing address.', 'LION' ); ?>">i</span></label>
             </p>
             <p>
                 <label for="advanced-us-taxes-us-tic"><?php _e( 'Default Tax Class', 'LION' ) ?></label>
