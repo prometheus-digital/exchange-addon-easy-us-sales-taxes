@@ -258,7 +258,7 @@ add_filter( 'it_exchange_possible_template_paths', 'it_exchange_easy_us_sales_ta
  * @return int New Total
 */
 function it_exchange_easy_us_sales_taxes_addon_taxes_modify_total( $total ) {
-	if ( !it_exchange_is_page( 'cart' ) ) //we just don't want to modify anything on the cart page
+	if ( !it_exchange_is_page( 'cart' ) || it_exchange_in_superwidget() ) //we just don't want to modify anything on the cart page
 		$total += it_exchange_easy_us_sales_taxes_addon_get_taxes_for_cart( false );
 	return $total;
 }
