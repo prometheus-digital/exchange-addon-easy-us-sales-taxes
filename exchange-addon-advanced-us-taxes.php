@@ -26,7 +26,7 @@
 function it_exchange_register_easy_us_sales_taxes_addon() {
 	$options = array(
 		'name'              => __( 'Easy U.S. Sales Taxes', 'LION' ),
-		'description'       => __( 'With the power of TaxCloud, store owners can now charge the proper tax for product classes.', 'LION' ),
+		'description'       => __( 'With the power of TaxCloud, store owners can now charge the proper tax for each of their product types, regardless of where their customers live in the United States.', 'LION' ),
 		'author'            => 'iThemes',
 		'author_url'        => 'http://ithemes.com/exchange/easy-us-sales-taxes/',
 		'icon'              => ITUtility::get_url_from_file( dirname( __FILE__ ) . '/lib/images/taxes50px.png' ),
