@@ -1,6 +1,6 @@
 <?php
 /**
- * iThemes Exchange Advanced U.S. Taxes Add-on
+ * iThemes Exchange Easy U.S. Sales Taxes Add-on
  * @package exchange-addon-easy-us-sales-taxes
  * @since 1.0.0
 */
@@ -14,8 +14,8 @@
  * @return void
 */
 function it_exchange_easy_us_sales_taxes_settings_callback() {
-	$IT_Exchange_Advanced_US_Taxes_Add_On = new IT_Exchange_Advanced_US_Taxes_Add_On();
-	$IT_Exchange_Advanced_US_Taxes_Add_On->print_settings_page();
+	$IT_Exchange_Easy_US_Sales_Taxes_Add_On = new IT_Exchange_Easy_US_Sales_Taxes_Add_On();
+	$IT_Exchange_Easy_US_Sales_Taxes_Add_On->print_settings_page();
 }
 
 /**
@@ -44,7 +44,7 @@ function it_exchange_easy_us_sales_taxes_default_settings( $defaults ) {
 }
 add_filter( 'it_storage_get_defaults_exchange_addon_easy_us_sales_taxes', 'it_exchange_easy_us_sales_taxes_default_settings' );
 
-class IT_Exchange_Advanced_US_Taxes_Add_On {
+class IT_Exchange_Easy_US_Sales_Taxes_Add_On {
 
 	/**
 	 * @var boolean $_is_admin true or false
@@ -83,7 +83,7 @@ class IT_Exchange_Advanced_US_Taxes_Add_On {
 	 * @since 1.0.0
 	 * @return void
 	*/
-	function IT_Exchange_Advanced_US_Taxes_Add_On() {
+	function IT_Exchange_Easy_US_Sales_Taxes_Add_On() {
 		$this->_is_admin       = is_admin();
 		$this->_current_page   = empty( $_GET['page'] ) ? false : $_GET['page'];
 		$this->_current_add_on = empty( $_GET['add-on-settings'] ) ? false : $_GET['add-on-settings'];
@@ -113,7 +113,7 @@ class IT_Exchange_Advanced_US_Taxes_Add_On {
 		?>
 		<div class="wrap">
 			<?php screen_icon( 'it-exchange' ); ?>
-			<h2><?php _e( 'Advanced U.S. Taxes Settings', 'LION' ); ?></h2>
+			<h2><?php _e( 'Easy U.S. Sales Taxes Settings', 'LION' ); ?></h2>
 
 			<?php do_action( 'it_exchange_easy_us_sales_taxes_settings_page_top' ); ?>
 			<?php do_action( 'it_exchange_addon_settings_page_top' ); ?>

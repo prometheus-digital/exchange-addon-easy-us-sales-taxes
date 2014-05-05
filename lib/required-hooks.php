@@ -1,6 +1,6 @@
 <?php
 /**
- * iThemes Exchange Advanced U.S. Taxes Add-on
+ * iThemes Exchange Easy U.S. Sales Taxes Add-on
  * @package exchange-addon-easy-us-sales-taxes
  * @since 1.0.0
 */
@@ -48,7 +48,7 @@ function it_exchange_easy_us_sales_taxes_addon_show_conflict_nag() {
 add_action( 'admin_notices', 'it_exchange_easy_us_sales_taxes_addon_show_conflict_nag' );
 
 /**
- * Enqueues Advanced U.S. Taxes scripts to WordPress Dashboard
+ * Enqueues Easy U.S. Sales Taxes scripts to WordPress Dashboard
  *
  * @since 1.0.0
  *
@@ -134,7 +134,7 @@ add_action( 'wp_enqueue_scripts', 'it_exchange_easy_us_sales_taxes_load_public_s
 add_action( 'it_exchange_enqueue_super_widget_scripts', 'it_exchange_easy_us_sales_taxes_load_public_scripts' );
 
 /**
- * Enqueues Advanced U.S. Taxes styles to WordPress Dashboard
+ * Enqueues Easy U.S. Sales Taxes styles to WordPress Dashboard
  *
  * @since 1.0.0
  *
@@ -161,7 +161,7 @@ function it_exchange_easy_us_sales_taxes_addon_admin_wp_enqueue_styles() {
 			$post_type = $post->post_type;
 	}
 	
-	// Advanced US Taxes settings page
+	// Easy US Sales Taxes settings page
 	if ( ( isset( $post_type ) && 'it_exchange_prod' === $post_type )
 		|| ( !empty( $_GET['add-on-settings'] ) && 'exchange_page_it-exchange-addons' === $hook_suffix && 'easy-us-sales-taxes' === $_GET['add-on-settings'] ) ) {
 		
@@ -173,7 +173,7 @@ function it_exchange_easy_us_sales_taxes_addon_admin_wp_enqueue_styles() {
 add_action( 'admin_print_styles', 'it_exchange_easy_us_sales_taxes_addon_admin_wp_enqueue_styles' );
 
 /**
- * Add Advanced U.S. Taxes to the content-cart totals and content-checkout loop
+ * Add Easy U.S. Sales Taxes to the content-cart totals and content-checkout loop
  *
  * @since 1.0.0
  *
@@ -197,7 +197,7 @@ add_filter( 'it_exchange_get_content_checkout_totals_elements', 'it_exchange_eas
 add_filter( 'it_exchange_get_content_confirmation_transaction_summary_elements', 'it_exchange_easy_us_sales_taxes_addon_add_taxes_to_template_totals_elements' );
 
 /**
- * Add Advanced U.S. Taxes to the super-widget-checkout totals loop
+ * Add Easy U.S. Sales Taxes to the super-widget-checkout totals loop
  *
  * @since 1.0.0
  *
@@ -381,7 +381,7 @@ function it_exchange_easy_us_sales_taxes_transaction_hook( $transaction_id ) {
 	    catch( Exception $e ) {
 			$exchange = it_exchange_get_option( 'settings_general' );
 			$error = sprintf( __( 'Unable to authorize transaction with TaxCloud.net: %s', 'LION' ), $e->getMessage() );
-			wp_mail( $exchange['company-email'], __( 'Error with Advanced U.S. Taxes', 'LION' ), $error );
+			wp_mail( $exchange['company-email'], __( 'Error with Easy U.S. Sales Taxes', 'LION' ), $error );
 	    }
 	}
 	
@@ -444,7 +444,7 @@ function it_exchange_easy_us_sales_taxes_transaction_refund( $transaction, $amou
 		    catch( Exception $e ) {
 				$exchange = it_exchange_get_option( 'settings_general' );
 				$error = sprintf( __( 'Unable to returning transaction with TaxCloud.net: %s', 'LION' ), $e->getMessage() );
-				wp_mail( $exchange['company-email'], __( 'Error with Advanced U.S. Taxes', 'LION' ), $error );
+				wp_mail( $exchange['company-email'], __( 'Error with Easy U.S. Sales Taxes', 'LION' ), $error );
 		    }
 		}		
 	}

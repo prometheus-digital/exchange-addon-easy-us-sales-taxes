@@ -1,6 +1,6 @@
 <?php
 /**
- * iThemes Exchange Advanced U.S. Taxes Add-on
+ * iThemes Exchange Easy U.S. Sales Taxes Add-on
  * @package exchange-addon-easy-us-sales-taxes
  * @since 1.0.0
 */

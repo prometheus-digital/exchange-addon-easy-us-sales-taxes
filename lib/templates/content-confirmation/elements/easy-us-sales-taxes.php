@@ -1,8 +1,8 @@
 <?php
 /**
- * This is the default template for the Advanced U.S. Taxes
+ * This is the default template for the Easy U.S. Sales Taxes
  * element in the totals loop of the content-confirmation
- * template part. It was added by Advanced U.S. Taxes add-on.
+ * template part. It was added by Easy U.S. Sales Taxes add-on.
  *
  * @since 1.0.0
  * @version 1.0.0
