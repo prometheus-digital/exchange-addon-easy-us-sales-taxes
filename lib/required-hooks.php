@@ -337,7 +337,7 @@ add_filter( 'it_exchange_save_customer_shipping_address', 'it_exchange_easy_us_s
 function it_exchange_easy_us_sales_taxes_transaction_hook( $transaction_id ) {
 	$tax_cloud_session = it_exchange_get_session_data( 'addon_easy_us_sales_taxes' );
 	
-	//If we don't have a tax cloud Cart ID, we cannot authorize and capture the tax
+	//If we don't have a TaxCloud Cart ID, we cannot authorize and capture the tax
 	if ( !empty( $tax_cloud_session['cart_id'] ) ) {
 		$settings = it_exchange_get_option( 'addon_easy_us_sales_taxes' );
 		$customer = it_exchange_get_current_customer();

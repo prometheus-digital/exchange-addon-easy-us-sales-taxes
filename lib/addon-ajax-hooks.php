@@ -442,7 +442,7 @@ function it_exchange_easy_us_sales_taxes_addon_add_cert() {
 					
 					if ( 'single' == $_POST['exempt_type'] ) {
 						
-						// w/ Tax Cloud, if it is a single use certificate, we do not add it to their database
+						// w/ TaxCloud, if it is a single use certificate, we do not add it to their database
 						// with the AddExemptCertificate API, it gets added to the tax query 
 						// in it_exchange_easy_us_sales_taxes_addon_get_taxes_for_cart()
 						$tax_cloud_session = it_exchange_get_session_data( 'addon_easy_us_sales_taxes' );

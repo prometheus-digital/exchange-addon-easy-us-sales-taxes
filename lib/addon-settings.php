@@ -140,14 +140,14 @@ class IT_Exchange_Easy_US_Sales_Taxes_Add_On {
 		
         <div class="it-exchange-addon-settings it-exchange-easy-us-sales-taxes-addon-settings">
             <h4>
-            	<?php _e( 'Tax Cloud Settings', 'LION' ) ?> 
+            	<?php _e( 'TaxCloud Settings', 'LION' ) ?> 
                 <?php 
                 if ( !empty( $settings['tax_cloud_verified'] ) )
                		$hidden_class = '';
                	else
                		$hidden_class = 'hidden';
                		
-               	echo '<img src="' . ITUtility::get_url_from_file( dirname( __FILE__ ) ) . '/images/check.png" class="check ' . $hidden_class . '" id="it-exchange-aust-taxcloud-verified" title="' . __( 'Tax Cloud Settings Verified', 'LION' ) . '" height="15" >';
+               	echo '<img src="' . ITUtility::get_url_from_file( dirname( __FILE__ ) ) . '/images/check.png" class="check ' . $hidden_class . '" id="it-exchange-aust-taxcloud-verified" title="' . __( 'TaxCloud Settings Verified', 'LION' ) . '" height="15" >';
                 ?>
             </h4>
             <p>
