@@ -1,7 +1,7 @@
 <?php
 /*
  * Plugin Name: iThemes Exchange - Easy U.S. Sales Taxes
- * Version: 1.0.0
+ * Version: 1.0.2
  * Description: Adds Easy U.S. Sales Taxes to iThemes Exchange with the power of TaxCloud.
  * Plugin URI: http://ithemes.com/exchange/easy-us-sales-taxes/
  * Author: iThemes
