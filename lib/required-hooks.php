@@ -540,6 +540,7 @@ function it_exchange_easy_us_sales_taxes_addon_list_existing_certificates_backbo
 					<strong><?php _e( 'Exempt State(s):', 'LION' ); ?></strong> {{{ data.ExemptStates }}}<br />
 					<strong><?php _e( 'Date:', 'LION' ); ?></strong> {{{ data.CreatedDate }}}<br />
 					<strong><?php _e( 'Purpose:', 'LION' ); ?></strong> {{{ data.PurchaserExemptionReason }}}<br />
+				</p>
 				<p>
 					<!-- <a href="#" id="it-exchange-aust-view-existing-certificate" class="view-existing-certificate button" data-cert-id="{{{ data.CertificateID }}}">View</a> -->
 					<a href="#" id="it-exchange-aust-use-existing-certificate" class="button" data-cert-id="{{{ data.CertificateID }}}"><?php _e( 'Use', 'LION' ); ?></a>
