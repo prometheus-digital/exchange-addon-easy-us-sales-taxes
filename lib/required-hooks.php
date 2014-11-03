@@ -756,3 +756,19 @@ function it_exchange_easy_us_sales_taxes_addon_add_new_certificate_backbone_temp
 	</script>
 	<?php
 }
+
+/**
+ * Adds the cart taxes to the transaction object
+ *
+ * @since CHANGEME
+ *
+ * @param string $taxes incoming from WP Filter. False by default.
+ * @return string
+ *
+*/
+function it_exchange_easy_us_sales_taxes_add_cart_taxes_to_txn_object() {
+    $formatted = ( 'it_exchange_set_transaction_objet_cart_taxes_formatted' == current_filter() );
+    return it_exchange_easy_us_sales_taxes_addon_get_taxes_for_cart( $formatted );
+}
+add_filter( 'it_exchange_set_transaction_objet_cart_taxes_formatted', 'it_exchange_easy_us_sales_taxes_add_cart_taxes_to_txn_object' );
+add_filter( 'it_exchange_set_transaction_objet_cart_taxes_raw', 'it_exchange_easy_us_sales_taxes_add_cart_taxes_to_txn_object' );
