@@ -11,3 +11,5 @@
 	Enhancement: Authenticating users now uses the new authentication system.
 1.0.5 - 2014-11-20 - Lew Ayotte
 	Change out .live() calls for .on() calls in JS
+1.0.5.1 - 2014-11-20 - Lew Ayotte	
+	Fixing JS bug in SuperWidget
