@@ -120,14 +120,14 @@ function it_exchange_easy_us_sales_taxes_addon_get_taxes_for_cart(  $format_pric
 					foreach( $coupons as $coupon ) {
 						if ( 'cart' === $type ) {
 							if ( '%' === $coupon['amount_type'] ) {
-								$price *= ( $coupon['amount_number'] / 100 );
+								$price -= $price * ( $coupon['amount_number'] / 100 );
 							} else {
 								$price -= ( $coupon['amount_number'] / $product_count );
 							}
 						} else if ( 'product' === $type ) {
 							if ( $coupon['product_id'] === $product['product_id'] ) {
 								if ( '%' === $coupon['amount_type'] ) {
-									$price *= ( $coupon['amount_number'] / 100 );
+									$price -= $price * ( $coupon['amount_number'] / 100 );
 								} else {
 									$price -= ( $coupon['amount_number'] / $product_count );
 								}
