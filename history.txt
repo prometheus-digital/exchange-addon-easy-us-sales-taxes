@@ -13,3 +13,5 @@
 	Change out .live() calls for .on() calls in JS
 1.0.5.1 - 2014-11-20 - Lew Ayotte	
 	Fixing JS bug in SuperWidget
+1.0.6 - 2014-12-09 - Lew Ayotte
+	Fix bug when calculating tax when using percentage based coupon
