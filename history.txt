@@ -15,3 +15,6 @@
 	Fixing JS bug in SuperWidget
 1.0.6 - 2014-12-09 - Lew Ayotte
 	Fix bug when calculating tax when using percentage based coupon
+1.0.7 - 2015-02-24 - Lew Ayotte
+	Fixing issue with backbone template not being populated properly
+	Removed some unused code
