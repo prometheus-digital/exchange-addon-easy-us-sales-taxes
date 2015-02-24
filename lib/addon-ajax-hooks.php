@@ -90,50 +90,6 @@ function it_exchange_easy_us_sales_taxes_addon_get_existing_certs() {
 			$exchange = it_exchange_get_option( 'settings_general' );
 			$errors[] = sprintf( __( 'Unable to add certificate on TaxCloud.net: %s', 'LION' ), $e->getMessage() );
 	    }
-	    	
-		/*
-		try {
-			$args = array(
-				'headers' => array(
-					'Content-Type' => 'application/json',
-				),
-				'body' => json_encode( $query ),
-		    );
-			$result = wp_remote_post( ITE_TAXCLOUD_API . 'GetExemptCertificates', $args );
-		
-			if ( is_wp_error( $result ) ) {
-				throw new Exception( $result->get_error_message() );
-			} else if ( !empty( $result['body'] ) ) {
-				$body = json_decode( $result['body'] );
-				if ( 3 == $body->ResponseType ) {
-					$data = array();
-					foreach ( $body->ExemptCertificates as $certs ) {
-						$new_cert['CertificateID']            = $certs->CertificateID;
-						$new_cert['PurchaserFirstName']       = $certs->Detail->PurchaserFirstName;
-						$new_cert['PurchaserLastName']        = $certs->Detail->PurchaserLastName;
-						$new_cert['ExemptStates']             = $certs->Detail->ExemptStates;
-						$new_cert['CreatedDate']              = $certs->Detail->CreatedDate;
-						$new_cert['PurchaserExemptionReason'] = $certs->Detail->PurchaserExemptionReason;
-						$data[] = $new_cert;
-					}
-					die( json_encode( $data ) );
-					//wp_send_json_success( $data );
-				} else {
-					$errors = array();
-					foreach( $body->Messages as $message ) {
-						$errors[] = $message->ResponseType . ' ' . $message->Message;
-					}
-					throw new Exception( implode( ',', $errors ) );
-				}
-			} else {
-				throw new Exception( __( 'Unknown error when trying to authorize and capture a transaction with TaxCloud.net', 'LION' ) );
-			}
-		}
-	    catch( Exception $e ) {
-			$exchange = it_exchange_get_option( 'settings_general' );
-			$errors = sprintf( __( 'Unable to authorize transaction with TaxCloud.net: %s', 'LION' ), $e->getMessage() );
-	    }
-		/**/
 		
 	}
 	

@@ -259,11 +259,7 @@ function it_exchange_easy_us_sales_taxes_addon_exemptions( $echo=false ) {
  * @return mixed The HTML output
 */
 function it_exchange_easy_us_sales_taxes_addon_add_exemption( $echo=false ) {
-	$output = '';
-	
-	if ( is_user_logged_in() )
-		$output = '<a href="#" title="' . __( 'Manage Certificate Exemptions', 'LION' ) . '" id="it-exchange-easy-us-sales-tax-add-cert">' . __( 'Add a New Exemption', 'LION' ) . '</a>';
-	
+	$output = '<a href="#" title="' . __( 'Manage Certificate Exemptions', 'LION' ) . '" id="it-exchange-easy-us-sales-tax-add-cert">' . __( 'Add a New Exemption', 'LION' ) . '</a>';
 	
 	if ( $echo )
 		echo $output;
