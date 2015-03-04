@@ -20,3 +20,8 @@
 	Removed some unused code
 1.0.8 - 2015-03-04 - Lew Ayotte
 	Removing logged in user requirement for backbone template
+1.0.9 - 2015-03-04 - Lew Ayotte
+	Fixing bug with nonces not working properly with backbone
+	Fixing bug with models being destroyed but not removed from the excemption manager UI
+	Adding nopriv ajax functionality for proper error returns
+	Fixing bug preventing new global certs from being used automatically
