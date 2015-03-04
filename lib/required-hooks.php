@@ -562,22 +562,12 @@ function it_exchange_easy_us_sales_taxes_addon_list_existing_certificates_backbo
  */
 function it_exchange_easy_us_sales_taxes_addon_add_new_certificate_backbone_template() {
 
-	$errors = array();
-
-	if ( !is_user_logged_in() ) {
-	
-		$errors[] = __( 'You must be logged in to apply for tax exemption', 'LION' );
-		
-	} else {
-		
-		$form_options = array(
-			'id'      => apply_filters( 'it_exchange_add_on_easy_us_sales_taxes_add_cert', 'it-exchange-add-on-easy-us-sales-taxes-add-cert' ),
-			'enctype' => apply_filters( 'it_exchange_add_on_easy_us_sales_taxes_add_cert_form_enctype', false ),
-			'action'  => '',
-		);
-		$form = new ITForm();
-
-	}
+	$form_options = array(
+		'id'      => apply_filters( 'it_exchange_add_on_easy_us_sales_taxes_add_cert', 'it-exchange-add-on-easy-us-sales-taxes-add-cert' ),
+		'enctype' => apply_filters( 'it_exchange_add_on_easy_us_sales_taxes_add_cert_form_enctype', false ),
+		'action'  => '',
+	);
+	$form = new ITForm();
 	
 	?>
 	<div id="it-exchange-easy-us-sales-taxes-exemption-manager-wrapper" class="it-exchange-hidden"></div>
@@ -593,12 +583,6 @@ function it_exchange_easy_us_sales_taxes_addon_add_new_certificate_backbone_temp
 			<div id="it-exchange-easy-us-sales-taxes-exemption-manager-content-area">
 				<div id="it-exchange-easy-us-sales-taxes-exemption-manager-error-area"></div>
 				<?php
-				if ( !empty( $errors ) ) {
-				
-					ITUtility::show_error_message( $errors );
-					
-				} else {
-				
 					$form->start_form( $form_options, 'it-exchange-easy-us-sales-taxes-new-cert' );
 					
 					if ( !empty( $form_values ) )
@@ -750,7 +734,6 @@ function it_exchange_easy_us_sales_taxes_addon_add_new_certificate_backbone_temp
 						<?php wp_nonce_field( 'it-exchange-easy-us-sales-taxes-add-cert', 'it-exchange-easy-us-sales-taxes-add-cert-nonce' ); ?>
 					</div>
 				    <?php $form->end_form(); ?>
-				<?php } ?>
 			</div>
 		</div>
 	</script>
