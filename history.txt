@@ -18,3 +18,5 @@
 1.0.7 - 2015-02-24 - Lew Ayotte
 	Fixing issue with backbone template not being populated properly
 	Removed some unused code
+1.0.8 - 2015-03-04 - Lew Ayotte
+	Removing logged in user requirement for backbone template
