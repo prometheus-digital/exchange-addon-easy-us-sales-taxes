@@ -25,3 +25,5 @@
 	Fixing bug with models being destroyed but not removed from the excemption manager UI
 	Adding nopriv ajax functionality for proper error returns
 	Fixing bug preventing new global certs from being used automatically
+1.1.0 - 2015-02-20 - Lew Ayotte
+	Multiple updates involving add_query_arg and remove_query_arg to esc_url()

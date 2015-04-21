@@ -170,7 +170,7 @@ function it_exchange_easy_us_sales_taxes_addon_get_taxes_for_cart(  $format_pric
 			'apiLoginID'        => $settings['tax_cloud_api_id'],
 			'apiKey'            => $settings['tax_cloud_api_key'],
 			'customerID'        => $customer->ID,
-			'cartID'            => '',
+			'cartID'            => it_exchange_create_unique_hash(),
 			'cartItems'         => $cart_items,
 			'origin'            => $origin,
 			'destination'       => $dest,
