@@ -755,3 +755,13 @@ function it_exchange_easy_us_sales_taxes_add_cart_taxes_to_txn_object() {
 }
 add_filter( 'it_exchange_set_transaction_objet_cart_taxes_formatted', 'it_exchange_easy_us_sales_taxes_add_cart_taxes_to_txn_object' );
 add_filter( 'it_exchange_set_transaction_objet_cart_taxes_raw', 'it_exchange_easy_us_sales_taxes_add_cart_taxes_to_txn_object' );
+
+function it_exchange_easy_us_sales_taxes_replace_order_table_tag_before_total_row( $email_obj, $options ) {
+	?>
+	<tr>
+		<td colspan="2" style="padding: 10px;border:1px solid #DDD;"><?php _e( 'Tax', 'it-l10n-ithemes-exchange' ); ?></td>
+		<td style="padding: 10px;border:1px solid #DDD;"><?php echo it_exchange_easy_us_sales_taxes_addon_get_taxes_for_confirmation( $email_obj->transaction_id ); ?></td>
+	</tr>
+	<?php
+}
+add_action( 'it_exchange_replace_order_table_tag_before_total_row', 'it_exchange_easy_us_sales_taxes_replace_order_table_tag_before_total_row', 10, 2 );
