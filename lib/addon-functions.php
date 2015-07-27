@@ -14,9 +14,12 @@
  * @return string The calculated tax from TaxCloud
 */
 
-function it_exchange_easy_us_sales_taxes_addon_get_taxes_for_confirmation( $format_price=true ) {
+function it_exchange_easy_us_sales_taxes_addon_get_taxes_for_confirmation( $transaction=false, $format_price=true ) {
     $taxes = 0;
-    if ( !empty( $GLOBALS['it_exchange']['transaction'] ) ) {
+    if ( !empty( $transaction ) ) {
+	    $transaction = it_exchange_get_transaction( $transaction );
+        $taxes = get_post_meta( $transaction->ID, '_it_exchange_easy_us_sales_taxes', true );
+    } else if ( !empty( $GLOBALS['it_exchange']['transaction'] ) ) {
         $transaction = $GLOBALS['it_exchange']['transaction'];
         $taxes = get_post_meta( $transaction->ID, '_it_exchange_easy_us_sales_taxes', true );
     }
@@ -51,8 +54,10 @@ function it_exchange_easy_us_sales_taxes_addon_get_taxes_for_cart(  $format_pric
 	if ( !empty( $settings['business_address_2'] ) )
 		$origin['Address2'] = $settings['business_address_2'];
 	
-	//We always wnat to get the Shipping Address if it's available...
-	$address = it_exchange_get_cart_shipping_address();
+	//We always want to get the Shipping Address if it's available...
+	if ( it_exchange_get_available_shipping_methods_for_cart_products() ) {
+		$address = it_exchange_get_cart_shipping_address();
+	}
 	
 	//We at minimum need the Address1 and Zip
 	if ( empty( $address['address1'] ) && empty( $address['zip'] ) ) 
