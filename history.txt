@@ -34,3 +34,5 @@
 1.2.0 - 2015-07-27 - Lew Ayotte
 	Added action to modify email notification order_table template
 	Fixing bug with shipping address not being available but being set
+1.3.0 - 2015-10-29 - Lew Ayotte
+	Reduce number of API calls to TaxCloud for empty carts
