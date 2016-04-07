@@ -765,3 +765,30 @@ function it_exchange_easy_us_sales_taxes_replace_order_table_tag_before_total_ro
 	<?php
 }
 add_action( 'it_exchange_replace_order_table_tag_before_total_row', 'it_exchange_easy_us_sales_taxes_replace_order_table_tag_before_total_row', 10, 2 );
+
+/**
+ * Add a taxes row to the receipt.
+ *
+ * @since 1.4.1
+ */
+function it_exchange_easy_us_sales_taxes_add_taxes_row_to_receipt() {
+
+	if ( empty( $GLOBALS['it_exchange']['transaction'] ) ) {
+		return;
+	}
+
+	$transaction = $GLOBALS['it_exchange']['transaction'];
+	?>
+	<tr>
+		<td></td>
+		<td align="right" style="padding: 10px; ">
+			<strong><?php _e(' Tax', 'LION' ); ?></strong>
+		</td>
+		<td align="right" style="padding: 10px 0 10px 10px; ">
+			<?php echo it_exchange_easy_us_sales_taxes_addon_get_taxes_for_confirmation( $transaction ); ?>
+		</td>
+	</tr>
+	<?php
+}
+
+add_action( 'it_exchange_email_template_receipt_cart-totals_after_subtotal', 'it_exchange_easy_us_sales_taxes_add_taxes_row_to_receipt' );
