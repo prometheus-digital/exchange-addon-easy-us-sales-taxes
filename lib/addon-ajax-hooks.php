@@ -44,8 +44,8 @@ function it_exchange_easy_us_sales_taxes_addon_get_existing_certs() {
 							
 							//We're skipping Single Purchase certificates, because
 							//they're single purchase!
-							if ( !empty( $certs->Detail->SinglePurchase ) )
-								continue;
+							if ( !empty( $cert->Detail->SinglePurchase ) )
+								return;
 						
 							$new_cert['CertificateID']            = $cert->CertificateID;
 							$new_cert['PurchaserFirstName']       = $cert->Detail->PurchaserFirstName;
@@ -60,7 +60,7 @@ function it_exchange_easy_us_sales_taxes_addon_get_existing_certs() {
 							
 								//We're skipping Single Purchase certificates, because
 								//they're single purchase!
-								if ( !empty( $certs->Detail->SinglePurchase ) )
+								if ( !empty( $cert->Detail->SinglePurchase ) )
 									continue;
 							
 								$new_cert['CertificateID']            = $cert->CertificateID;
