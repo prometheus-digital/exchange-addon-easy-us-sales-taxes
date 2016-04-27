@@ -111,9 +111,7 @@ function it_exchange_easy_us_sales_taxes_addon_get_taxes_for_cart( $format_price
 		if ( $clear_cache || empty( $tax_cloud_session['products_hash'] )
 			|| $tax_cloud_session['products_hash'] !== $products_hash 
 			|| !empty( $tax_cloud_session['new_certificate'] ) ) {
-		
-			$product_count = it_exchange_get_cart_products_count( true );
-			$applied_coupons = it_exchange_get_applied_coupons();
+
 			$customer = it_exchange_get_current_customer();
 				
 			$cart_items = array();
@@ -122,24 +120,22 @@ function it_exchange_easy_us_sales_taxes_addon_get_taxes_for_cart( $format_price
 			foreach( $products as $product ) {
 				$price = it_exchange_get_cart_product_base_price( $product, false );
 				$product_tic = it_exchange_get_product_feature( $product['product_id'], 'us-tic', array( 'setting' => 'code' ) );
-				if ( !empty( $applied_coupons ) ) {
-					foreach( $applied_coupons as $type => $coupons ) {
-						foreach( $coupons as $coupon ) {
-							if ( 'cart' === $type ) {
-								if ( '%' === $coupon['amount_type'] ) {
-									$price -= $price * ( $coupon['amount_number'] / 100 );
-								} else {
-									$price -= ( $coupon['amount_number'] / $product_count );
-								}
-							} else if ( 'product' === $type ) {
-								if ( $coupon['product_id'] === $product['product_id'] ) {
-									if ( '%' === $coupon['amount_type'] ) {
-										$price -= $price * ( $coupon['amount_number'] / 100 );
-									} else {
-										$price -= ( $coupon['amount_number'] / $product_count );
-									}
-								}
-							}
+
+				foreach ( (array) it_exchange_get_applied_coupons( 'cart' ) as $coupon ) {
+
+					if ( empty( $coupon ) || ! $coupon instanceof IT_Exchange_Cart_Coupon ) {
+						continue;
+					}
+
+					$method = $coupon->get_application_method();
+					$type   = $coupon->get_amount_type();
+
+					if ( it_exchange_basic_coupons_valid_product_for_coupon( $product, $coupon ) || $method == IT_Exchange_Cart_Coupon::APPLY_CART ) {
+
+						if ( $type === IT_Exchange_Cart_Coupon::TYPE_FLAT ) {
+							$price -= $coupon->get_amount_number();
+						} else {
+							$price -= ( 100 - $coupon->get_amount_number() ) / 100;
 						}
 					}
 				}
