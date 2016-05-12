@@ -135,7 +135,7 @@ function it_exchange_easy_us_sales_taxes_addon_get_taxes_for_cart( $format_price
 						if ( $type === IT_Exchange_Cart_Coupon::TYPE_FLAT ) {
 							$price -= $coupon->get_amount_number();
 						} else {
-							$price -= $price * ( ( 100 - $coupon->get_amount_number() ) / 100 );
+							$price = $price * ( ( 100 - $coupon->get_amount_number() ) / 100 );
 						}
 					}
 				}
