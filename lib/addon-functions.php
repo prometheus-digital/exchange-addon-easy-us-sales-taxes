@@ -78,7 +78,18 @@ function it_exchange_easy_us_sales_taxes_addon_exemptions( $echo=false ) {
 	$settings = it_exchange_get_option( 'addon_easy_us_sales_taxes' );
 
 	if ( is_user_logged_in() && !empty( $settings['tax_exemptions'] ) ) {
-		$output = '<div id="it-exchange-easy-us-sales-taxes-exempt-label" class="description"><a href="#" title="' . __( 'Manage Certificate Exemptions', 'LION' ) . '" id="it-exchange-easy-us-sales-tax-list-existing-certs">' . __( 'Tax Exempt?', 'LION' ) . '</a></div>';
+		$session = it_exchange_get_session_data( 'addon_easy_us_sales_taxes' );
+		
+		$output = '<div id="it-exchange-easy-us-sales-taxes-exempt-label" class="description">';
+		$output .= '<a href="#" title="' . __( 'Manage Certificate Exemptions', 'LION' ) . '" id="it-exchange-easy-us-sales-tax-list-existing-certs">'; 
+		
+		if ( empty( $session['exempt_certificate'] ) ) {
+			$output .= __( 'Tax Exempt?', 'LION' );
+		} else {
+			$output .= __( 'Tax Exempt', 'LION' );
+		}
+		
+		$output .= '</a></div>';
 	}
 	
 	if ( $echo ) {

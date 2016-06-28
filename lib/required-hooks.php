@@ -217,7 +217,7 @@ function it_exchange_easy_us_sales_taxes_addon_add_taxes_to_sw_template_totals_l
 	array_splice( $loops, $index, 0, 'easy-us-sales-taxes' );
 	return $loops;
 }
-add_filter( 'it_exchange_get_super-widget-checkout_after-cart-items_loops', 'it_exchange_easy_us_sales_taxes_addon_add_taxes_to_sw_template_totals_loops' );
+//add_filter( 'it_exchange_get_super-widget-checkout_after-cart-items_loops', 'it_exchange_easy_us_sales_taxes_addon_add_taxes_to_sw_template_totals_loops' );
 
 /**
  * Adds our templates directory to the list of directories
@@ -351,9 +351,15 @@ add_filter( 'it_exchange_save_customer_shipping_address', 'it_exchange_easy_us_s
 */
 function it_exchange_easy_us_sales_taxes_transaction_hook( $transaction_id ) {
 	$tax_cloud_session = it_exchange_get_session_data( 'addon_easy_us_sales_taxes' );
+
+	if ( empty( $tax_cloud_session['cart_id'] ) ) {
+		$cart_id = get_post_meta( $transaction_id, '_it_exchange_cart_id', true );
+	} else {
+		$cart_id = $tax_cloud_session['cart_id'];
+	}
 	
 	//If we don't have a TaxCloud Cart ID, we cannot authorize and capture the tax
-	if ( !empty( $tax_cloud_session['cart_id'] ) ) {
+	if ( $cart_id ) {
 		$settings = it_exchange_get_option( 'addon_easy_us_sales_taxes' );
 		$customer = it_exchange_get_current_customer();
 
@@ -361,7 +367,7 @@ function it_exchange_easy_us_sales_taxes_transaction_hook( $transaction_id ) {
 			'apiLoginID'     => $settings['tax_cloud_api_id'],
 			'apiKey'         => $settings['tax_cloud_api_key'],
 			'customerID'     => $customer->ID,
-			'cartID'         => $tax_cloud_session['cart_id'],
+			'cartID'         => $cart_id,
 			'orderID'        => $transaction_id,
 			'dateAuthorized' => gmdate( DATE_ATOM ),
 			'dateCaptured'   => gmdate( DATE_ATOM )
