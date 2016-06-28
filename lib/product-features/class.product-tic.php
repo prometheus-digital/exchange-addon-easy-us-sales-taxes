@@ -14,9 +14,8 @@ class IT_Exchange_Product_Feature_Product_US_TIC {
 	 * Constructor. Registers hooks
 	 *
 	 * @since 1.0.0
-	 * @return void
 	*/
-	function __construct() {
+	public function __construct() {
 		if ( is_admin() ) {
 			add_action( 'load-post-new.php', array( $this, 'init_feature_metaboxes' ) );
 			add_action( 'load-post.php', array( $this, 'init_feature_metaboxes' ) );
@@ -35,7 +34,7 @@ class IT_Exchange_Product_Feature_Product_US_TIC {
 	 * @since 1.0.0
 	 * @return void
 	*/
-	function IT_Exchange_Product_Feature_Product_US_TIC() {
+	public function IT_Exchange_Product_Feature_Product_US_TIC() {
 		self::__construct();
 	}
 
@@ -44,7 +43,7 @@ class IT_Exchange_Product_Feature_Product_US_TIC {
 	 *
 	 * @since 1.0.0
 	*/
-	function add_feature_support_to_product_types() {
+	public function add_feature_support_to_product_types() {
 		// Register the product feature
 		$slug        = 'us-tic';
 		$description = __( "Set the Product's Taxability Information Class", 'LION' );
@@ -63,7 +62,7 @@ class IT_Exchange_Product_Feature_Product_US_TIC {
 	 * @since 1.0.0
 	 * @return void
 	*/
-	function init_feature_metaboxes() {
+	public function init_feature_metaboxes() {
 
 		global $post;
 
@@ -104,7 +103,7 @@ class IT_Exchange_Product_Feature_Product_US_TIC {
 	 * @since 1.0.0
 	 * @return void
 	*/
-	function register_metabox() {
+	public function register_metabox() {
 		add_meta_box( 'it-exchange-product-us-tic', __( 'Tax Code', 'LION' ), array( $this, 'print_metabox' ), 'it_exchange_prod', 'normal' );
 	}
 
@@ -114,7 +113,7 @@ class IT_Exchange_Product_Feature_Product_US_TIC {
 	 * @since 1.0.0
 	 * @return void
 	*/
-	function print_metabox( $product ) {
+	public function print_metabox( $product ) {
 		// Set description
 		$description = __( 'To ensure your customers are charged the correct rates and benefit from any available exemptions, you need to select an appropriate Tax Class for each item.', 'LION' );
 		$description = apply_filters( 'it_exchange_product_us-tic_metabox_description', $description );
@@ -152,7 +151,7 @@ class IT_Exchange_Product_Feature_Product_US_TIC {
 	 * @param object $post wp post object
 	 * @return void
 	*/
-	function save_feature_on_product_save() {
+	public function save_feature_on_product_save() {
 		// Abort if we can't determine a product type
 		if ( ! $product_type = it_exchange_get_product_type() )
 			return;
@@ -182,7 +181,7 @@ class IT_Exchange_Product_Feature_Product_US_TIC {
 	 * @param mixed $new_value the new value
 	 * @return bolean
 	*/
-	function save_feature( $product_id, $new_value ) {
+	public function save_feature( $product_id, $new_value ) {
 		update_post_meta( $product_id, '_it-exchange-add-on-easy-us-sales-taxes-us-tic', $new_value );
 		return true;
 	}
@@ -195,7 +194,7 @@ class IT_Exchange_Product_Feature_Product_US_TIC {
 	 * @param integer product_id the WordPress post ID
 	 * @return string product feature
 	*/
-	function get_feature( $existing, $product_id ) {
+	public function get_feature( $existing, $product_id ) {
 		if ( $code = get_post_meta( $product_id, '_it-exchange-add-on-easy-us-sales-taxes-us-tic', true ) ) {
 			return $code;
 		} else { //default setting
@@ -214,7 +213,7 @@ class IT_Exchange_Product_Feature_Product_US_TIC {
 	 * @param integer $product_id
 	 * @return boolean
 	*/
-	function product_has_feature( $result, $product_id ) {
+	public function product_has_feature( $result, $product_id ) {
 		// Does this product type support this feature?
 		if ( false === $this->product_supports_feature( false, $product_id ) )
 			return false;
@@ -234,7 +233,7 @@ class IT_Exchange_Product_Feature_Product_US_TIC {
 	 * @param integer $product_id
 	 * @return boolean
 	*/
-	function product_supports_feature( $result, $product_id ) {
+	public function product_supports_feature( $result, $product_id ) {
 		// Does this product type support this feature?
 		$product_type = it_exchange_get_product_type( $product_id );
 		if ( ! it_exchange_product_type_supports_feature( $product_type, 'us-tic' ) )

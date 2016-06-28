@@ -193,8 +193,8 @@ function it_exchange_easy_us_sales_taxes_addon_add_taxes_to_template_totals_elem
 	array_splice( $elements, $index, 0, 'easy-us-sales-taxes' );
 	return $elements;
 }
-add_filter( 'it_exchange_get_content_checkout_totals_elements', 'it_exchange_easy_us_sales_taxes_addon_add_taxes_to_template_totals_elements' );
-add_filter( 'it_exchange_get_content_confirmation_transaction_summary_elements', 'it_exchange_easy_us_sales_taxes_addon_add_taxes_to_template_totals_elements' );
+//add_filter( 'it_exchange_get_content_checkout_totals_elements', 'it_exchange_easy_us_sales_taxes_addon_add_taxes_to_template_totals_elements' );
+//add_filter( 'it_exchange_get_content_confirmation_transaction_summary_elements', 'it_exchange_easy_us_sales_taxes_addon_add_taxes_to_template_totals_elements' );
 
 /**
  * Add Easy U.S. Sales Taxes to the super-widget-checkout totals loop
@@ -233,9 +233,9 @@ function it_exchange_easy_us_sales_taxes_addon_taxes_register_templates( $templa
 	// Bail if not looking for one of our templates
 	$add_path = false;
 	$templates = array(
-		'content-checkout/elements/easy-us-sales-taxes.php',
+		//'content-checkout/elements/easy-us-sales-taxes.php',
 		'content-confirmation/elements/easy-us-sales-taxes.php',
-		'super-widget-checkout/loops/easy-us-sales-taxes.php',
+		//'super-widget-checkout/loops/easy-us-sales-taxes.php',
 	);
 	foreach( $templates as $template ) {
 		if ( in_array( $template, (array) $template_names ) )
@@ -250,6 +250,19 @@ function it_exchange_easy_us_sales_taxes_addon_taxes_register_templates( $templa
 add_filter( 'it_exchange_possible_template_paths', 'it_exchange_easy_us_sales_taxes_addon_taxes_register_templates', 10, 2 );
 
 /**
+ * Add the exemption manager to the taxes template.
+ * 
+ * @since 1.5.0
+ */
+function it_exchange_easy_us_sales_taxes_add_exemption_manager() {
+	echo it_exchange_easy_us_sales_taxes_addon_exemptions();
+}
+
+add_action( 'it_exchange_content_checkout_end_totals_taxes_inner_element_label', 'it_exchange_easy_us_sales_taxes_add_exemption_manager' );
+add_action( 'it_exchange_content_cart_end_totals_taxes_inner_element_label', 'it_exchange_easy_us_sales_taxes_add_exemption_manager' );
+add_action( 'it_exchange_super_widget_checkout_end_taxes_element', 'it_exchange_easy_us_sales_taxes_add_exemption_manager' );
+
+/**
  * Adjusts the cart total if on a checkout page
  *
  * @since 1.0.0
@@ -262,7 +275,9 @@ function it_exchange_easy_us_sales_taxes_addon_taxes_modify_total( $total ) {
 		$total += it_exchange_easy_us_sales_taxes_addon_get_taxes_for_cart( false );
 	return $total;
 }
-add_filter( 'it_exchange_get_cart_total', 'it_exchange_easy_us_sales_taxes_addon_taxes_modify_total' );
+//add_filter( 'it_exchange_get_cart_total', 'it_exchange_easy_us_sales_taxes_addon_taxes_modify_total' );
+
+add_action( 'it_exchange_add_product_to_cart', 'it_exchange_easy_us_sales_taxes_addon_get_taxes_for_cart', 10, 2 );
 
 /**
  * Verify Customer Address(es) in TaxCloud's API for tax calculation
@@ -386,7 +401,6 @@ function it_exchange_easy_us_sales_taxes_transaction_hook( $transaction_id ) {
 	}
 	
 	it_exchange_clear_session_data( 'addon_easy_us_sales_taxes' );
-	return;
 }
 add_action( 'it_exchange_add_transaction_success', 'it_exchange_easy_us_sales_taxes_transaction_hook' );
 
