@@ -30,13 +30,13 @@ class ITE_TaxCloud_API_Lookup {
 	 *
 	 * @param \ITE_Taxable_Line_Item $item
 	 * @param \ITE_Cart              $cart
-	 * @param string                 $cert
+	 * @param array                  $cert
 	 *
 	 * @return \ITE_Taxable_Line_Item|null Null if no taxes were applied.
 	 *
 	 * @throws \Exception
 	 */
-	public function for_line_item( ITE_Taxable_Line_Item $item, ITE_Cart $cart, $cert = '' ) {
+	public function for_line_item( ITE_Taxable_Line_Item $item, ITE_Cart $cart, $cert = array() ) {
 
 		if ( $item->is_tax_exempt() ) {
 			return null;
@@ -61,7 +61,15 @@ class ITE_TaxCloud_API_Lookup {
 
 		// There is only one
 		foreach ( $response['CartItemsResponse'] as $item_response ) {
-			$item->add_tax( new ITE_TaxCloud_Line_Item( $item_response['TaxAmount'], $item ) );
+			$item->remove_all_taxes();
+
+			$tax = new ITE_TaxCloud_Line_Item( $item_response['TaxAmount'], $item );
+
+			if ( ! empty( $cert['CertificateID'] ) ) {
+				$tax->set_param( 'exemption', $cert['CertificateID'] );
+			}
+
+			$item->add_tax( $tax );
 			$cart->get_repository()->save( $item );
 		}
 
@@ -74,13 +82,13 @@ class ITE_TaxCloud_API_Lookup {
 	 * @since 1.5.0
 	 *
 	 * @param \ITE_Cart $cart
-	 * @param string    $cert
+	 * @param array     $cert
 	 *
 	 * @return \ITE_Line_Item_Collection Collection of taxes;
 	 *
 	 * @throws \Exception
 	 */
-	public function for_cart( ITE_Cart $cart, $cert = '' ) {
+	public function for_cart( ITE_Cart $cart, $cert = array() ) {
 
 		$taxable = $cart->get_items( '', true )
 		                ->with_only_instances_of( 'ITE_Taxable_Line_Item' )
@@ -113,8 +121,15 @@ class ITE_TaxCloud_API_Lookup {
 
 		// There is only one
 		foreach ( $response['CartItemsResponse'] as $item_response ) {
+			/** @var ITE_Taxable_Line_Item $item */
 			$item = $taxable->offsetGet( $item_response['CartItemIndex'] );
 			$tax  = new ITE_TaxCloud_Line_Item( $item_response['TaxAmount'], $item );
+
+			if ( ! empty( $cert['CertificateID'] ) ) {
+				$tax->set_param( 'exemption', $cert['CertificateID'] );
+			}
+
+			$item->remove_all_taxes();
 			$item->add_tax( $tax );
 
 			$taxes[] = $tax;
