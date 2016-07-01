@@ -20,28 +20,20 @@ class ITE_TaxCloud_Line_Item implements ITE_Tax_Line_Item {
 	/** @var string */
 	private $id;
 
-	/** @var float */
-	private $amount;
-
 	/** @var int */
 	private $rate;
 
 	/**
 	 * ITE_TaxCloud_Line_Item constructor.
 	 *
-	 * @param float                  $amount
+	 * @param int                    $rate
 	 * @param \ITE_Taxable_Line_Item $taxable
 	 */
-	public function __construct( $amount, \ITE_Taxable_Line_Item $taxable = null ) {
+	public function __construct( $rate, \ITE_Taxable_Line_Item $taxable = null ) {
 		$this->taxable = $taxable;
-		$this->amount  = $amount;
+		$this->rate    = $rate;
 		$this->id      = md5( uniqid() );
 		$this->bag     = new ITE_Array_Parameter_Bag();
-
-		if ( $taxable ) {
-			$taxable_amount = $taxable->get_taxable_amount();
-			$this->rate     = 100 * ( $amount / $taxable_amount );
-		}
 	}
 
 	/**
@@ -73,7 +65,7 @@ class ITE_TaxCloud_Line_Item implements ITE_Tax_Line_Item {
 	 * @inheritdoc
 	 */
 	public function create_scoped_for_taxable( ITE_Taxable_Line_Item $item ) {
-		return new self( $this->amount, $item );
+		return new self( $this->rate, $item );
 	}
 
 	/**
@@ -108,7 +100,11 @@ class ITE_TaxCloud_Line_Item implements ITE_Tax_Line_Item {
 	 * @inheritDoc
 	 */
 	public function get_amount() {
-		return $this->amount;
+		if ( $this->get_aggregate() ) {
+			return $this->get_aggregate()->get_taxable_amount() * ( $this->get_rate() / 100 );
+		} else {
+			return 0;
+		}
 	}
 
 	/**
@@ -190,7 +186,7 @@ class ITE_TaxCloud_Line_Item implements ITE_Tax_Line_Item {
 	public function get_data_to_save( \ITE_Line_Item_Repository $repository = null ) {
 		$data = array(
 			'params' => $this->get_params(),
-			'amount' => $this->get_amount(),
+			'rate'   => $this->get_rate(),
 		);
 
 		return $data;
@@ -201,7 +197,7 @@ class ITE_TaxCloud_Line_Item implements ITE_Tax_Line_Item {
 	 */
 	public static function from_data( $id, array $data, ITE_Line_Item_Repository $repository ) {
 
-		$item     = new self( $data['amount'] );
+		$item     = new self( $data['rate'] );
 		$item->id = $id;
 
 		foreach ( $data['params'] as $key => $value ) {

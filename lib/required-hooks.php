@@ -271,11 +271,15 @@ add_action( 'it_exchange_super_widget_checkout_end_taxes_element', 'it_exchange_
  * @return int New Total
 */
 function it_exchange_easy_us_sales_taxes_addon_taxes_modify_total( $total ) {
-	if ( !empty( $total ) && !it_exchange_is_page( 'cart' ) || it_exchange_in_superwidget() ) //we just don't want to modify anything on the cart page
-		$total += it_exchange_easy_us_sales_taxes_addon_get_taxes_for_cart( false );
+
+	if ( isset($_GET['doit'])) {
+		unset($_GET['doit']);
+		it_exchange_easy_us_sales_taxes_addon_get_taxes_for_cart( false, true );
+	}
+	
 	return $total;
 }
-//add_filter( 'it_exchange_get_cart_total', 'it_exchange_easy_us_sales_taxes_addon_taxes_modify_total' );
+add_filter( 'it_exchange_get_cart_total', 'it_exchange_easy_us_sales_taxes_addon_taxes_modify_total' );
 
 add_action( 'it_exchange_add_product_to_cart', 'it_exchange_easy_us_sales_taxes_addon_get_taxes_for_cart', 10, 2 );
 
