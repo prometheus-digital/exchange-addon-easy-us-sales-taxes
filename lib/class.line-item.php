@@ -20,35 +20,66 @@ class ITE_TaxCloud_Line_Item implements ITE_Tax_Line_Item {
 	/** @var string */
 	private $id;
 
-	/** @var int */
-	private $rate;
+	/** @var ITE_Parameter_bag */
+	private $frozen;
 
 	/**
 	 * ITE_TaxCloud_Line_Item constructor.
 	 *
-	 * @param int                    $rate
-	 * @param \ITE_Taxable_Line_Item $taxable
+	 * @param string             $id
+	 * @param \ITE_Parameter_Bag $bag
+	 * @param \ITE_Parameter_Bag $frozen
 	 */
-	public function __construct( $rate, \ITE_Taxable_Line_Item $taxable = null ) {
-		$this->taxable = $taxable;
-		$this->rate    = $rate;
-		$this->id      = md5( uniqid() );
-		$this->bag     = new ITE_Array_Parameter_Bag();
+	public function __construct( $id, ITE_Parameter_Bag $bag, ITE_Parameter_Bag $frozen ) {
+		$this->id     = $id;
+		$this->bag    = $bag;
+		$this->frozen = $frozen;
+	}
+
+	/**
+	 * Create a new TaxCloud Line Item.
+	 *
+	 * @since 1.36.0
+	 *
+	 * @param int                         $rate
+	 * @param \ITE_Taxable_Line_Item|null $taxable
+	 *
+	 * @return \ITE_TaxCloud_Line_Item
+	 */
+	public static function create( $rate, ITE_Taxable_Line_Item $taxable = null ) {
+
+		$bag = new ITE_Array_Parameter_Bag();
+		$bag->set_param( 'rate', $rate );
+
+		$self = new self( md5( uniqid( 'TAX', true ) ), $bag, new ITE_Array_Parameter_Bag() );
+
+		if ( $taxable ) {
+			$self->set_aggregate( $taxable );
+		}
+
+		return $self;
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function get_rate() {
-		return $this->rate;
+	public function create_scoped_for_taxable( ITE_Taxable_Line_Item $item ) {
+		return self::create( $this->get_rate(), $item );
 	}
+
+	public function get_provider() { return new ITE_TaxCloud_Tax_Provider(); }
+
+	/**
+	 * @inheritdoc
+	 */
+	public function get_rate() { return $this->get_param( 'rate' ); }
 
 	/**
 	 * @inheritdoc
 	 */
 	public function applies_to( ITE_Taxable_Line_Item $item ) {
 
-		if ( $item->is_tax_exempt() ) {
+		if ( $item->is_tax_exempt( $this->get_provider() ) ) {
 			return false;
 		}
 
@@ -62,39 +93,26 @@ class ITE_TaxCloud_Line_Item implements ITE_Tax_Line_Item {
 	}
 
 	/**
-	 * @inheritdoc
+	 * @inheritDoc
 	 */
-	public function create_scoped_for_taxable( ITE_Taxable_Line_Item $item ) {
-		return new self( $this->rate, $item );
-	}
+	public function get_id() { return $this->id; }
 
 	/**
 	 * @inheritDoc
 	 */
-	public function get_id() {
-		return $this->id;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function get_name() {
-		return __( 'Taxes', 'LION' );
-	}
+	public function get_name() { return __( 'Taxes', 'LION' ); }
 
 	/**
 	 * @inheritDoc
 	 */
 	public function get_description() {
-		// TODO: Implement get_description() method.
+		return $this->frozen->has_param( 'description' ) ? $this->frozen->get_param( 'description' ) : '';
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function get_quantity() {
-		return 1;
-	}
+	public function get_quantity() { return 1; }
 
 	/**
 	 * @inheritDoc
@@ -110,6 +128,13 @@ class ITE_TaxCloud_Line_Item implements ITE_Tax_Line_Item {
 	/**
 	 * @inheritDoc
 	 */
+	public function get_total() {
+		return $this->get_amount() * $this->get_quantity();
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	final public function get_type( $label = false ) {
 		return $label ? __( 'Tax', 'it-l10n-ithemes-exchange' ) : 'tax';
 	}
@@ -117,57 +142,40 @@ class ITE_TaxCloud_Line_Item implements ITE_Tax_Line_Item {
 	/**
 	 * @inheritDoc
 	 */
-	public function is_summary_only() {
-		return true;
+	public function is_summary_only() { return true; }
+
+	/**
+	 * @inheritDoc
+	 */
+	public function persist( ITE_Line_Item_Repository $repository ) { $repository->save( $this ); }
+
+	/**
+	 * @inheritDoc
+	 */
+	public function has_param( $param ) { return $this->bag->has_param( $param ); }
+
+	/**
+	 * @inheritDoc
+	 */
+	public function get_param( $param ) { return $this->bag->get_param( $param ); }
+
+	/**
+	 * @inheritDoc
+	 */
+	public function get_params() { return $this->bag->get_params(); }
+
+	/**
+	 * @inheritDoc
+	 */
+	public function set_param( $param, $value ) {
+		return $this->bag->set_param( $param, $value );
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function persist( ITE_Line_Item_Repository $repository ) {
-		$repository->save( $this );
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function has_param( $param ) {
-		return $this->bag->has_param( $param );
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function get_param( $param ) {
-		return $this->bag->get_param( $param );
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function get_params() {
-		return $this->bag->get_params();
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function set_param( $param, $value, $deferred = false ) {
-		return $this->bag->set_param( $param, $value, $deferred );
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function remove_param( $param, $deferred = false ) {
-		return $this->bag->remove_param( $param, $deferred );
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function persist_deferred_params() {
-		$this->bag->persist_deferred_params();
+	public function remove_param( $param ) {
+		return $this->bag->remove_param( $param );
 	}
 
 	/**
@@ -179,31 +187,4 @@ class ITE_TaxCloud_Line_Item implements ITE_Tax_Line_Item {
 	 * @inheritDoc
 	 */
 	public function get_aggregate() { return $this->taxable; }
-
-	/**
-	 * @inheritDoc
-	 */
-	public function get_data_to_save( \ITE_Line_Item_Repository $repository = null ) {
-		$data = array(
-			'params' => $this->get_params(),
-			'rate'   => $this->get_rate(),
-		);
-
-		return $data;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public static function from_data( $id, array $data, ITE_Line_Item_Repository $repository ) {
-
-		$item     = new self( $data['rate'] );
-		$item->id = $id;
-
-		foreach ( $data['params'] as $key => $value ) {
-			$item->bag->set_param( $key, $value );
-		}
-
-		return $item;
-	}
 }

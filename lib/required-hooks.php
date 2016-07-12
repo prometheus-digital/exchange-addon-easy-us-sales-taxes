@@ -391,7 +391,8 @@ function it_exchange_easy_us_sales_taxes_transaction_hook( $transaction_id ) {
 			} else if ( !empty( $result['body'] ) ) {
 				$body = json_decode( $result['body'] );
 				if ( 0 != $body->ResponseType ) {
-					update_post_meta( $transaction_id, '_it_exchange_easy_us_sales_taxes', $tax_cloud_session['taxes'] );
+					$transaction = it_exchange_get_transaction( $transaction_id );
+					update_post_meta( $transaction_id, '_it_exchange_easy_us_sales_taxes', $transaction->get_items( 'tax', true )->total() );
 				} else {
 					$errors = array();
 					foreach( $body->Messages as $message ) {

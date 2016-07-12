@@ -38,7 +38,7 @@ class ITE_TaxCloud_API_Lookup {
 	 */
 	public function for_line_item( ITE_Taxable_Line_Item $item, ITE_Cart $cart, $cert = array() ) {
 
-		if ( $item->is_tax_exempt() ) {
+		if ( $item->is_tax_exempt( new ITE_TaxCloud_Tax_Provider() ) ) {
 			return null;
 		}
 
@@ -59,11 +59,11 @@ class ITE_TaxCloud_API_Lookup {
 
 		$response = $this->request( $this->generate_body( $additional ) );
 
-		// There is only one
+		/** @noinspection LoopWhichDoesNotLoopInspection */
 		foreach ( $response['CartItemsResponse'] as $item_response ) {
 			$item->remove_all_taxes();
-			
-			$tax  = new ITE_TaxCloud_Line_Item(
+
+			$tax = ITE_TaxCloud_Line_Item::create(
 				100 * ( $item_response['TaxAmount'] / $item->get_taxable_amount() ), $item
 			);
 
@@ -73,9 +73,11 @@ class ITE_TaxCloud_API_Lookup {
 
 			$item->add_tax( $tax );
 			$cart->get_repository()->save( $item );
+
+			return $tax;
 		}
 
-		return $item;
+		return null;
 	}
 
 	/**
@@ -92,10 +94,10 @@ class ITE_TaxCloud_API_Lookup {
 	 */
 	public function for_cart( ITE_Cart $cart, $cert = array() ) {
 
-		$taxable = $cart->get_items( '', true )
-		                ->with_only_instances_of( 'ITE_Taxable_Line_Item' )
+		$taxable = $cart->get_items( 'product', true )
+		                ->taxable()
 		                ->filter( function ( ITE_Taxable_Line_Item $item ) {
-			                return ! $item->is_tax_exempt() && $item->get_taxable_amount() > 0;
+			                return ! $item->is_tax_exempt( new ITE_TaxCloud_Tax_Provider() ) && $item->get_taxable_amount() > 0;
 		                } );
 
 		if ( $taxable->count() === 0 ) {
@@ -125,7 +127,7 @@ class ITE_TaxCloud_API_Lookup {
 		foreach ( $response['CartItemsResponse'] as $item_response ) {
 			/** @var ITE_Taxable_Line_Item $item */
 			$item = $taxable->offsetGet( $item_response['CartItemIndex'] );
-			$tax  = new ITE_TaxCloud_Line_Item(
+			$tax  = ITE_TaxCloud_Line_Item::create(
 				100 * ( $item_response['TaxAmount'] / $item->get_taxable_amount() ), $item
 			);
 
@@ -161,7 +163,7 @@ class ITE_TaxCloud_API_Lookup {
 		foreach ( $items as $i => $item ) {
 			$cart_items[] = array(
 				'Index'  => $i,
-				'TIC'    => $item instanceof ITE_Shipping_Line_Item ? 11010 : $item->get_tax_code(),
+				'TIC'    => $item instanceof ITE_Shipping_Line_Item ? 11010 : $item->get_tax_code( new ITE_TaxCloud_Tax_Provider() ),
 				'ItemID' => $item->get_id(),
 				'Price'  => $item->get_taxable_amount(),
 				'Qty'    => $item->get_quantity()

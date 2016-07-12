@@ -41,7 +41,7 @@ function it_exchange_easy_us_sales_taxes_addon_get_taxes_for_cart( $format_price
 	// Grab the tax rate
 
 	$cart = it_exchange_get_current_cart();
-	$taxes = $cart->get_items( 'tax', true )->with_only_instances_of( 'ITE_Taxable_Line_Item' );
+	$taxes = $cart->get_items( 'tax', true )->with_only_instances_of( 'ITE_TaxCloud_Line_Item' );
 
 	if ( $clear_cache || $taxes->count() === 0 ) {
 		$lookup = new ITE_TaxCloud_API_Lookup( it_exchange_get_option( 'addon_easy_us_sales_taxes' ) );
