@@ -9,6 +9,22 @@
 //incase a product doesn't have a shipping address and the shipping add-on is not enabled
 add_filter( 'it_exchange_billing_address_purchase_requirement_enabled', '__return_true' );
 
+/**
+ * Register the tax cloud taxes provider.
+ *
+ * @since 1.5.0
+ *
+ * @param \ITE_Tax_Managers $manager
+ */
+function it_exchange_register_tax_cloud_taxes_provider( ITE_Tax_Managers $manager ) {
+	$manager::register_provider( new ITE_TaxCloud_Tax_Provider() );
+
+	ITE_Location_Validators::add(
+		new ITE_TaxCloud_Location_Validator( it_exchange_get_option( 'addon_easy_us_sales_taxes' ) )
+	);
+}
+
+add_action( 'it_exchange_register_tax_providers', 'it_exchange_register_tax_cloud_taxes_provider' );
 
 /**
  * Shows the nag when needed.
@@ -272,6 +288,8 @@ add_action( 'it_exchange_super_widget_checkout_end_taxes_element', 'it_exchange_
 */
 function it_exchange_easy_us_sales_taxes_addon_taxes_modify_total( $total ) {
 
+	_deprecated_function( __FUNCTION__, '1.5.0' );
+
 	if ( isset($_GET['doit'])) {
 		unset($_GET['doit']);
 		it_exchange_easy_us_sales_taxes_addon_get_taxes_for_cart( false, true );
@@ -279,20 +297,22 @@ function it_exchange_easy_us_sales_taxes_addon_taxes_modify_total( $total ) {
 	
 	return $total;
 }
-add_filter( 'it_exchange_get_cart_total', 'it_exchange_easy_us_sales_taxes_addon_taxes_modify_total' );
-
-add_action( 'it_exchange_add_product_to_cart', 'it_exchange_easy_us_sales_taxes_addon_get_taxes_for_cart', 10, 2 );
 
 /**
  * Verify Customer Address(es) in TaxCloud's API for tax calculation
  *
  * @since 1.0.0
  *
+ * @deprecated 1.5.0
+ *
  * @param array $address Customers billing or shipping address.
  * @param int $customer_id Customer's WordPress ID
  * @return mixed Verified Address or false if failed
 */
 function it_exchange_easy_us_sales_taxes_verify_customer_address( $address, $customer_id ) {
+
+	_deprecated_function( __FUNCTION__, '1.5.0', 'ITE_TaxCloud_Location_Validator::validate()' );
+
 	if ( !empty( $address['country'] ) && 'US' !== $address['country'] )
 		return $address; //Can only verify US addresses
 	
@@ -343,8 +363,6 @@ function it_exchange_easy_us_sales_taxes_verify_customer_address( $address, $cus
     
     return $address;
 }
-add_filter( 'it_exchange_save_customer_billing_address', 'it_exchange_easy_us_sales_taxes_verify_customer_address', 10, 2 );
-add_filter( 'it_exchange_save_customer_shipping_address', 'it_exchange_easy_us_sales_taxes_verify_customer_address', 10, 2 );
 
 /**
  * Authorize and capture successful transactions in TaxCloud's API
@@ -775,11 +793,12 @@ function it_exchange_easy_us_sales_taxes_addon_add_new_certificate_backbone_temp
  *
 */
 function it_exchange_easy_us_sales_taxes_add_cart_taxes_to_txn_object() {
+
+	_deprecated_function( __FUNCTION__, '1.5.0' );
+
     $formatted = ( 'it_exchange_set_transaction_objet_cart_taxes_formatted' == current_filter() );
     return it_exchange_easy_us_sales_taxes_addon_get_taxes_for_cart( $formatted );
 }
-add_filter( 'it_exchange_set_transaction_objet_cart_taxes_formatted', 'it_exchange_easy_us_sales_taxes_add_cart_taxes_to_txn_object' );
-add_filter( 'it_exchange_set_transaction_objet_cart_taxes_raw', 'it_exchange_easy_us_sales_taxes_add_cart_taxes_to_txn_object' );
 
 function it_exchange_easy_us_sales_taxes_replace_order_table_tag_before_total_row( $email_obj, $options ) {
 	?>

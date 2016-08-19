@@ -47,3 +47,4 @@ require_once( dirname( __FILE__ ) . '/lib/product-features/load.php' );
 require_once( dirname( __FILE__ ) . '/lib/class.line-item.php' );
 require_once( dirname( __FILE__ ) . '/lib/class.provider.php' );
 require_once( dirname( __FILE__ ) . '/lib/api/class.lookup.php' );
+require_once( dirname( __FILE__ ) . '/lib/class.location-validator.php' );

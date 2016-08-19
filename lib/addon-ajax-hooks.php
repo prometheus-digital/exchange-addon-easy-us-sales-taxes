@@ -12,19 +12,18 @@
 */
 function it_exchange_easy_us_sales_taxes_addon_get_existing_certs() {	
 
-	if ( !is_user_logged_in() ) {
+	if ( ( ! $customer = it_exchange_get_current_customer() ) instanceof IT_Exchange_Customer ) {
 	
 		$errors[] = __( 'You must be logged in to get your Tax Exempt Certificates', 'LION' );
 		
 	} else {
 	
 		$settings = it_exchange_get_option( 'addon_easy_us_sales_taxes' );
-		$customer = it_exchange_get_current_customer();
 
 		$query = array(
 			'apiLoginID'     => $settings['tax_cloud_api_id'],
 			'apiKey'         => $settings['tax_cloud_api_key'],
-			'customerID'     => $customer->ID,
+			'customerID'     => $customer->id,
 		);
 		
 		try {

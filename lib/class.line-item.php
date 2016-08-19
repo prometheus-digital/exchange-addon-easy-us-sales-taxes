@@ -9,32 +9,10 @@
 /**
  * Class ITE_TaxCloud_Line_Item
  */
-class ITE_TaxCloud_Line_Item implements ITE_Tax_Line_Item {
-
-	/** @var ITE_Parameter_Bag */
-	private $bag;
+class ITE_TaxCloud_Line_Item extends ITE_Line_Item implements ITE_Tax_Line_Item {
 
 	/** @var ITE_Taxable_Line_Item */
 	private $taxable;
-
-	/** @var string */
-	private $id;
-
-	/** @var ITE_Parameter_bag */
-	private $frozen;
-
-	/**
-	 * ITE_TaxCloud_Line_Item constructor.
-	 *
-	 * @param string             $id
-	 * @param \ITE_Parameter_Bag $bag
-	 * @param \ITE_Parameter_Bag $frozen
-	 */
-	public function __construct( $id, ITE_Parameter_Bag $bag, ITE_Parameter_Bag $frozen ) {
-		$this->id     = $id;
-		$this->bag    = $bag;
-		$this->frozen = $frozen;
-	}
 
 	/**
 	 * Create a new TaxCloud Line Item.
@@ -95,11 +73,6 @@ class ITE_TaxCloud_Line_Item implements ITE_Tax_Line_Item {
 	/**
 	 * @inheritDoc
 	 */
-	public function get_id() { return $this->id; }
-
-	/**
-	 * @inheritDoc
-	 */
 	public function get_name() { return __( 'Taxes', 'LION' ); }
 
 	/**
@@ -128,55 +101,12 @@ class ITE_TaxCloud_Line_Item implements ITE_Tax_Line_Item {
 	/**
 	 * @inheritDoc
 	 */
-	public function get_total() {
-		return $this->get_amount() * $this->get_quantity();
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	final public function get_type( $label = false ) {
-		return $label ? __( 'Tax', 'it-l10n-ithemes-exchange' ) : 'tax';
-	}
+	final public function get_type( $label = false ) {	return $label ? __( 'Tax', 'it-l10n-ithemes-exchange' ) : 'tax'; }
 
 	/**
 	 * @inheritDoc
 	 */
 	public function is_summary_only() { return true; }
-
-	/**
-	 * @inheritDoc
-	 */
-	public function persist( ITE_Line_Item_Repository $repository ) { $repository->save( $this ); }
-
-	/**
-	 * @inheritDoc
-	 */
-	public function has_param( $param ) { return $this->bag->has_param( $param ); }
-
-	/**
-	 * @inheritDoc
-	 */
-	public function get_param( $param ) { return $this->bag->get_param( $param ); }
-
-	/**
-	 * @inheritDoc
-	 */
-	public function get_params() { return $this->bag->get_params(); }
-
-	/**
-	 * @inheritDoc
-	 */
-	public function set_param( $param, $value ) {
-		return $this->bag->set_param( $param, $value );
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function remove_param( $param ) {
-		return $this->bag->remove_param( $param );
-	}
 
 	/**
 	 * @inheritDoc

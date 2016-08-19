@@ -23,7 +23,7 @@ function it_exchange_easy_us_sales_taxes_addon_get_taxes_for_confirmation( $tran
         $transaction = $GLOBALS['it_exchange']['transaction'];
         $taxes = get_post_meta( $transaction->ID, '_it_exchange_easy_us_sales_taxes', true );
     }
-	
+
 	return $format_price ? it_exchange_format_price( $taxes ) : $taxes;
 }
 
@@ -60,7 +60,7 @@ function it_exchange_easy_us_sales_taxes_addon_get_taxes_for_cart( $format_price
 		$total = $taxes->total();
 	}
 
-	$taxes = apply_filters( 'it_exchange_easy_us_sales_taxes_addon_get_taxes_for_cart', $total );
+	$taxes = apply_filters_deprecated( 'it_exchange_easy_us_sales_taxes_addon_get_taxes_for_cart', array( $total ), '1.5' );
 
 	return $format_price ? it_exchange_format_price( $taxes ) : $taxes;
 }
@@ -79,19 +79,19 @@ function it_exchange_easy_us_sales_taxes_addon_exemptions( $echo=false ) {
 
 	if ( is_user_logged_in() && !empty( $settings['tax_exemptions'] ) ) {
 		$session = it_exchange_get_session_data( 'addon_easy_us_sales_taxes' );
-		
+
 		$output = '<div id="it-exchange-easy-us-sales-taxes-exempt-label" class="description">';
-		$output .= '<a href="#" title="' . __( 'Manage Certificate Exemptions', 'LION' ) . '" id="it-exchange-easy-us-sales-tax-list-existing-certs">'; 
-		
+		$output .= '<a href="#" title="' . __( 'Manage Certificate Exemptions', 'LION' ) . '" id="it-exchange-easy-us-sales-tax-list-existing-certs">';
+
 		if ( empty( $session['exempt_certificate'] ) ) {
 			$output .= __( 'Tax Exempt?', 'LION' );
 		} else {
 			$output .= __( 'Tax Exempt', 'LION' );
 		}
-		
+
 		$output .= '</a></div>';
 	}
-	
+
 	if ( $echo ) {
 		echo $output;
 	} else {

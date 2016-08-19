@@ -64,7 +64,7 @@ class ITE_TaxCloud_API_Lookup {
 			$item->remove_all_taxes();
 
 			$tax = ITE_TaxCloud_Line_Item::create(
-				100 * ( $item_response['TaxAmount'] / $item->get_taxable_amount() ), $item
+				100 * ( $item_response['TaxAmount'] / ( $item->get_taxable_amount() * $item->get_quantity() ) ), $item
 			);
 
 			if ( ! empty( $cert['CertificateID'] ) ) {
@@ -128,7 +128,7 @@ class ITE_TaxCloud_API_Lookup {
 			/** @var ITE_Taxable_Line_Item $item */
 			$item = $taxable->offsetGet( $item_response['CartItemIndex'] );
 			$tax  = ITE_TaxCloud_Line_Item::create(
-				100 * ( $item_response['TaxAmount'] / $item->get_taxable_amount() ), $item
+				100 * ( $item_response['TaxAmount'] / ( $item->get_taxable_amount() * $item->get_quantity() ) ), $item
 			);
 
 			if ( ! empty( $cert['CertificateID'] ) ) {
