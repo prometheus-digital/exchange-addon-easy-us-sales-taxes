@@ -27,43 +27,6 @@ function it_exchange_register_tax_cloud_taxes_provider( ITE_Tax_Managers $manage
 add_action( 'it_exchange_register_tax_providers', 'it_exchange_register_tax_cloud_taxes_provider' );
 
 /**
- * Shows the nag when needed.
- *
- * @since 1.0.0
- *
- * @return void
-*/
-function it_exchange_easy_us_sales_taxes_addon_show_conflict_nag() {
-    if ( ! empty( $_REQUEST['it_exchange_easy_us_sales_taxes-dismiss-conflict-nag'] ) )
-        update_option( 'it-exchange-easy-us-sales-taxes-conflict-nag', true );
-
-    if ( true == (boolean) get_option( 'it-exchange-easy-us-sales-taxes-conflict-nag' ) )
-        return;
-
-	$taxes_addons = it_exchange_get_enabled_addons( array( 'category' => 'taxes' ) );
-	
-	if ( 1 < count( $taxes_addons ) ) {
-		?>
-		<div id="it-exchange-easy-us-sales-taxes-conflict-nag" class="it-exchange-nag">
-			<?php
-			$nag_dismiss = add_query_arg( array( 'it_exchange_easy_us_sales_taxes-dismiss-conflict-nag' => true ) );
-			echo __( 'Warning: You have multiple tax add-ons enabled. You may need to disable one to avoid conflicts.', 'LION' );
-			?>
-			<a class="dismiss btn" href="<?php echo esc_url( $nag_dismiss ); ?>">&times;</a>
-		</div>
-		<script type="text/javascript">
-			jQuery( document ).ready( function() {
-				if ( jQuery( '.wrap > h2' ).length == '1' ) {
-					jQuery("#it-exchange-easy-us-sales-taxes-conflict-nag").insertAfter( '.wrap > h2' ).addClass( 'after-h2' );
-				}
-			});
-		</script>
-		<?php
-	}
-}
-add_action( 'admin_notices', 'it_exchange_easy_us_sales_taxes_addon_show_conflict_nag' );
-
-/**
  * Enqueues Easy U.S. Sales Taxes scripts to WordPress Dashboard
  *
  * @since 1.0.0
@@ -271,6 +234,15 @@ add_filter( 'it_exchange_possible_template_paths', 'it_exchange_easy_us_sales_ta
  * @since 1.5.0
  */
 function it_exchange_easy_us_sales_taxes_add_exemption_manager() {
+
+	$cart = it_exchange_get_current_cart();
+
+	$address = $cart->get_shipping_address() ? $cart->get_shipping_address() : $cart->get_billing_address();
+
+	if ( $address['country'] !== 'US' ) {
+		return;
+	}
+
 	echo it_exchange_easy_us_sales_taxes_addon_exemptions();
 }
 
@@ -369,69 +341,80 @@ function it_exchange_easy_us_sales_taxes_verify_customer_address( $address, $cus
  *
  * @since 1.0.0
  *
- * @param int $transaction_id Transaction ID
-*/
-function it_exchange_easy_us_sales_taxes_transaction_hook( $transaction_id ) {
-	$tax_cloud_session = it_exchange_get_session_data( 'addon_easy_us_sales_taxes' );
+ * @param int            $transaction_id Transaction ID
+ * @param \ITE_Cart|null $cart
+ */
+function it_exchange_easy_us_sales_taxes_transaction_hook( $transaction_id, ITE_Cart $cart = null ) {
 
-	if ( empty( $tax_cloud_session['cart_id'] ) ) {
-		$cart_id = get_post_meta( $transaction_id, '_it_exchange_cart_id', true );
+	if ( $cart ) {
+		$cart_id = $cart->get_id();
 	} else {
-		$cart_id = $tax_cloud_session['cart_id'];
-	}
-	
-	//If we don't have a TaxCloud Cart ID, we cannot authorize and capture the tax
-	if ( $cart_id ) {
-		$settings = it_exchange_get_option( 'addon_easy_us_sales_taxes' );
-		$customer = it_exchange_get_current_customer();
 
-		$query = array(
-			'apiLoginID'     => $settings['tax_cloud_api_id'],
-			'apiKey'         => $settings['tax_cloud_api_key'],
-			'customerID'     => $customer->ID,
-			'cartID'         => $cart_id,
-			'orderID'        => $transaction_id,
-			'dateAuthorized' => gmdate( DATE_ATOM ),
-			'dateCaptured'   => gmdate( DATE_ATOM )
-		);
-		
-		try {
-			$args = array(
-				'headers' => array(
-					'Content-Type' => 'application/json',
-				),
-				'body' => json_encode( $query ),
-		    );
-			$result = wp_remote_post( ITE_TAXCLOUD_API . 'AuthorizedWithCapture', $args );
-		
-			if ( is_wp_error( $result ) ) {
-				throw new Exception( $result->get_error_message() );
-			} else if ( !empty( $result['body'] ) ) {
-				$body = json_decode( $result['body'] );
-				if ( 0 != $body->ResponseType ) {
-					$transaction = it_exchange_get_transaction( $transaction_id );
-					update_post_meta( $transaction_id, '_it_exchange_easy_us_sales_taxes', $transaction->get_items( 'tax', true )->total() );
-				} else {
-					$errors = array();
-					foreach( $body->Messages as $message ) {
-						$errors[] = $message->ResponseType . ' ' . $message->Message;
-					}
-					throw new Exception( implode( ',', $errors ) );
-				}
-			} else {
-				throw new Exception( __( 'Unknown error when trying to authorize and capture a transaction with TaxCloud.net', 'LION' ) );
-			}
+		$cart_id = get_post_meta( $transaction_id, '_it_exchange_cart_id', true );
+
+		if ( ! $cart_id ) {
+			$tax_cloud_session = it_exchange_get_session_data( 'addon_easy_us_sales_taxes' );
+			it_exchange_clear_session_data( 'addon_easy_us_sales_taxes' );
+
+			$cart_id = empty( $tax_cloud_session['cart_id'] ) ? '' : $tax_cloud_session['cart_id'];
 		}
-	    catch( Exception $e ) {
-			$exchange = it_exchange_get_option( 'settings_general' );
-			$error = sprintf( __( 'Unable to authorize transaction with TaxCloud.net: %s', 'LION' ), $e->getMessage() );
-			wp_mail( $exchange['company-email'], __( 'Error with Easy U.S. Sales Taxes', 'LION' ), $error );
-	    }
 	}
-	
-	it_exchange_clear_session_data( 'addon_easy_us_sales_taxes' );
+
+	if ( ! $cart_id ) {
+		return;
+	}
+
+	$settings = it_exchange_get_option( 'addon_easy_us_sales_taxes' );
+	$customer = it_exchange_get_current_customer();
+
+	$query = array(
+		'apiLoginID'     => $settings['tax_cloud_api_id'],
+		'apiKey'         => $settings['tax_cloud_api_key'],
+		'customerID'     => $customer->ID,
+		'cartID'         => $cart_id,
+		'orderID'        => $transaction_id,
+		'dateAuthorized' => gmdate( DATE_ATOM ),
+		'dateCaptured'   => gmdate( DATE_ATOM )
+	);
+
+	try {
+		$args = array(
+			'headers' => array(
+				'Content-Type' => 'application/json',
+			),
+			'body' => json_encode( $query ),
+	    );
+		$result = wp_remote_post( ITE_TAXCLOUD_API . 'AuthorizedWithCapture', $args );
+
+		if ( is_wp_error( $result ) ) {
+			throw new Exception( $result->get_error_message() );
+		} else if ( !empty( $result['body'] ) ) {
+			$body = json_decode( $result['body'] );
+			if ( 0 != $body->ResponseType ) {
+				$transaction = it_exchange_get_transaction( $transaction_id );
+				$total = $transaction->get_items( 'tax', true )->with_only_instances_of( 'ITE_TaxCloud_Line_Item' )->total();
+				update_post_meta( $transaction_id, '_it_exchange_easy_us_sales_taxes', $total );
+			} else {
+				$errors = array();
+				foreach( $body->Messages as $message ) {
+					$errors[] = $message->ResponseType . ' ' . $message->Message;
+				}
+				throw new Exception( implode( ',', $errors ) );
+			}
+		} else {
+			throw new Exception( __( 'Unknown error when trying to authorize and capture a transaction with TaxCloud.net', 'LION' ) );
+		}
+	} catch ( Exception $e ) {
+		$exchange = it_exchange_get_option( 'settings_general' );
+		$error = sprintf( __( 'Unable to authorize transaction with TaxCloud.net: %s', 'LION' ), $e->getMessage() );
+		wp_mail( $exchange['company-email'], __( 'Error with Easy U.S. Sales Taxes', 'LION' ), $error );
+    }
+
+    if ( $cart && $cart->is_current() ) {
+	    it_exchange_clear_session_data( 'addon_easy_us_sales_taxes' );
+    }
 }
-add_action( 'it_exchange_add_transaction_success', 'it_exchange_easy_us_sales_taxes_transaction_hook' );
+add_action( 'it_exchange_add_transaction_success', 'it_exchange_easy_us_sales_taxes_transaction_hook', 10, 2 );
 
 /**
  * Refund transactions in TaxCloud's API
@@ -809,30 +792,3 @@ function it_exchange_easy_us_sales_taxes_replace_order_table_tag_before_total_ro
 	<?php
 }
 add_action( 'it_exchange_replace_order_table_tag_before_total_row', 'it_exchange_easy_us_sales_taxes_replace_order_table_tag_before_total_row', 10, 2 );
-
-/**
- * Add a taxes row to the receipt.
- *
- * @since 1.4.1
- */
-function it_exchange_easy_us_sales_taxes_add_taxes_row_to_receipt() {
-
-	if ( empty( $GLOBALS['it_exchange']['transaction'] ) ) {
-		return;
-	}
-
-	$transaction = $GLOBALS['it_exchange']['transaction'];
-	?>
-	<tr>
-		<td></td>
-		<td align="right" style="padding: 10px; ">
-			<strong><?php _e(' Tax', 'LION' ); ?></strong>
-		</td>
-		<td align="right" style="padding: 10px 0 10px 10px; ">
-			<?php echo it_exchange_easy_us_sales_taxes_addon_get_taxes_for_confirmation( $transaction ); ?>
-		</td>
-	</tr>
-	<?php
-}
-
-add_action( 'it_exchange_email_template_receipt_cart-totals_after_subtotal', 'it_exchange_easy_us_sales_taxes_add_taxes_row_to_receipt' );

@@ -86,7 +86,6 @@ function it_exchange_easy_us_sales_taxes_addon_get_existing_certs() {
 			
 		}
 	    catch( Exception $e ) {
-			$exchange = it_exchange_get_option( 'settings_general' );
 			$errors[] = sprintf( __( 'Unable to add certificate on TaxCloud.net: %s', 'LION' ), $e->getMessage() );
 	    }
 		
@@ -155,7 +154,6 @@ function it_exchange_easy_us_sales_taxes_addon_remove_existing_cert() {
 				}
 			}
 		    catch( Exception $e ) {
-				$exchange = it_exchange_get_option( 'settings_general' );
 				$errors = sprintf( __( 'Unable to authorize transaction with TaxCloud.net: %s', 'LION' ), $e->getMessage() );
 		    }
 		    
@@ -415,7 +413,6 @@ function it_exchange_easy_us_sales_taxes_addon_add_cert() {
 
 		}
 	    catch( Exception $e ) {
-			$exchange = it_exchange_get_option( 'settings_general' );
 			$errors[] = sprintf( __( 'Unable to add certificate on TaxCloud.net: %s', 'LION' ), $e->getMessage() );
 	    }
 
