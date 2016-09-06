@@ -251,6 +251,62 @@ add_action( 'it_exchange_content_cart_end_totals_taxes_inner_element_label', 'it
 add_action( 'it_exchange_super_widget_checkout_end_taxes_element', 'it_exchange_easy_us_sales_taxes_add_exemption_manager' );
 
 /**
+ * Recalculate taxes when the exemption number is set.
+ *
+ * @since 1.5.0
+ *
+ * @param string    $key
+ * @param string    $value
+ * @param \ITE_Cart $cart
+ */
+function it_exchange_easy_us_sales_taxes_on_exemption_set( $key, $value, ITE_Cart $cart ) {
+
+	if ( $key !== 'taxcloud_exempt_certificate' ) {
+		return;
+	}
+
+	if ( $cart->is_current() ) {
+		$session = it_exchange_get_session_data( 'addon_easy_us_sales_taxes' );
+
+		$session['exempt_certificate'] = $value;
+		$session['new_certificate']    = true;
+
+		it_exchange_update_session_data( 'addon_easy_us_sales_taxes', $session );
+	}
+
+	$provider = new ITE_TaxCloud_Tax_Provider();
+	$provider->finalize_taxes( $cart );
+}
+
+add_action( 'it_exchange_set_cart_meta', 'it_exchange_easy_us_sales_taxes_on_exemption_set', 10, 3 );
+
+/**
+ * Recalculate taxes when the exemption number is removed.
+ *
+ * @since 1.5.0
+ *
+ * @param string    $key
+ * @param \ITE_Cart $cart
+ */
+function it_exchange_easy_us_sales_taxes_on_exemption_remove( $key, ITE_Cart $cart ) {
+
+	if ( $key !== 'taxcloud_exempt_certificate' ) {
+		return;
+	}
+
+	if ( $cart->is_current() ) {
+		$session = it_exchange_get_session_data( 'addon_easy_us_sales_taxes' );
+		unset( $session['exempt_certificate'], $session['new_certificate'] );
+		it_exchange_update_session_data( 'addon_easy_us_sales_taxes', $session );
+	}
+
+	$provider = new ITE_TaxCloud_Tax_Provider();
+	$provider->finalize_taxes( $cart );
+}
+
+add_action( 'it_exchange_remove_cart_meta', 'it_exchange_easy_us_sales_taxes_on_exemption_remove', 10, 2 );
+
+/**
  * Adjusts the cart total if on a checkout page
  *
  * @since 1.0.0
@@ -393,7 +449,10 @@ function it_exchange_easy_us_sales_taxes_transaction_hook( $transaction_id, ITE_
 			if ( 0 != $body->ResponseType ) {
 				$transaction = it_exchange_get_transaction( $transaction_id );
 				$total = $transaction->get_items( 'tax', true )->with_only_instances_of( 'ITE_TaxCloud_Line_Item' )->total();
-				update_post_meta( $transaction_id, '_it_exchange_easy_us_sales_taxes', $total );
+
+				if ( $total || ( $cart && $cart->has_meta( 'taxcloud_exempt_certificate' ) ) ) {
+					update_post_meta( $transaction_id, '_it_exchange_easy_us_sales_taxes', $total );
+				}
 			} else {
 				$errors = array();
 				foreach( $body->Messages as $message ) {

@@ -46,15 +46,7 @@ class ITE_TaxCloud_Tax_Provider extends ITE_Tax_Provider {
 	 */
 	public function add_taxes_to( ITE_Taxable_Line_Item $item, ITE_Cart $cart ) {
 
-		$cert = array();
-
-		foreach ( $cart->get_items( 'tax', true )->with_only_instances_of( $this->get_item_class() ) as $tax ) {
-			if ( $tax->has_param( 'exemption' ) ) {
-				$cert = array( 'CertificateID' => $tax->get_param( 'exemption' ) );
-
-				break;
-			}
-		}
+		$cert = $cart->has_meta( 'taxcloud_exempt_certificate' ) ? $cart->get_meta( 'taxcloud_exempt_certificate' ) : array();
 
 		try {
 			$this->lookup->for_line_item( $item, $cart, $cert );
@@ -82,15 +74,8 @@ class ITE_TaxCloud_Tax_Provider extends ITE_Tax_Provider {
 	 * @inheritDoc
 	 */
 	public function finalize_taxes( ITE_Cart $cart ) {
-		$cert = array();
 
-		foreach ( $cart->get_items( 'tax', true )->with_only_instances_of( $this->get_item_class() ) as $tax ) {
-			if ( $tax->has_param( 'exemption' ) ) {
-				$cert = array( 'CertificateID' => $tax->get_param( 'exemption' ) );
-
-				break;
-			}
-		}
+		$cert = $cart->has_meta( 'taxcloud_exempt_certificate' ) ? $cart->get_meta( 'taxcloud_exempt_certificate' ) : array();
 
 		try {
 			$this->lookup->for_cart( $cart, $cert );

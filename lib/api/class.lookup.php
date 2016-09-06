@@ -30,13 +30,13 @@ class ITE_TaxCloud_API_Lookup {
 	 *
 	 * @param \ITE_Taxable_Line_Item $item
 	 * @param \ITE_Cart              $cart
-	 * @param array                  $cert
+	 * @param array                  $certificate
 	 *
 	 * @return \ITE_Taxable_Line_Item|null Null if no taxes were applied.
 	 *
 	 * @throws \Exception
 	 */
-	public function for_line_item( ITE_Taxable_Line_Item $item, ITE_Cart $cart, $cert = array() ) {
+	public function for_line_item( ITE_Taxable_Line_Item $item, ITE_Cart $cart, array $certificate = array() ) {
 
 		if ( $item->is_tax_exempt( new ITE_TaxCloud_Tax_Provider() ) ) {
 			return null;
@@ -53,23 +53,24 @@ class ITE_TaxCloud_API_Lookup {
 			return null;
 		}
 
-		if ( $cert ) {
-			$additional['exemptCert'] = $cert;
+		if ( $certificate ) {
+			$additional['exemptCert'] = $certificate;
 		}
 
 		$response = $this->request( $this->generate_body( $additional ) );
 
 		/** @noinspection LoopWhichDoesNotLoopInspection */
 		foreach ( $response['CartItemsResponse'] as $item_response ) {
+
 			$item->remove_all_taxes();
+
+			if ( empty( $item_response['TaxAmount'] ) ) {
+				continue;
+			}
 
 			$tax = ITE_TaxCloud_Line_Item::create(
 				100 * ( $item_response['TaxAmount'] / ( $item->get_taxable_amount() * $item->get_quantity() ) ), $item
 			);
-
-			if ( ! empty( $cert['CertificateID'] ) ) {
-				$tax->set_param( 'exemption', $cert['CertificateID'] );
-			}
 
 			$item->add_tax( $tax );
 			$cart->get_repository()->save( $item );
@@ -86,13 +87,13 @@ class ITE_TaxCloud_API_Lookup {
 	 * @since 1.5.0
 	 *
 	 * @param \ITE_Cart $cart
-	 * @param array     $cert
+	 * @param array     $certificate
 	 *
 	 * @return \ITE_Line_Item_Collection Collection of taxes;
 	 *
 	 * @throws \Exception
 	 */
-	public function for_cart( ITE_Cart $cart, $cert = array() ) {
+	public function for_cart( ITE_Cart $cart, array $certificate = array() ) {
 
 		$taxable = $cart->get_items( 'product', true )
 		                ->taxable()
@@ -115,8 +116,8 @@ class ITE_TaxCloud_API_Lookup {
 			return new ITE_Line_Item_Collection( array(), $cart->get_repository() );
 		}
 
-		if ( $cert ) {
-			$additional['exemptCert'] = $cert;
+		if ( $certificate ) {
+			$additional['exemptCert'] = $certificate;
 		}
 
 		$response = $this->request( $this->generate_body( $additional ) );
@@ -125,20 +126,20 @@ class ITE_TaxCloud_API_Lookup {
 
 		// There is only one
 		foreach ( $response['CartItemsResponse'] as $item_response ) {
+
 			/** @var ITE_Taxable_Line_Item $item */
 			$item = $taxable->offsetGet( $item_response['CartItemIndex'] );
 			$tax  = ITE_TaxCloud_Line_Item::create(
 				100 * ( $item_response['TaxAmount'] / ( $item->get_taxable_amount() * $item->get_quantity() ) ), $item
 			);
 
-			if ( ! empty( $cert['CertificateID'] ) ) {
-				$tax->set_param( 'exemption', $cert['CertificateID'] );
+			$item->remove_all_taxes();
+
+			if ( ! empty( $item_response['TaxAmount'] ) ) {
+				$item->add_tax( $tax );
+				$taxes[] = $tax;
 			}
 
-			$item->remove_all_taxes();
-			$item->add_tax( $tax );
-
-			$taxes[] = $tax;
 			$items[] = $item;
 		}
 

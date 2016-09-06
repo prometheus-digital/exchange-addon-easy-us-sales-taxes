@@ -5,6 +5,10 @@
  * @since   1.0.0
  */
 
+if ( ! class_exists( 'ITE_Tax_Provider' ) ) {
+	return;
+}
+
 if ( ! defined( 'ITE_TAXCLOUD_API' ) ) {
 	define( 'ITE_TAXCLOUD_API', 'https://api.taxcloud.net/1.0/Taxcloud/' );
 }

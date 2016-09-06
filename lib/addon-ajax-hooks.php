@@ -10,9 +10,11 @@
  *
  * @since 1.0.0
 */
-function it_exchange_easy_us_sales_taxes_addon_get_existing_certs() {	
+function it_exchange_easy_us_sales_taxes_addon_get_existing_certs() {
 
-	if ( ( ! $customer = it_exchange_get_current_customer() ) instanceof IT_Exchange_Customer ) {
+	$customer = it_exchange_get_current_customer();
+
+	if ( ! $customer instanceof IT_Exchange_Customer ) {
 	
 		$errors[] = __( 'You must be logged in to get your Tax Exempt Certificates', 'LION' );
 		
@@ -135,11 +137,7 @@ function it_exchange_easy_us_sales_taxes_addon_remove_existing_cert() {
 					$body = json_decode( $result['body'] );
 					if ( 3 == $body->ResponseType ) {
 
-						$tax_cloud_session = it_exchange_get_session_data( 'addon_easy_us_sales_taxes' );
-						unset( $tax_cloud_session['exempt_certificate'], $tax_cloud_session['new_certificate'] );
-						it_exchange_update_session_data( 'addon_easy_us_sales_taxes', $tax_cloud_session );
-
-						it_exchange_easy_us_sales_taxes_addon_get_taxes_for_cart( false, true );
+						it_exchange_get_current_cart()->remove_meta( 'taxcloud_exempt_certificate' );
 
 						wp_send_json_success();
 					} else {
@@ -183,22 +181,17 @@ function it_exchange_easy_us_sales_taxes_addon_use_existing_cert() {
 	} else {
 	
 		if ( !empty( $_POST ) && !empty( $_POST['cert_id'] ) ) {
-			
-			$tax_cloud_session = it_exchange_get_session_data( 'addon_easy_us_sales_taxes' );
-			$tax_cloud_session['exempt_certificate'] = array( 'CertificateID' => $_POST['cert_id'] );
-			$tax_cloud_session['new_certificate'] = true;
-			it_exchange_update_session_data( 'addon_easy_us_sales_taxes', $tax_cloud_session );
-			it_exchange_easy_us_sales_taxes_addon_get_taxes_for_cart( false, true );
+
+			$cart = it_exchange_get_current_cart();
+			$cart->set_meta( 'taxcloud_exempt_certificate',  array( 'CertificateID' => $_POST['cert_id'] ) );
 			
 			wp_send_json_success();
-		    
 		}
-	
 	}
 
 	wp_send_json_error( $errors );
-
 }
+
 add_action( 'wp_ajax_it-exchange-aust-existing-use-existing-cert', 'it_exchange_easy_us_sales_taxes_addon_use_existing_cert' );
 add_action( 'wp_ajax_nopriv_it-exchange-aust-existing-use-existing-cert', 'it_exchange_easy_us_sales_taxes_addon_use_existing_cert' );
 
@@ -362,22 +355,17 @@ function it_exchange_easy_us_sales_taxes_addon_add_cert() {
 		),
 	);
 
-
-	$tax_cloud_session = it_exchange_get_session_data( 'addon_easy_us_sales_taxes' );
-
 	if ( 'single' === $_POST['exempt_type'] ) {
 
 		// w/ TaxCloud, if it is a single use certificate, we do not add it to their database
 		// with the AddExemptCertificate API, it gets added to the tax query
 		// in it_exchange_easy_us_sales_taxes_addon_get_taxes_for_cart()
 		$cert = $query['exemptCert'];
-		unset( $cert['CertificateID']);
-		$tax_cloud_session['exempt_certificate'] = $cert;
-		$tax_cloud_session['new_certificate'] = true;
-		it_exchange_update_session_data( 'addon_easy_us_sales_taxes', $tax_cloud_session );
-		it_exchange_easy_us_sales_taxes_addon_get_taxes_for_cart( false, true );
-		wp_send_json_success( 'it-aust-single-cert-added' );
+		unset( $cert['CertificateID'] );
 
+		it_exchange_get_current_cart()->set_meta( 'taxcloud_exempt_certificate', $cert );
+
+		wp_send_json_success( 'it-aust-single-cert-added' );
 	} else {
 
 		try {
@@ -394,11 +382,11 @@ function it_exchange_easy_us_sales_taxes_addon_add_cert() {
 			} else if ( !empty( $result['body'] ) ) {
 				$body = json_decode( $result['body'] );
 				if ( 0 !== (int) $body->ResponseType ) {
-					//add the certificate ID to a session variable
-					$tax_cloud_session['exempt_certificate'] = array( 'CertificateID' => $body->CertificateID );
-					$tax_cloud_session['new_certificate'] = true;
-					it_exchange_update_session_data( 'addon_easy_us_sales_taxes', $tax_cloud_session );
-					it_exchange_easy_us_sales_taxes_addon_get_taxes_for_cart( false, true );
+
+					it_exchange_get_current_cart()->set_meta( 'taxcloud_exempt_certificate', array(
+						'CertificateID' => $body->CertificateID
+					) );
+
 					wp_send_json_success( $body->CertificateID );
 				} else {
 					$local_errors = array();
