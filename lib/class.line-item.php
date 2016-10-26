@@ -92,7 +92,7 @@ class ITE_TaxCloud_Line_Item extends ITE_Line_Item implements ITE_Tax_Line_Item 
 	 */
 	public function get_amount() {
 		if ( $this->get_aggregate() ) {
-			return $this->get_aggregate()->get_taxable_amount() * ( $this->get_rate() / 100 );
+			return $this->get_aggregate()->get_taxable_amount() * $this->get_aggregate()->get_quantity() * ( $this->get_rate() / 100 );
 		} else {
 			return 0;
 		}

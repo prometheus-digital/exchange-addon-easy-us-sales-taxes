@@ -95,7 +95,7 @@ class ITE_TaxCloud_API_Lookup {
 	 */
 	public function for_cart( ITE_Cart $cart, array $certificate = array() ) {
 
-		$taxable = $cart->get_items( 'product', true )
+		$taxable = $cart->get_items( '', true )
 		                ->taxable()
 		                ->filter( function ( ITE_Taxable_Line_Item $item ) {
 			                return ! $item->is_tax_exempt( new ITE_TaxCloud_Tax_Provider() ) && $item->get_taxable_amount() > 0;
