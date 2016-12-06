@@ -17,7 +17,7 @@ class ITE_TaxCloud_Line_Item extends ITE_Line_Item implements ITE_Tax_Line_Item 
 	/**
 	 * Create a new TaxCloud Line Item.
 	 *
-	 * @since 1.36.0
+	 * @since 1.5.0
 	 *
 	 * @param int                         $rate
 	 * @param \ITE_Taxable_Line_Item|null $taxable
@@ -36,6 +36,22 @@ class ITE_TaxCloud_Line_Item extends ITE_Line_Item implements ITE_Tax_Line_Item 
 		}
 
 		return $self;
+	}
+
+	/**
+	 * Generate the ID.
+	 *
+	 * @since 1.5.0
+	 *
+	 * @return string
+	 */
+	protected static function generate_id() { return md5( uniqid( 'TAX', true ) ); }
+
+	/**
+	 * @inheritdoc
+	 */
+	public function clone_with_new_id( $include_frozen = true ) {
+		return new static( self::generate_id(), $this->bag, $include_frozen ? $this->frozen : new ITE_Array_Parameter_Bag() );
 	}
 
 	/**
@@ -101,7 +117,7 @@ class ITE_TaxCloud_Line_Item extends ITE_Line_Item implements ITE_Tax_Line_Item 
 	/**
 	 * @inheritDoc
 	 */
-	final public function get_type( $label = false ) {	return $label ? __( 'Tax', 'it-l10n-ithemes-exchange' ) : 'tax'; }
+	final public function get_type( $label = false ) { return $label ? __( 'Tax', 'it-l10n-ithemes-exchange' ) : 'tax'; }
 
 	/**
 	 * @inheritDoc
