@@ -2,7 +2,7 @@
 /**
  * Tax Cloud API Lookup.
  *
- * @since   1.5.0
+ * @since   2.0.0
  * @license GPLv2
  */
 
@@ -84,7 +84,7 @@ class ITE_TaxCloud_API_Lookup {
 	/**
 	 * Get the taxes for all taxable line items in the cart.
 	 *
-	 * @since 1.5.0
+	 * @since 2.0.0
 	 *
 	 * @param \ITE_Cart $cart
 	 * @param array     $certificate
@@ -151,7 +151,7 @@ class ITE_TaxCloud_API_Lookup {
 	/**
 	 * Generate the data for the cart items property.
 	 *
-	 * @since 1.5.0
+	 * @since 2.0.0
 	 *
 	 * @param ITE_Taxable_Line_Item[] $items
 	 *
@@ -177,7 +177,7 @@ class ITE_TaxCloud_API_Lookup {
 	/**
 	 * Generate the body of the request.
 	 *
-	 * @since 1.5.0
+	 * @since 2.0.0
 	 *
 	 * @param array $additional
 	 *
@@ -195,7 +195,7 @@ class ITE_TaxCloud_API_Lookup {
 	/**
 	 * Generate the shipping origin address.
 	 *
-	 * @since 1.5.0
+	 * @since 2.0.0
 	 *
 	 * @return array
 	 */
@@ -219,7 +219,7 @@ class ITE_TaxCloud_API_Lookup {
 	/**
 	 * Generate the destination for a cart.
 	 *
-	 * @since 1.5.0
+	 * @since 2.0.0
 	 *
 	 * @param \ITE_Cart $cart
 	 *

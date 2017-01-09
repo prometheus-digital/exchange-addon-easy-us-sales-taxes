@@ -1,0 +1,32 @@
+#it-exchange-easy-us-sales-taxes-exempt-label { line-height: 1.2; font-size: .75em; }
+
+#it-exchange-easy-us-sales-taxes-exemption-manager-wrapper {background: #FFF;background: rgba(255,255,255,0.7);z-index: 100001;position: fixed;top: 0;right: 0;bottom: 0;left: 0;}
+#it-exchange-easy-us-sales-taxes-exemption-manager-wrapper .it-exchange-aust-close-cert-manager {position: fixed;top: 10px;right: 10px;}
+#it-exchange-easy-us-sales-taxes-exemption-manager-wrapper .it-exchange-aust-close-cert-manager a {color: #222;font-size: 3em;line-height: 1em;text-decoration: none;}
+#it-exchange-easy-us-sales-taxes-exemption-manager-wrapper .it-exchange-aust-close-cert-manager a:hover {color: #444;}
+
+#it-exchange-easy-us-sales-taxes-exemption-manager {position: relative;background: #fff;width: 100%;border: 1px solid #ccc;max-width: 800px;height: 100%;min-height: 400px;max-height: 75%;margin: 100px auto;padding-top: 3em;text-align: left;overflow: hidden;overflow-y:auto;-webkit-border-sizing: border-box;-moz-box-sizing: border-box;box-sizing: border-box;}
+#it-exchange-easy-us-sales-taxes-exemption-manager-title-area {position: absolute;top: 0;width: 100%;overflow: hidden;border-bottom: 1px solid #CCCCCC;}
+#it-exchange-easy-us-sales-taxes-exemption-manager-title-area .it-exchange-aust-tax-emeption-title {font-size: 1.4em;line-height: 1;color: #444;margin: .5em 1em;float:left;}
+#it-exchange-easy-us-sales-taxes-exemption-manager-title-area .it-exchange-aust-close-cert-manager {float:right;}
+#it-exchange-easy-us-sales-taxes-exemption-manager-title-area .it-exchange-aust-close-cert-manager a {display: block;padding: .5em .75em;font-size: 1.4em;line-height: 1;background: #444;color: #fff;}
+#it-exchange-easy-us-sales-taxes-exemption-manager-title-area .it-exchange-aust-close-cert-manager a:hover {background: #222;}
+
+#it-exchange-easy-us-sales-taxes-exemption-manager-content-area {display: block;padding: 2em 3em;}
+#it-exchange-easy-us-sales-tax-add-cert {display: block;padding: 2em;float: left;}
+#it-exchange-easy-us-sales-taxes-exemption-manager-content-area h3 {margin-top: 0;}
+#it-exchange-easy-us-sales-taxes-exemption-manager-content-area p {margin: 0 0 10px 0;}
+
+#it-exchange-easy-us-sales-taxes-exemption-manager-content-area .it-exchange-easy-us-sales-taxes-add-exemption-section {padding: 0 .25em 1em .25em;margin-bottom: 1em;border-bottom: 1px solid #ebebeb;overflow:hidden;}
+#it-exchange-easy-us-sales-taxes-exemption-manager-content-area .it-exchange-easy-us-sales-taxes-add-exemption-section .it-exchange-exemption-section-half-width {float:left;width: 50%;padding-right: 1em;-webkit-border-sizing: border-box;-moz-box-sizing: border-box;box-sizing: border-box;}
+
+#it-exchange-easy-us-sales-taxes-exemption-manager-add-new-certificates {margin-bottom: 1em;overflow:hidden;}
+#it-exchange-easy-us-sales-taxes-exemption-manager-existing-certificates {clear: both;padding-top: 1em;margin-top: 1em;overflow:hidden;border-top: 1px solid #ebebeb;}
+.it-exchange-easy-us-sales-taxes-exemption-manager-list-certs-content-area {padding:0 0 1em 0;margin-bottom:1em; border-bottom: 1px solid #ebebeb;overflow:hidden;}
+.it-exchange-easy-us-sales-taxes-exemption-manager-list-certs-content-area  .it-exchange-easy-us-sales-taxes-existing-exemption-image {float:left;margin-right: 1.5em;}
+.it-exchange-easy-us-sales-taxes-exemption-manager-list-certs-content-area  .it-exchange-easy-us-sales-taxes-existing-exemption-text {float:left;}
+.it-exchange-easy-us-sales-taxes-exemption-manager-list-certs-content-area  .it-exchange-easy-us-sales-taxes-existing-exemption-text a {margin-right: 1em;}
+
+@media screen and (max-width: 600px) {
+	#it-exchange-easy-us-sales-taxes-exemption-manager-content-area .it-exchange-easy-us-sales-taxes-add-exemption-section .it-exchange-exemption-section-half-width {float:none;width: 100%;padding-right: 1em;padding-left: 1em;}
+}

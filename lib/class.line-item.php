@@ -2,7 +2,7 @@
 /**
  * Tax Cloud Line Item.
  *
- * @since   1.5.0
+ * @since   2.0.0
  * @license GPLv2
  */
 
@@ -17,7 +17,7 @@ class ITE_TaxCloud_Line_Item extends ITE_Line_Item implements ITE_Tax_Line_Item 
 	/**
 	 * Create a new TaxCloud Line Item.
 	 *
-	 * @since 1.5.0
+	 * @since 2.0.0
 	 *
 	 * @param int                         $rate
 	 * @param \ITE_Taxable_Line_Item|null $taxable
@@ -41,7 +41,7 @@ class ITE_TaxCloud_Line_Item extends ITE_Line_Item implements ITE_Tax_Line_Item 
 	/**
 	 * Generate the ID.
 	 *
-	 * @since 1.5.0
+	 * @since 2.0.0
 	 *
 	 * @return string
 	 */

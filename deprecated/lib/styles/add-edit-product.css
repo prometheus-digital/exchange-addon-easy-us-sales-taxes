@@ -1,0 +1,5 @@
+/** -----------------------------------------------------:[ Tax Class UI ]:---------- */
+#it-exchange-product-us-tic .it-exchange-remove-tax-class, .it-exchange-easy-us-sales-taxes-addon-settings .it-exchange-remove-tax-class {-webkit-box-sizing: content-box;-moz-box-sizing: content-box;box-sizing: content-box;display: inline-block;width: 20px;height: 20px;margin-top: 12px;margin-right: 12px;border: 2px solid transparent;border-radius: 50%;font-size: 14px;line-height: 1.4;text-decoration: none;text-align: center;color: #BBB;-webkit-transition: all .2s linear;-moz-transition: all .2s linear;transition: all .2s linear;cursor:pointer;}
+#it-exchange-product-us-tic .it-exchange-remove-tax-class:hover, .it-exchange-easy-us-sales-taxes-addon-settings .it-exchange-remove-tax-class:hover {border-color: #E1797A;color: #E1797A;}
+#it-exchange-product-us-tic .it-exchange-tax-class-description,.it-exchange-easy-us-sales-taxes-addon-settings .it-exchange-tax-class-description {padding: .25em .5em; background: #fff;border: 1px solid #ebebeb; display:inline-block; margin-bottom: 1em;}
+#catList span {padding: .25em .5em; background: #fff;border: 1px solid #ebebeb;}
