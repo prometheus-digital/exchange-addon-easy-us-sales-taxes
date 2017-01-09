@@ -1,21 +1,4 @@
 <?php
-/*
- * Plugin Name: iThemes Exchange - Easy U.S. Sales Taxes
- * Version: 1.4.1
- * Description: Adds Easy U.S. Sales Taxes to iThemes Exchange with the power of TaxCloud.
- * Plugin URI: http://ithemes.com/exchange/easy-us-sales-taxes/
- * Author: iThemes
- * Author URI: http://ithemes.com
- * iThemes Package: exchange-addon-easy-us-sales-taxes
- 
- * Installation:
- * 1. Download and unzip the latest release zip file.
- * 2. If you use the WordPress plugin uploader to install this plugin skip to step 4.
- * 3. Upload the entire plugin directory to your `/wp-content/plugins/` directory.
- * 4. Activate the plugin through the 'Plugins' menu in WordPress Administration.
- *
-*/
-
 /**
  * This registers our plugin as a customer pricing addon
  *
