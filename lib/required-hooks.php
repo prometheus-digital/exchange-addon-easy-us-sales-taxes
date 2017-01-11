@@ -420,6 +420,12 @@ function it_exchange_easy_us_sales_taxes_transaction_hook( $transaction_id, ITE_
 		return;
 	}
 
+	$transaction = it_exchange_get_transaction( $transaction_id );
+
+	if ( ! $transaction->get_items( 'fee', true )->with_only_instances_of( 'ITE_TaxCloud_Line_Item' )->count() ) {
+	    return;
+    }
+
 	$settings = it_exchange_get_option( 'addon_easy_us_sales_taxes' );
 	$customer = it_exchange_get_current_customer();
 
