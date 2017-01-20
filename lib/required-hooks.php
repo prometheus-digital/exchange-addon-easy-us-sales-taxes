@@ -703,14 +703,6 @@ function it_exchange_easy_us_sales_taxes_addon_add_new_certificate_backbone_temp
 								?>
 							</p>
 						</div>
-						<div class="it-exchange-exemption-section-half-width">
-							<h3><?php _e( 'Select one:', 'LION' ); ?></h3>
-							<p>
-								<?php $form->add_radio( 'exempt_type', array( 'value' => 'single' ) ); ?> <label for="exempt_type-single"><?php _e( 'Single purchase certificate.', 'LION' ); ?></label> <span id="exempt_type_single_selected" class="it-exchange-hidden"><?php _e( 'Relates to invoice/purchase order #', 'LION' ); ?> <?php $form->add_text_box( 'order_number' ); ?></span>
-								<br />
-								<?php $form->add_radio( 'exempt_type', array( 'value' => 'bulk', 'checked' => true ) ); ?> <label for="exempt_type-bulk"><?php _e( 'Blanket certificate.', 'LION' ); ?></label> <span id="exempt_type_bulk_selected"><?php _e( 'If selected, this certificate continues in force until canceled by the purchaser.', 'LION' ); ?></span>
-							</p>
-						</div>
 					</div>
 						
 					<div class="it-exchange-easy-us-sales-taxes-add-exemption-section">

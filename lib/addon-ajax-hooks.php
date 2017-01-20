@@ -222,12 +222,7 @@ function it_exchange_easy_us_sales_taxes_addon_add_cert() {
         $detail['exempt_state'] = $_POST['exempt_state'];
     }
 
-    if ( empty( $_POST['exempt_type'] ) ) {
-        $errors[] = __( 'You must specify the Exemption Type', 'LION' );
-    } else {
-        $detail['exempt_type'] = $_POST['exempt_type'];
-    }
-
+    $detail['exempt_type']  = 'bulk';
     $detail['order_number'] = empty( $_POST['order_number'] ) ? '' : $_POST['order_number'];
 
     if ( empty( $_POST['purchaser_name'] ) ) {
@@ -355,7 +350,7 @@ function it_exchange_easy_us_sales_taxes_addon_add_cert() {
 		),
 	);
 
-	if ( 'single' === $_POST['exempt_type'] ) {
+	if ( 'single' === $detail['exempt_type'] ) {
 
 		// w/ TaxCloud, if it is a single use certificate, we do not add it to their database
 		// with the AddExemptCertificate API, it gets added to the tax query
