@@ -129,9 +129,12 @@ class ITE_TaxCloud_API_Lookup {
 
 			/** @var ITE_Taxable_Line_Item $item */
 			$item = $taxable->offsetGet( $item_response['CartItemIndex'] );
-			$tax  = ITE_TaxCloud_Line_Item::create(
-				100 * ( $item_response['TaxAmount'] / ( $item->get_taxable_amount() * $item->get_quantity() ) ), $item
-			);
+
+			$taxable_total = $this->get_taxable_amount_for_item( $item ) * $item->get_quantity();
+			$rate          = $item_response['TaxAmount'] / $taxable_total;
+			$percentage    = $rate * 100;
+
+			$tax = ITE_TaxCloud_Line_Item::create( $percentage, $item );
 
 			$item->remove_all_taxes();
 
@@ -160,18 +163,51 @@ class ITE_TaxCloud_API_Lookup {
 	protected function generate_cart_items( array $items ) {
 
 		$cart_items = array();
+		$provider   = new ITE_TaxCloud_Tax_Provider();
 
 		foreach ( $items as $i => $item ) {
+
+			if ( $item instanceof ITE_Shipping_Line_Item ) {
+				$tic = 11010;
+			} elseif ( $item instanceof ITE_Fee_Line_Item && ! $tic = $item->get_tax_code( $provider ) ) {
+				$tic = 10010;
+			} else {
+				$tic = $item->get_tax_code( $provider );
+			}
+
 			$cart_items[] = array(
 				'Index'  => $i,
-				'TIC'    => $item instanceof ITE_Shipping_Line_Item ? 11010 : $item->get_tax_code( new ITE_TaxCloud_Tax_Provider() ),
+				'TIC'    => $tic,
 				'ItemID' => $item->get_id(),
-				'Price'  => $item->get_taxable_amount(),
+				'Price'  => $this->get_taxable_amount_for_item( $item ),
 				'Qty'    => $item->get_quantity()
 			);
 		}
 
 		return $cart_items;
+	}
+
+	/**
+	 * Get the total amount that is taxable.
+	 *
+	 * @since 2.0.0
+	 *
+	 * @param ITE_Taxable_Line_Item $item
+	 *
+	 * @return float|int
+	 */
+	protected function get_taxable_amount_for_item( ITE_Taxable_Line_Item $item ) {
+
+		$amount = $item->get_taxable_amount();
+
+		if ( $item instanceof ITE_Aggregate_Line_Item ) {
+			$taxable = $item->get_line_items()->flatten()->taxable();
+
+			$amount += $taxable->total() / $item->get_quantity();
+		}
+
+		return $amount;
+
 	}
 
 	/**
