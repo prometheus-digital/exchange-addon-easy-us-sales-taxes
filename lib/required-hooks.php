@@ -486,6 +486,36 @@ function it_exchange_easy_us_sales_taxes_transaction_hook( $transaction_id, ITE_
 add_action( 'it_exchange_add_transaction_success', 'it_exchange_easy_us_sales_taxes_transaction_hook', 10, 2 );
 
 /**
+ * Report child transactions to Tax Cloud.
+ *
+ * @since 2.0.0
+ *
+ * @param int $transaction_id
+ */
+function it_exchange_easy_us_sales_taxes_report_child_transaction( $transaction_id ) {
+
+    $transaction = it_exchange_get_transaction( $transaction_id );
+
+    if ( ! $transaction ) {
+        return;
+    }
+
+    if ( ! get_post_meta( $transaction_id, '_it_exchange_easy_us_sales_taxes', true ) ) {
+        return;
+    }
+
+    $api = new ITE_TaxCloud_API_Lookup( it_exchange_get_option( 'addon_easy_us_sales_taxes' ) );
+
+    try {
+        $api->add_transactions( array( $transaction ) );
+    } catch ( Exception $e ) {
+
+    }
+}
+
+add_action( 'it_exchange_add_child_transaction_success', 'it_exchange_easy_us_sales_taxes_report_child_transaction', 100 );
+
+/**
  * Refund transactions in TaxCloud's API
  * (We can only do full refunds)
  *

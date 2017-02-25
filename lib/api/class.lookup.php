@@ -13,6 +13,9 @@ class ITE_TaxCloud_API_Lookup {
 
 	const URL = 'https://api.taxcloud.net/1.0/Taxcloud/';
 
+	const TIC_SHIPPING = 11010;
+	const TIC_FEE = 10010;
+
 	/**
 	 * @var array
 	 */
@@ -57,7 +60,7 @@ class ITE_TaxCloud_API_Lookup {
 			$additional['exemptCert'] = $certificate;
 		}
 
-		$response = $this->request( $this->generate_body( $additional ) );
+		$response = $this->request( 'Lookup', $this->generate_body( $additional ) );
 
 		/** @noinspection LoopWhichDoesNotLoopInspection */
 		foreach ( $response['CartItemsResponse'] as $item_response ) {
@@ -120,7 +123,7 @@ class ITE_TaxCloud_API_Lookup {
 			$additional['exemptCert'] = $certificate;
 		}
 
-		$response = $this->request( $this->generate_body( $additional ) );
+		$response = $this->request( 'Lookup', $this->generate_body( $additional ) );
 		$taxes    = array();
 		$items    = array();
 
@@ -152,6 +155,69 @@ class ITE_TaxCloud_API_Lookup {
 	}
 
 	/**
+	 * Add transactions to Tax Cloud that have not been made through the Lookup -> AuthorizedWithCapture flow.
+	 *
+	 * @since 2.0.0
+	 *
+	 * @param IT_Exchange_Transaction[] $transactions A maximum of 25 transactions can be processed at once.
+	 *
+	 * @throws Exception
+	 */
+	public function add_transactions( array $transactions ) {
+
+		if ( count( $transactions ) > 25 ) {
+			throw new Exception( 'Unable to process more than 25 transactions at once.' );
+		}
+
+		$body = array(
+			'apiLoginID'   => $this->settings['tax_cloud_api_id'],
+			'apiKey'       => $this->settings['tax_cloud_api_key'],
+			'transactions' => array_map( array( $this, 'generate_transaction' ), $transactions ),
+		);
+
+		$this->request( 'AddTransactions', $body );
+	}
+
+	/**
+	 * Generate the body for an AddTransactions request for a single transaction.
+	 *
+	 * @since 2.0.0
+	 *
+	 * @param IT_Exchange_Transaction $transaction
+	 *
+	 * @return array
+	 */
+	protected function generate_transaction( IT_Exchange_Transaction $transaction ) {
+
+		$cart    = $transaction->cart();
+		$taxable = $cart->get_items()->flatten()->taxable()
+		                ->filter( function ( ITE_Taxable_Line_Item $item ) {
+			                return ! $item->is_tax_exempt( new ITE_TaxCloud_Tax_Provider() ) && $item->get_taxable_amount() > 0;
+		                } );
+
+		$data = array(
+			'dateCaptured'      => $transaction->order_date->format( 'Y-m-d' ),
+			'dateAuthorized'    => $transaction->order_date->format( 'Y-m-d' ),
+			'dateTransaction'   => $transaction->order_date->format( 'Y-m-d' ),
+			'deliveredBySeller' => false,
+			'destination'       => $this->generate_destination( $cart ),
+			'origin'            => $this->generate_origin(),
+			'orderID'           => $transaction->get_ID(),
+			'cartID'            => $transaction->cart_id,
+			'customerID'        => $transaction->customer_id ?: uniqid( 'CID', false ),
+			'cartItems'         => $this->generate_cart_items( $taxable->to_array() )
+		);
+
+		if ( $cart->has_meta( 'taxcloud_exempt_certificate' ) ) {
+			$data['exemptCert'] = $cart->get_meta( 'taxcloud_exempt_certificate' );
+		} elseif ( $transaction->parent && $transaction->parent->cart()->has_meta( 'taxcloud_exempt_certificate' ) ) {
+			$data['exemptCert'] = $transaction->parent->cart()->get_meta( 'taxcloud_exempt_certificate' );
+		}
+
+		return $data;
+	}
+
+	/**
 	 * Generate the data for the cart items property.
 	 *
 	 * @since 2.0.0
@@ -168,9 +234,9 @@ class ITE_TaxCloud_API_Lookup {
 		foreach ( $items as $i => $item ) {
 
 			if ( $item instanceof ITE_Shipping_Line_Item ) {
-				$tic = 11010;
+				$tic = self::TIC_SHIPPING;
 			} elseif ( $item instanceof ITE_Fee_Line_Item && ! $tic = $item->get_tax_code( $provider ) ) {
-				$tic = 10010;
+				$tic = self::TIC_FEE;
 			} else {
 				$tic = $item->get_tax_code( $provider );
 			}
@@ -291,13 +357,14 @@ class ITE_TaxCloud_API_Lookup {
 	/**
 	 * Perform a request to the TaxCloud API Servers.
 	 *
-	 * @param array $request
+	 * @param string $type
+	 * @param array  $request
 	 *
 	 * @return array
 	 *
 	 * @throws \Exception If the HTTP Request failed.
 	 */
-	protected function request( array $request ) {
+	protected function request( $type, array $request ) {
 
 		$args     = array(
 			'headers' => array(
@@ -305,16 +372,22 @@ class ITE_TaxCloud_API_Lookup {
 			),
 			'body'    => json_encode( $request ),
 		);
-		$response = wp_remote_post( self::URL . 'Lookup', $args );
+		$response = wp_remote_post( self::URL . $type, $args );
 
 		if ( is_wp_error( $response ) ) {
 			throw new Exception( $response->get_error_message() );
 		}
 
 		$body = wp_remote_retrieve_body( $response );
+		$code = wp_remote_retrieve_response_code( $response );
 
-		if ( ! $body ) {
-			throw new Exception( __( 'Unable to verify calculate Tax: Unknown Error', 'LION' ) );
+		if ( ! $body && ( $code < 200 || $code >= 300 ) ) {
+
+			if ( $type === 'Lookup' ) {
+				throw new Exception( __( 'Unable to calculate tax: Unknown Error', 'LION' ) );
+			} else {
+				throw new Exception( sprintf( __( 'Unable to perform %s request.', 'LION' ), $type ) );
+			}
 		}
 
 		$body = json_decode( $body, true );
@@ -330,7 +403,11 @@ class ITE_TaxCloud_API_Lookup {
 				$errors[] = $message['Message'];
 			}
 
-			throw new Exception( sprintf( __( 'Unable to calculate Tax: %s', 'LION' ), implode( ',', $errors ) ) );
+			if ( $type === 'Lookup' ) {
+				throw new Exception( sprintf( __( 'Unable to calculate tax: %s', 'LION' ), implode( ',', $errors ) ) );
+			} else {
+				throw new Exception( sprintf( __( 'Unable to perform %s request: %s', 'LION' ), $type, implode( ',', $errors ) ) );
+			}
 		}
 
 		return $body;
