@@ -47,7 +47,7 @@ class ITE_TaxCloud_API_Lookup extends ITE_TaxCloud_API_Request {
 			'deliveredBySeller' => false,
 			'customerID'        => $cart->get_customer() ? $cart->get_customer()->ID : uniqid( 'CID', false ),
 			'cartID'            => $cart->get_id(),
-			'cartItems'         => $this->generate_cart_items( array( $item ), $include_one_time_aggregatables )
+			'cartItems'         => $this->generate_cart_items( array( $item ), array(), $include_one_time_aggregatables )
 		);
 
 		if ( count( $additional['destination'] ) === 0 ) {
@@ -132,8 +132,19 @@ class ITE_TaxCloud_API_Lookup extends ITE_TaxCloud_API_Request {
 			return new ITE_Line_Item_Collection( array(), $cart->get_repository() );
 		}
 
+		/** @var ITE_Line_Item[] $negative_items */
+		$negative_items = array();
+
 		foreach ( $taxable as $item ) {
 			$item->remove_all_taxes();
+
+			if ( $this->get_taxable_amount_for_item( $item, $include_one_time_aggregatables ) < 0 ) {
+				$negative_items[] = $item;
+			}
+		}
+
+		foreach ( $negative_items as $item ) {
+			$taxable->remove( $item->get_type(), $item->get_id() );
 		}
 
 		$body = array(
@@ -142,7 +153,7 @@ class ITE_TaxCloud_API_Lookup extends ITE_TaxCloud_API_Request {
 			'deliveredBySeller' => false,
 			'customerID'        => $cart->get_customer() ? $cart->get_customer()->ID : uniqid( 'CID', false ),
 			'cartID'            => $cart->get_id(),
-			'cartItems'         => $this->generate_cart_items( $taxable->to_array(), $include_one_time_aggregatables )
+			'cartItems'         => $this->generate_cart_items( $taxable->to_array(), $negative_items, $include_one_time_aggregatables )
 		);
 
 		if ( count( $body['destination'] ) === 0 ) {
@@ -218,10 +229,25 @@ class ITE_TaxCloud_API_Lookup extends ITE_TaxCloud_API_Request {
 	protected function generate_transaction( IT_Exchange_Transaction $transaction ) {
 
 		$cart    = $transaction->cart();
-		$taxable = $cart->get_items()->flatten()->taxable()
-		                ->filter( function ( ITE_Taxable_Line_Item $item ) {
-			                return ! $item->is_tax_exempt( new ITE_TaxCloud_Tax_Provider() ) && $item->get_taxable_amount() > 0;
-		                } );
+		$taxable = $cart
+			->get_items()
+			->taxable()
+			->filter( function ( ITE_Taxable_Line_Item $item ) {
+				return ! $item->is_tax_exempt( new ITE_TaxCloud_Tax_Provider() );
+			} );
+
+		/** @var ITE_Line_Item[] $negative_items */
+		$negative_items = array();
+
+		foreach ( $taxable as $item ) {
+			if ( $this->get_taxable_amount_for_item( $item, true ) < 0 ) {
+				$negative_items[] = $item;
+			}
+		}
+
+		foreach ( $negative_items as $item ) {
+			$taxable->remove( $item->get_type(), $item->get_id() );
+		}
 
 		$data = array(
 			'dateCaptured'      => $transaction->order_date->format( 'Y-m-d' ),
@@ -233,7 +259,7 @@ class ITE_TaxCloud_API_Lookup extends ITE_TaxCloud_API_Request {
 			'orderID'           => $transaction->get_ID(),
 			'cartID'            => $transaction->cart_id,
 			'customerID'        => $transaction->customer_id ?: uniqid( 'CID', false ),
-			'cartItems'         => $this->generate_cart_items( $taxable->to_array() )
+			'cartItems'         => $this->generate_cart_items( $taxable->to_array(), $negative_items )
 		);
 
 		if ( $cart->has_meta( 'taxcloud_exempt_certificate' ) ) {
@@ -251,14 +277,32 @@ class ITE_TaxCloud_API_Lookup extends ITE_TaxCloud_API_Request {
 	 * @since 2.0.0
 	 *
 	 * @param ITE_Taxable_Line_Item[] $items
+	 * @param array                   $negative_items Negative line items that need to have their cost distributed
+	 *                                                across the other line items.
 	 * @param bool                    $include_one_time_aggregatables
 	 *
 	 * @return array
 	 */
-	protected function generate_cart_items( array $items, $include_one_time_aggregatables = false ) {
+	protected function generate_cart_items( array $items, array $negative_items = array(), $include_one_time_aggregatables = false ) {
 
 		$cart_items = array();
 		$provider   = new ITE_TaxCloud_Tax_Provider();
+
+		$negative_total = $negative_item_interval = 0.0;
+
+		foreach ( $negative_items as $negative_item ) {
+			$negative_total += $this->get_taxable_amount_for_item( $negative_item, $include_one_time_aggregatables );
+		}
+
+		if ( $negative_total ) {
+			$item_total = 0.0;
+
+			foreach ( $items as $i => $item ) {
+				$item_total += $this->get_taxable_amount_for_item( $item, $include_one_time_aggregatables );
+			}
+
+			$negative_item_interval = abs( $negative_total ) / $item_total;
+		}
 
 		foreach ( $items as $i => $item ) {
 
@@ -270,11 +314,17 @@ class ITE_TaxCloud_API_Lookup extends ITE_TaxCloud_API_Request {
 				$tic = $item->get_tax_code( $provider );
 			}
 
+			$price = $this->get_taxable_amount_for_item( $item, $include_one_time_aggregatables );
+
+			if ( $negative_item_interval ) {
+				$price -= $price * $negative_item_interval;
+			}
+
 			$cart_items[] = array(
 				'Index'  => $i,
 				'TIC'    => $tic,
 				'ItemID' => $item->get_id(),
-				'Price'  => $this->get_taxable_amount_for_item( $item, $include_one_time_aggregatables ),
+				'Price'  => $price,
 				'Qty'    => $item->get_quantity()
 			);
 		}
