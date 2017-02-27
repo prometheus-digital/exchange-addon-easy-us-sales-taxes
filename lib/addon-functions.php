@@ -49,7 +49,7 @@ function it_exchange_easy_us_sales_taxes_addon_get_taxes_for_cart( $format_price
 		$cert = $cart->has_meta( 'taxcloud_exempt_certificate' ) ? $cart->get_meta( 'taxcloud_exempt_certificate' ) : array();
 
 		try {
-			$total = $lookup->for_cart( $cart, $cert )->total();
+			$total = $lookup->for_cart( $cart, array( 'certificate' => $cert ) )->total();
 		} catch ( Exception $e ) {
 			it_exchange_add_message( 'error', $e->getMessage() );
 

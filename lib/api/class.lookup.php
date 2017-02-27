@@ -9,47 +9,45 @@
 /**
  * Class ITE_TaxCloud_API_Lookup
  */
-class ITE_TaxCloud_API_Lookup {
-
-	const URL = 'https://api.taxcloud.net/1.0/Taxcloud/';
+class ITE_TaxCloud_API_Lookup extends ITE_TaxCloud_API_Request {
 
 	const TIC_SHIPPING = 11010;
 	const TIC_FEE = 10010;
-
-	/**
-	 * @var array
-	 */
-	protected $settings;
-
-	/**
-	 * ITE_TaxCloud_API_Lookup constructor.
-	 *
-	 * @param array $settings
-	 */
-	public function __construct( array $settings ) { $this->settings = $settings; }
 
 	/**
 	 * Get the taxes for a given line item.
 	 *
 	 * @param \ITE_Taxable_Line_Item $item
 	 * @param \ITE_Cart              $cart
-	 * @param array                  $certificate
+	 * @param array                  $args
 	 *
 	 * @return \ITE_Taxable_Line_Item|null Null if no taxes were applied.
 	 *
 	 * @throws \Exception
 	 */
-	public function for_line_item( ITE_Taxable_Line_Item $item, ITE_Cart $cart, array $certificate = array() ) {
+	public function for_line_item( ITE_Taxable_Line_Item $item, ITE_Cart $cart, array $args = array() ) {
 
 		if ( $item->is_tax_exempt( new ITE_TaxCloud_Tax_Provider() ) ) {
 			return null;
 		}
 
+		$include_one_time_aggregatables = empty( $args['include_one_time_aggregatables'] ) ? false : true;
+		$certificate                    = isset( $args['certificate'] ) ? $args['certificate'] : array();
+		$save                           = isset( $args['save'] ) ? $args['save'] : true;
+
+		if ( is_string( $certificate ) ) {
+			$certificate = array( 'CertificateID' => $certificate );
+		}
+
+		$item->remove_all_taxes();
+
 		$additional = array(
-			'destination' => $this->generate_destination( $cart ),
-			'customerID'  => $cart->get_customer() ? $cart->get_customer()->ID : uniqid( 'CID', false ),
-			'cartID'      => $cart->get_id(),
-			'cartItems'   => $this->generate_cart_items( array( $item ) )
+			'destination'       => $this->generate_destination( $cart ),
+			'origin'            => $this->generate_origin(),
+			'deliveredBySeller' => false,
+			'customerID'        => $cart->get_customer() ? $cart->get_customer()->ID : uniqid( 'CID', false ),
+			'cartID'            => $cart->get_id(),
+			'cartItems'         => $this->generate_cart_items( array( $item ), $include_one_time_aggregatables )
 		);
 
 		if ( count( $additional['destination'] ) === 0 ) {
@@ -60,23 +58,25 @@ class ITE_TaxCloud_API_Lookup {
 			$additional['exemptCert'] = $certificate;
 		}
 
-		$response = $this->request( 'Lookup', $this->generate_body( $additional ) );
+		$response = $this->request( 'Lookup', $additional );
 
 		/** @noinspection LoopWhichDoesNotLoopInspection */
 		foreach ( $response['CartItemsResponse'] as $item_response ) {
-
-			$item->remove_all_taxes();
 
 			if ( empty( $item_response['TaxAmount'] ) ) {
 				continue;
 			}
 
-			$tax = ITE_TaxCloud_Line_Item::create(
-				100 * ( $item_response['TaxAmount'] / ( $item->get_taxable_amount() * $item->get_quantity() ) ), $item
-			);
+			$taxable_total = $this->get_taxable_amount_for_item( $item, $include_one_time_aggregatables ) * $item->get_quantity();
+			$rate          = $item_response['TaxAmount'] / $taxable_total;
+			$percentage    = $rate * 100;
 
+			$tax = ITE_TaxCloud_Line_Item::create( $percentage, $item );
 			$item->add_tax( $tax );
-			$cart->get_repository()->save( $item );
+
+			if ( $save ) {
+				$cart->get_repository()->save( $item );
+			}
 
 			return $tax;
 		}
@@ -90,40 +90,70 @@ class ITE_TaxCloud_API_Lookup {
 	 * @since 2.0.0
 	 *
 	 * @param \ITE_Cart $cart
-	 * @param array     $certificate
+	 * @param array     $args
 	 *
 	 * @return \ITE_Line_Item_Collection Collection of taxes;
 	 *
 	 * @throws \Exception
 	 */
-	public function for_cart( ITE_Cart $cart, array $certificate = array() ) {
+	public function for_cart( ITE_Cart $cart, array $args = array() ) {
+		return $this->for_line_items( $cart->get_items(), $cart, $args );
+	}
 
-		$taxable = $cart->get_items( '', true )
-		                ->taxable()
-		                ->filter( function ( ITE_Taxable_Line_Item $item ) {
-			                return ! $item->is_tax_exempt( new ITE_TaxCloud_Tax_Provider() ) && $item->get_taxable_amount() > 0;
-		                } );
+	/**
+	 * Calculate Tax Cloud taxes for a collection of line items.
+	 *
+	 * @since 2.0.0
+	 *
+	 * @param ITE_Line_Item_Collection $collection
+	 * @param ITE_Cart                 $cart
+	 * @param array                    $args
+	 *
+	 * @return ITE_Line_Item_Collection
+	 */
+	public function for_line_items( ITE_Line_Item_Collection $collection, ITE_Cart $cart, array $args = array() ) {
+
+		$include_one_time_aggregatables = empty( $args['include_one_time_aggregatables'] ) ? false : true;
+		$certificate                    = isset( $args['certificate'] ) ? $args['certificate'] : array();
+		$save                           = isset( $args['save'] ) ? $args['save'] : true;
+
+		if ( is_string( $certificate ) ) {
+			$certificate = array( 'CertificateID' => $certificate );
+		}
+
+		$provider = new ITE_TaxCloud_Tax_Provider();
+		$taxable  = $collection
+			->taxable()
+			->filter( function ( ITE_Taxable_Line_Item $item ) use ( $provider ) {
+				return ! $item->is_tax_exempt( $provider );
+			} );
 
 		if ( $taxable->count() === 0 ) {
 			return new ITE_Line_Item_Collection( array(), $cart->get_repository() );
 		}
 
-		$additional = array(
-			'destination' => $this->generate_destination( $cart ),
-			'customerID'  => $cart->get_customer() ? $cart->get_customer()->ID : uniqid( 'CID', false ),
-			'cartID'      => $cart->get_id(),
-			'cartItems'   => $this->generate_cart_items( $taxable->to_array() )
+		foreach ( $taxable as $item ) {
+			$item->remove_all_taxes();
+		}
+
+		$body = array(
+			'destination'       => $this->generate_destination( $cart ),
+			'origin'            => $this->generate_origin(),
+			'deliveredBySeller' => false,
+			'customerID'        => $cart->get_customer() ? $cart->get_customer()->ID : uniqid( 'CID', false ),
+			'cartID'            => $cart->get_id(),
+			'cartItems'         => $this->generate_cart_items( $taxable->to_array(), $include_one_time_aggregatables )
 		);
 
-		if ( count( $additional['destination'] ) === 0 ) {
+		if ( count( $body['destination'] ) === 0 ) {
 			return new ITE_Line_Item_Collection( array(), $cart->get_repository() );
 		}
 
 		if ( $certificate ) {
-			$additional['exemptCert'] = $certificate;
+			$body['exemptCert'] = $certificate;
 		}
 
-		$response = $this->request( 'Lookup', $this->generate_body( $additional ) );
+		$response = $this->request( 'Lookup', $body );
 		$taxes    = array();
 		$items    = array();
 
@@ -133,13 +163,11 @@ class ITE_TaxCloud_API_Lookup {
 			/** @var ITE_Taxable_Line_Item $item */
 			$item = $taxable->offsetGet( $item_response['CartItemIndex'] );
 
-			$taxable_total = $this->get_taxable_amount_for_item( $item ) * $item->get_quantity();
+			$taxable_total = $this->get_taxable_amount_for_item( $item, $include_one_time_aggregatables ) * $item->get_quantity();
 			$rate          = $item_response['TaxAmount'] / $taxable_total;
 			$percentage    = $rate * 100;
 
 			$tax = ITE_TaxCloud_Line_Item::create( $percentage, $item );
-
-			$item->remove_all_taxes();
 
 			if ( ! empty( $item_response['TaxAmount'] ) ) {
 				$item->add_tax( $tax );
@@ -149,7 +177,9 @@ class ITE_TaxCloud_API_Lookup {
 			$items[] = $item;
 		}
 
-		$cart->get_repository()->save_many( $items );
+		if ( $save ) {
+			$cart->get_repository()->save_many( $items );
+		}
 
 		return new ITE_Line_Item_Collection( $taxes, $cart->get_repository() );
 	}
@@ -170,8 +200,6 @@ class ITE_TaxCloud_API_Lookup {
 		}
 
 		$body = array(
-			'apiLoginID'   => $this->settings['tax_cloud_api_id'],
-			'apiKey'       => $this->settings['tax_cloud_api_key'],
 			'transactions' => array_map( array( $this, 'generate_transaction' ), $transactions ),
 		);
 
@@ -223,10 +251,11 @@ class ITE_TaxCloud_API_Lookup {
 	 * @since 2.0.0
 	 *
 	 * @param ITE_Taxable_Line_Item[] $items
+	 * @param bool                    $include_one_time_aggregatables
 	 *
 	 * @return array
 	 */
-	protected function generate_cart_items( array $items ) {
+	protected function generate_cart_items( array $items, $include_one_time_aggregatables = false ) {
 
 		$cart_items = array();
 		$provider   = new ITE_TaxCloud_Tax_Provider();
@@ -245,7 +274,7 @@ class ITE_TaxCloud_API_Lookup {
 				'Index'  => $i,
 				'TIC'    => $tic,
 				'ItemID' => $item->get_id(),
-				'Price'  => $this->get_taxable_amount_for_item( $item ),
+				'Price'  => $this->get_taxable_amount_for_item( $item, $include_one_time_aggregatables ),
 				'Qty'    => $item->get_quantity()
 			);
 		}
@@ -256,42 +285,36 @@ class ITE_TaxCloud_API_Lookup {
 	/**
 	 * Get the total amount that is taxable.
 	 *
-	 * @since 2.0.0
+	 * @since    2.0.0
 	 *
 	 * @param ITE_Taxable_Line_Item $item
+	 * @param bool                  $include_one_time_aggregatables
 	 *
-	 * @return float|int
+	 * @return float
 	 */
-	protected function get_taxable_amount_for_item( ITE_Taxable_Line_Item $item ) {
+	protected function get_taxable_amount_for_item( ITE_Taxable_Line_Item $item, $include_one_time_aggregatables = false ) {
 
 		$amount = $item->get_taxable_amount();
 
 		if ( $item instanceof ITE_Aggregate_Line_Item ) {
-			$taxable = $item->get_line_items()->flatten()->taxable();
+			$provider = new ITE_TaxCloud_Tax_Provider();
+
+			$taxable = $item->get_line_items()->flatten()->taxable()
+			                ->filter( function ( ITE_Taxable_Line_Item $taxable ) use ( $provider ) {
+				                return ! $taxable->is_tax_exempt( $provider );
+			                } );
+
+			if ( ! $include_one_time_aggregatables ) {
+				$taxable = $taxable->filter( function ( ITE_Line_Item $item ) {
+					return ! $item instanceof ITE_Fee_Line_Item || $item->is_recurring();
+				} );
+			}
 
 			$amount += $taxable->total() / $item->get_quantity();
 		}
 
-		return $amount;
+		return (float) $amount;
 
-	}
-
-	/**
-	 * Generate the body of the request.
-	 *
-	 * @since 2.0.0
-	 *
-	 * @param array $additional
-	 *
-	 * @return array
-	 */
-	protected function generate_body( array $additional ) {
-		return array_merge( $additional, array(
-			'apiLoginID'        => $this->settings['tax_cloud_api_id'],
-			'apiKey'            => $this->settings['tax_cloud_api_key'],
-			'origin'            => $this->generate_origin(),
-			'deliveredBySeller' => false,
-		) );
 	}
 
 	/**
@@ -352,64 +375,5 @@ class ITE_TaxCloud_API_Lookup {
 		}
 
 		return $destination;
-	}
-
-	/**
-	 * Perform a request to the TaxCloud API Servers.
-	 *
-	 * @param string $type
-	 * @param array  $request
-	 *
-	 * @return array
-	 *
-	 * @throws \Exception If the HTTP Request failed.
-	 */
-	protected function request( $type, array $request ) {
-
-		$args     = array(
-			'headers' => array(
-				'Content-Type' => 'application/json',
-			),
-			'body'    => json_encode( $request ),
-		);
-		$response = wp_remote_post( self::URL . $type, $args );
-
-		if ( is_wp_error( $response ) ) {
-			throw new Exception( $response->get_error_message() );
-		}
-
-		$body = wp_remote_retrieve_body( $response );
-		$code = wp_remote_retrieve_response_code( $response );
-
-		if ( ! $body && ( $code < 200 || $code >= 300 ) ) {
-
-			if ( $type === 'Lookup' ) {
-				throw new Exception( __( 'Unable to calculate tax: Unknown Error', 'LION' ) );
-			} else {
-				throw new Exception( sprintf( __( 'Unable to perform %s request.', 'LION' ), $type ) );
-			}
-		}
-
-		$body = json_decode( $body, true );
-
-		if ( function_exists( 'json_last_error' ) && json_last_error() && json_last_error_msg() ) {
-			throw new Exception( json_last_error_msg() );
-		}
-
-		if ( empty( $body['ResponseType'] ) ) {
-			$errors = array();
-
-			foreach ( $body['Messages'] as $message ) {
-				$errors[] = $message['Message'];
-			}
-
-			if ( $type === 'Lookup' ) {
-				throw new Exception( sprintf( __( 'Unable to calculate tax: %s', 'LION' ), implode( ',', $errors ) ) );
-			} else {
-				throw new Exception( sprintf( __( 'Unable to perform %s request: %s', 'LION' ), $type, implode( ',', $errors ) ) );
-			}
-		}
-
-		return $body;
 	}
 }

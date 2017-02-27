@@ -36,7 +36,7 @@ add_action( 'it_exchange_register_tax_providers', 'it_exchange_register_tax_clou
 */
 function it_exchange_easy_us_sales_taxes_addon_admin_wp_enqueue_scripts( $hook_suffix ) {
 	global $post;
-			
+
 	if ( isset( $_REQUEST['post_type'] ) ) {
 		$post_type = $_REQUEST['post_type'];
 	} else {
@@ -53,19 +53,19 @@ function it_exchange_easy_us_sales_taxes_addon_admin_wp_enqueue_scripts( $hook_s
 		if ( isset( $post ) && !empty( $post ) )
 			$post_type = $post->post_type;
 	}
-	
+
 	$url_base = ITUtility::get_url_from_file( dirname( __FILE__ ) );
-	
+
 	if ( ( isset( $post_type ) && 'it_exchange_prod' === $post_type && ( 'post-new.php' === $hook_suffix || 'post.php' === $hook_suffix ) )
 		|| ( !empty( $_GET['add-on-settings'] ) && 'exchange_page_it-exchange-addons' === $hook_suffix && 'easy-us-sales-taxes' === $_GET['add-on-settings'] ) ) {
-		
+
 		$deps = array( 'jquery' );
 		wp_enqueue_script( 'it-exchange-easy-us-sales-taxes-addon-taxcloud-tic-selector', $url_base . '/js/jquery.tic2.public.js', $deps, '', true );
-		
+
 	}
-	
+
 	if ( !empty( $_GET['add-on-settings'] ) && 'exchange_page_it-exchange-addons' === $hook_suffix && 'easy-us-sales-taxes' === $_GET['add-on-settings'] ) {
-	
+
 		$deps = array( 'jquery' );
 		wp_enqueue_script( 'it-exchange-easy-us-sales-taxes-addon-admin-js', $url_base . '/js/admin.js' );
 
@@ -83,11 +83,11 @@ add_action( 'admin_enqueue_scripts', 'it_exchange_easy_us_sales_taxes_addon_admi
 function it_exchange_easy_us_sales_taxes_load_public_scripts( $current_view ) {
 
 	$settings = it_exchange_get_option( 'addon_easy_us_sales_taxes' );
-	
+
 	if ( !empty( $settings['tax_exemptions'] ) && ( it_exchange_is_page( 'checkout' ) || it_exchange_in_superwidget() ) ) {
 
 		$url_base = ITUtility::get_url_from_file( dirname( __FILE__ ) );
-		
+
 		if ( it_exchange_is_page( 'checkout' ) )
 			wp_enqueue_script( 'ite-aut-addon-checkout-page-var',  $url_base . '/js/checkout-page.js' );
 
@@ -99,9 +99,9 @@ function it_exchange_easy_us_sales_taxes_load_public_scripts( $current_view ) {
 		wp_enqueue_script( 'ite-aut-addon-exemption-certificate-views',  $url_base . '/js/views/exemption-certificate-views.js', $deps );
 		$deps[] =  'ite-aut-addon-exemption-certificate-views';
 		wp_enqueue_script( 'ite-aut-addon-exemption-certificate-manager', $url_base . '/js/exemption-certificate-manager.js', $deps );
-		
+
 		wp_enqueue_style( 'ite-aut-addon-exemption-certificate-manager', $url_base . '/styles/exemption-certificate-manager.css' );
-		
+
 		add_action( 'wp_footer', 'it_exchange_easy_us_sales_taxes_addon_manage_certificates_backbone_template' );
 		add_action( 'wp_footer', 'it_exchange_easy_us_sales_taxes_addon_list_existing_certificates_backbone_template' );
 		add_action( 'wp_footer', 'it_exchange_easy_us_sales_taxes_addon_add_new_certificate_backbone_template' );
@@ -139,13 +139,13 @@ function it_exchange_easy_us_sales_taxes_addon_admin_wp_enqueue_styles() {
 		if ( isset( $post ) && !empty( $post ) )
 			$post_type = $post->post_type;
 	}
-	
+
 	// Easy US Sales Taxes settings page
 	if ( ( isset( $post_type ) && 'it_exchange_prod' === $post_type )
 		|| ( !empty( $_GET['add-on-settings'] ) && 'exchange_page_it-exchange-addons' === $hook_suffix && 'easy-us-sales-taxes' === $_GET['add-on-settings'] ) ) {
-		
+
 		wp_enqueue_style( 'it-exchange-easy-us-sales-taxes-addon-admin-style', ITUtility::get_url_from_file( dirname( __FILE__ ) ) . '/styles/add-edit-product.css' );
-		
+
 	}
 
 }
@@ -164,7 +164,7 @@ function it_exchange_easy_us_sales_taxes_addon_add_taxes_to_template_totals_elem
 	$index = array_search( 'totals-savings', $elements );
 	if ( false === $index )
 		$index = -1;
-		
+
 	// Bump index by 1 to show tax after discounts
 	if ( -1 != $index )
 		$index++;
@@ -188,7 +188,7 @@ function it_exchange_easy_us_sales_taxes_addon_add_taxes_to_sw_template_totals_l
 	$index = array_search( 'discounts', $loops );
 	if ( false === $index )
 		$index = -1;
-		
+
 	// Bump index by 1 to show tax after discounts
 	if ( -1 != $index )
 		$index++;
@@ -230,7 +230,7 @@ add_filter( 'it_exchange_possible_template_paths', 'it_exchange_easy_us_sales_ta
 
 /**
  * Add the exemption manager to the taxes template.
- * 
+ *
  * @since 2.0.0
  */
 function it_exchange_easy_us_sales_taxes_add_exemption_manager() {
@@ -322,7 +322,7 @@ function it_exchange_easy_us_sales_taxes_addon_taxes_modify_total( $total ) {
 		unset($_GET['doit']);
 		it_exchange_easy_us_sales_taxes_addon_get_taxes_for_cart( false, true );
 	}
-	
+
 	return $total;
 }
 
@@ -343,9 +343,9 @@ function it_exchange_easy_us_sales_taxes_verify_customer_address( $address, $cus
 
 	if ( !empty( $address['country'] ) && 'US' !== $address['country'] )
 		return $address; //Can only verify US addresses
-	
+
 	$settings = it_exchange_get_option( 'addon_easy_us_sales_taxes' );
-	
+
 	$dest = array(
 		'Address1' => $address['address1'],
 		'Address2' => !empty( $address['address2'] ) ? $address['address2'] : '',
@@ -363,7 +363,7 @@ function it_exchange_easy_us_sales_taxes_verify_customer_address( $address, $cus
 			'body' => json_encode( $dest ),
 	    );
     	$result = wp_remote_post( ITE_TAXCLOUD_API . 'VerifyAddress', $args );
-		
+
 		if ( is_wp_error( $result ) ) {
 			throw new Exception( $result->get_error_message() );
 		} else if ( !empty( $result['body'] ) ) {
@@ -383,12 +383,12 @@ function it_exchange_easy_us_sales_taxes_verify_customer_address( $address, $cus
 		} else {
 			throw new Exception( __( 'Unable to verify Address: Unknown Error', 'LION' ) );
 		}
-    } 
+    }
     catch( Exception $e ) {
 		it_exchange_add_message( 'error', sprintf( __( 'Address Error: %s', 'LION' ), $e->getMessage() ) );
 		return false;
     }
-    
+
     return $address;
 }
 
@@ -402,87 +402,65 @@ function it_exchange_easy_us_sales_taxes_verify_customer_address( $address, $cus
  */
 function it_exchange_easy_us_sales_taxes_transaction_hook( $transaction_id, ITE_Cart $cart = null ) {
 
-	if ( $cart ) {
-		$cart_id = $cart->get_id();
-	} else {
-
-		$cart_id = get_post_meta( $transaction_id, '_it_exchange_cart_id', true );
-
-		if ( ! $cart_id ) {
-			$tax_cloud_session = it_exchange_get_session_data( 'addon_easy_us_sales_taxes' );
-			it_exchange_clear_session_data( 'addon_easy_us_sales_taxes' );
-
-			$cart_id = empty( $tax_cloud_session['cart_id'] ) ? '' : $tax_cloud_session['cart_id'];
-		}
-	}
-
-	if ( ! $cart_id ) {
-		return;
-	}
-
 	$transaction = it_exchange_get_transaction( $transaction_id );
 
 	if ( ! $transaction ) {
-	    return;
-    }
+		return;
+	}
 
-	if ( ! $transaction->get_items( 'fee', true )->with_only_instances_of( 'ITE_TaxCloud_Line_Item' )->count() ) {
-	    return;
-    }
+	if ( ! $transaction->get_items( 'tax', true )->with_only_instances_of( 'ITE_TaxCloud_Line_Item' )->count() ) {
+		return;
+	}
+
+	if ( $cart ) {
+		$tax_cloud_cart_id = $cart->get_id();
+	} else {
+		$tax_cloud_cart_id = get_post_meta( $transaction_id, '_it_exchange_cart_id', true );
+
+		if ( ! $tax_cloud_cart_id ) {
+			$tax_cloud_session = it_exchange_get_session_data( 'addon_easy_us_sales_taxes' );
+			it_exchange_clear_session_data( 'addon_easy_us_sales_taxes' );
+
+			$tax_cloud_cart_id = empty( $tax_cloud_session['cart_id'] ) ? '' : $tax_cloud_session['cart_id'];
+		}
+
+		$cart = $transaction->cart();
+	}
+
+	if ( ! $tax_cloud_cart_id ) {
+		return;
+	}
 
 	$settings = it_exchange_get_option( 'addon_easy_us_sales_taxes' );
-	$customer = it_exchange_get_current_customer();
 
-	$query = array(
-		'apiLoginID'     => $settings['tax_cloud_api_id'],
-		'apiKey'         => $settings['tax_cloud_api_key'],
-		'customerID'     => $customer->ID,
-		'cartID'         => $cart_id,
-		'orderID'        => $transaction_id,
-		'dateAuthorized' => gmdate( DATE_ATOM ),
-		'dateCaptured'   => gmdate( DATE_ATOM )
-	);
+	if ( $cart->contains_non_recurring_fee() ) {
+	    $cert = $cart->has_meta( 'taxcloud_exempt_certificate' ) ? $cart->get_meta( 'taxcloud_exempt_certificate' ) : array();
+
+        $lookup = new ITE_TaxCloud_API_Lookup( $settings );
+        $lookup->for_cart( $cart, array(
+            'certificate' => $cert,
+            'include_one_time_aggregatables' => true,
+            'save' => false,
+        ) );
+    }
+
+	$authorize = new ITE_TaxCloud_API_Authorize( $settings );
 
 	try {
-		$args = array(
-			'headers' => array(
-				'Content-Type' => 'application/json',
-			),
-			'body' => json_encode( $query ),
-	    );
-		$result = wp_remote_post( ITE_TAXCLOUD_API . 'AuthorizedWithCapture', $args );
+	    $authorize->authorize_with_capture( $transaction, $tax_cloud_cart_id );
+    } catch ( Exception $e ) {
 
-		if ( is_wp_error( $result ) ) {
-			throw new Exception( $result->get_error_message() );
-		} else if ( !empty( $result['body'] ) ) {
-			$body = json_decode( $result['body'] );
-			if ( 0 != $body->ResponseType ) {
-				$transaction = it_exchange_get_transaction( $transaction_id );
-				$total = $transaction->get_items( 'tax', true )->with_only_instances_of( 'ITE_TaxCloud_Line_Item' )->total();
+		$general = it_exchange_get_option( 'settings_general' );
+		$error   = sprintf( __( 'Unable to authorize transaction with TaxCloud.net: %s', 'LION' ), $e->getMessage() );
 
-				if ( $total || ( $cart && $cart->has_meta( 'taxcloud_exempt_certificate' ) ) ) {
-					update_post_meta( $transaction_id, '_it_exchange_easy_us_sales_taxes', $total );
-				}
-			} else {
-				$errors = array();
-				foreach( $body->Messages as $message ) {
-					$errors[] = $message->ResponseType . ' ' . $message->Message;
-				}
-				throw new Exception( implode( ',', $errors ) );
-			}
-		} else {
-			throw new Exception( __( 'Unknown error when trying to authorize and capture a transaction with TaxCloud.net', 'LION' ) );
-		}
-	} catch ( Exception $e ) {
-		$exchange = it_exchange_get_option( 'settings_general' );
-		$error = sprintf( __( 'Unable to authorize transaction with TaxCloud.net: %s', 'LION' ), $e->getMessage() );
-		wp_mail( $exchange['company-email'], __( 'Error with Easy U.S. Sales Taxes', 'LION' ), $error );
+		wp_mail( $general['company-email'], __( 'Error with Easy U.S. Sales Taxes', 'LION' ), $error );
     }
 
     if ( $cart && $cart->is_current() ) {
 	    it_exchange_clear_session_data( 'addon_easy_us_sales_taxes' );
     }
 }
+
 add_action( 'it_exchange_add_transaction_success', 'it_exchange_easy_us_sales_taxes_transaction_hook', 10, 2 );
 
 /**
@@ -541,7 +519,7 @@ function it_exchange_easy_us_sales_taxes_transaction_refund( $transaction, $amou
 				'cartItems'    => null,
 				'returnedDate' => gmdate( DATE_ATOM )
 			);
-			
+
 			try {
 				$args = array(
 					'headers' => array(
@@ -550,7 +528,7 @@ function it_exchange_easy_us_sales_taxes_transaction_refund( $transaction, $amou
 					'body' => json_encode( $query ),
 			    );
 				$result = wp_remote_post( ITE_TAXCLOUD_API . 'Returned', $args );
-			
+
 				if ( is_wp_error( $result ) ) {
 					throw new Exception( $result->get_error_message() );
 				} else if ( !empty( $result['body'] ) ) {
@@ -571,7 +549,7 @@ function it_exchange_easy_us_sales_taxes_transaction_refund( $transaction, $amou
 				$error = sprintf( __( 'Unable to returning transaction with TaxCloud.net: %s', 'LION' ), $e->getMessage() );
 				wp_mail( $exchange['company-email'], __( 'Error with Easy U.S. Sales Taxes', 'LION' ), $error );
 		    }
-		}		
+		}
 	}
 }
 add_action( 'it_exchange_add_refund_to_transaction', 'it_exchange_easy_us_sales_taxes_transaction_refund', 15, 4 );
@@ -600,7 +578,7 @@ function it_exchange_easy_us_sales_taxes_addon_convert_reason_to_readable_string
 		'DirectMail' => __( 'Direct Mail', 'LION' ),
 		'Other' => __( 'Other', 'LION' ),
 	);
-	
+
 	if ( 'Other' === $reason_string )
 		return $reason_explained;
 	else
@@ -609,7 +587,7 @@ function it_exchange_easy_us_sales_taxes_addon_convert_reason_to_readable_string
 
 /**
  * Backbone template for primary Tax Exemption Manager screen.
- * Invoked by wp.template() and WordPress 
+ * Invoked by wp.template() and WordPress
  *
  * add_action( 'wp_footer', 'it_exchange_easy_us_sales_taxes_addon_manage_certificates_backbone_template' );
  *
@@ -625,7 +603,7 @@ function it_exchange_easy_us_sales_taxes_addon_manage_certificates_backbone_temp
 					<?php _e( 'Tax Exemption Manager', 'LION' ); ?>
 				</h3>
 			</div>
-			
+
 			<div id="it-exchange-easy-us-sales-taxes-exemption-manager-content-area">
 				<div id="it-exchange-easy-us-sales-taxes-exemption-manager-add-new-certificates">
 					<div id="it-exchange-easy-us-sales-taxes-exemption-manager-error-area"></div>
@@ -643,7 +621,7 @@ function it_exchange_easy_us_sales_taxes_addon_manage_certificates_backbone_temp
 
 /**
  * Backbone template for listing all existing certificates in the Tax Exemption Manager.
- * Invoked by wp.template() and WordPress 
+ * Invoked by wp.template() and WordPress
  *
  * Called by add_action( 'wp_footer', 'it_exchange_easy_us_sales_taxes_addon_list_existing_certificates_backbone_template' );
  *
@@ -653,7 +631,7 @@ function it_exchange_easy_us_sales_taxes_addon_list_existing_certificates_backbo
 	?>
 	<script type="text/template" id="tmpl-it-exchange-easy-us-sales-taxes-list-certs-container">
 		<div class="it-exchange-easy-us-sales-taxes-exemption-manager-list-certs-content-area">
-			
+
 			<div class="it-exchange-easy-us-sales-taxes-existing-exemption-image">
 				<a class="view-existing-certificate" data-cert-id="{{{ data.CertificateID }}}" href="#">
 					<img title="Existing Exemption Certificate" src="//taxcloud.net/imgs/cert/exemption_certificate150x120.png" style="cursor:pointer;" height="120" width="150" />
@@ -679,7 +657,7 @@ function it_exchange_easy_us_sales_taxes_addon_list_existing_certificates_backbo
 
 /**
  * Backbone template for Add New Tax Exemptions screen.
- * Invoked by wp.template() and WordPress 
+ * Invoked by wp.template() and WordPress
  *
  * Called by add_action( 'wp_footer', 'it_exchange_easy_us_sales_taxes_addon_add_new_certificate_backbone_template' );
  *
@@ -693,7 +671,7 @@ function it_exchange_easy_us_sales_taxes_addon_add_new_certificate_backbone_temp
 		'action'  => '',
 	);
 	$form = new ITForm();
-	
+
 	?>
 	<div id="it-exchange-easy-us-sales-taxes-exemption-manager-wrapper" class="it-exchange-hidden"></div>
 	<script type="text/template" id="tmpl-it-exchange-easy-us-sales-taxes-add-cert-container">
@@ -704,24 +682,24 @@ function it_exchange_easy_us_sales_taxes_addon_add_new_certificate_backbone_temp
 					<?php _e( 'Tax Exemption Manager', 'LION' ); ?>
 				</h3>
 			</div>
-		
+
 			<div id="it-exchange-easy-us-sales-taxes-exemption-manager-content-area">
 				<div id="it-exchange-easy-us-sales-taxes-exemption-manager-error-area"></div>
 				<?php
 					$form->start_form( $form_options, 'it-exchange-easy-us-sales-taxes-new-cert' );
-					
+
 					if ( !empty( $form_values ) )
 						foreach ( $form_values as $key => $var )
 							$form->set_option( $key, $var );
 					?>
-					
+
 					<div class="it-exchange-easy-us-sales-taxes-add-exemption-section">
 						<h3><?php _e( 'Warning to Purchaser', 'LION' ); ?></h3>
 						<p>
 						<?php _e( '<strong>This is a multistate form. Not all states allow all exemptions</strong> listed on this form. Purchasers are responsible for knowing if they qualify to claim exemption from tax in the state that is due tax on this sale. The state that is due tax on this sale will be notified that you claimed exemption from sales tax. You will be held liable for any tax and interest, as well as civil and criminal penalties imposed by the member state, if you are not eligible to claim this exemption. Sellers may not accept a certificate of exemption for an entity-based exemption on a sale at a location operated by the seller within the designated state if the state does not allow such an entity-based exemption.', 'LION' ); ?>
 						</p>
 					</div>
-					
+
 					<div class="it-exchange-easy-us-sales-taxes-add-exemption-section">
 						<div class="it-exchange-exemption-section-half-width">
 							<h3><?php _e( 'Certificate of Exemption', 'LION' ); ?></h3>
@@ -729,12 +707,12 @@ function it_exchange_easy_us_sales_taxes_addon_add_new_certificate_backbone_temp
 								<label for="exempt_state"><?php _e( 'Select the state under whose laws you are claiming exemption.', 'LION' ); ?></label><br />
 								<?php
 									$states = it_exchange_get_data_set( 'states', array( 'country' => 'US', 'include-territories' => true ) );
-									$form->add_drop_down( 'exempt_state', $states ); 
+									$form->add_drop_down( 'exempt_state', $states );
 								?>
 							</p>
 						</div>
 					</div>
-						
+
 					<div class="it-exchange-easy-us-sales-taxes-add-exemption-section">
 						<h3><?php _e( 'Purchaser Identification', 'LION' ); ?></h3>
 						<div class="it-exchange-exemption-section-half-width">
@@ -759,17 +737,17 @@ function it_exchange_easy_us_sales_taxes_addon_add_new_certificate_backbone_temp
 								<?php $form->add_text_box( 'business_zip_5' ); ?>
 							</p>
 						</div>
-						
+
 						<div class="it-exchange-exemption-section-half-width">
 							<p>
 								<label for="exemption_type"><?php _e( "Purchaser's Exemption ID number", 'LION' ); ?></label><br />
-								<?php 
+								<?php
 								$exemption_types = array(
 									'FEIN'            => __( 'Federal Employer ID', 'LION' ),
 									'StateIssued'     => __( 'State Issued Exemption ID or Drivers License', 'LION' ),
 									'ForeignDiplomat' => __( 'Foreign Diplomat ID', 'LION' ),
 								);
-								$form->add_drop_down( 'exemption_type', $exemption_types ); 
+								$form->add_drop_down( 'exemption_type', $exemption_types );
 								?>
 								<br />
 								<label for="exemption_type_number" ><?php _e( 'Number:', 'LION' ); ?></label><br />
@@ -785,10 +763,10 @@ function it_exchange_easy_us_sales_taxes_addon_add_new_certificate_backbone_temp
 									<?php $form->add_text_box( 'exemption_type_issuer_other' ); ?>
 								</div>
 							</p>
-							
+
 							<p>
 								<label for="business_type"><?php _e( 'Purchaser Business Type', 'LION' ); ?></label><br />
-								<?php 
+								<?php
 									$business_type = array(
 										'AccommodationAndFoodServices' => __( 'Accommodation And Food Services', 'LION' ),
 										'Agricultural_Forestry_Fishing_Hunting' => __( 'Agricultural/Forestry/Fishing/Hunting', 'LION' ),
@@ -811,17 +789,17 @@ function it_exchange_easy_us_sales_taxes_addon_add_new_certificate_backbone_temp
 										'NotABusiness' => __( 'Not a Business', 'LION' ),
 										'Other' => __( 'Other', 'LION' ),
 									);
-									$form->add_drop_down( 'business_type', $business_type ); 
+									$form->add_drop_down( 'business_type', $business_type );
 								?>
 								<div id="business_type_other_div" class="it-exchange-hidden">
 									<label for="business_type_other"><?php _e( 'Please explain:', 'LION' ); ?></label><br />
 									<?php $form->add_text_box( 'business_type_other' ); ?>
 								</div>
 							</p>
-							
+
 							<p>
 								<label for="exemption_reason"><?php _e( 'Reason for exemption', 'LION' ); ?></label><br />
-								<?php 
+								<?php
 								$exemption_types = array(
 									'FederalGovernmentDepartment' => __( 'Federal Government Department', 'LION' ),
 									'StateOrLocalGovernmentName' => __( 'State or Local Government', 'LION' ),
@@ -836,7 +814,7 @@ function it_exchange_easy_us_sales_taxes_addon_add_new_certificate_backbone_temp
 									'DirectMail' => __( 'Direct Mail', 'LION' ),
 									'Other' => __( 'Other', 'LION' ),
 								);
-								$form->add_drop_down( 'exemption_reason', $exemption_types ); 
+								$form->add_drop_down( 'exemption_reason', $exemption_types );
 								?>
 								<div id="exemption_reason_value_div">
 									<label for="exemption_reason_value"><?php _e( 'Please explain:', 'LION' ); ?></label><br />

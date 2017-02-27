@@ -49,9 +49,10 @@ class ITE_TaxCloud_Tax_Provider extends ITE_Tax_Provider {
 		$cert = $cart->has_meta( 'taxcloud_exempt_certificate' ) ? $cart->get_meta( 'taxcloud_exempt_certificate' ) : array();
 
 		try {
-			$this->lookup->for_line_item( $item, $cart, $cert );
-		}
-		catch ( Exception $e ) {
+			$this->lookup->for_line_item( $item, $cart, array(
+				'certificate' => $cert,
+			) );
+		} catch ( Exception $e ) {
 			$cart->get_feedback()->add_error( $e->getMessage() );
 		}
 	}
@@ -78,9 +79,8 @@ class ITE_TaxCloud_Tax_Provider extends ITE_Tax_Provider {
 		$cert = $cart->has_meta( 'taxcloud_exempt_certificate' ) ? $cart->get_meta( 'taxcloud_exempt_certificate' ) : array();
 
 		try {
-			$this->lookup->for_cart( $cart, $cert );
-		}
-		catch ( Exception $e ) {
+			$this->lookup->for_cart( $cart, array( 'certificate' => $cert ) );
+		} catch ( Exception $e ) {
 			$cart->get_feedback()->add_error( $e->getMessage() );
 		}
 	}
