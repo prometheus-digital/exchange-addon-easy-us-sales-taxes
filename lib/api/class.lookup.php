@@ -68,7 +68,7 @@ class ITE_TaxCloud_API_Lookup extends ITE_TaxCloud_API_Request {
 			}
 
 			$taxable_total = $this->get_taxable_amount_for_item( $item, $include_one_time_aggregatables ) * $item->get_quantity();
-			$rate          = $item_response['TaxAmount'] / $taxable_total;
+			$rate          = $taxable_total ? $item_response['TaxAmount'] / $taxable_total : 0;
 			$percentage    = $rate * 100;
 
 			$tax = ITE_TaxCloud_Line_Item::create( $percentage, $item );
@@ -175,7 +175,7 @@ class ITE_TaxCloud_API_Lookup extends ITE_TaxCloud_API_Request {
 			$item = $taxable->offsetGet( $item_response['CartItemIndex'] );
 
 			$taxable_total = $this->get_taxable_amount_for_item( $item, $include_one_time_aggregatables ) * $item->get_quantity();
-			$rate          = $item_response['TaxAmount'] / $taxable_total;
+			$rate          = $taxable_total ? $item_response['TaxAmount'] / $taxable_total : 0;
 			$percentage    = $rate * 100;
 
 			$tax = ITE_TaxCloud_Line_Item::create( $percentage, $item );
