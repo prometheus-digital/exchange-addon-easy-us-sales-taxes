@@ -285,7 +285,7 @@ class ITE_TaxCloud_API_Lookup extends ITE_TaxCloud_API_Request {
 		$cart_items = array();
 		$provider   = new ITE_TaxCloud_Tax_Provider();
 
-		$negative_total = $negative_item_interval = 0.0;
+		$negative_total = 0.0;
 
 		foreach ( $negative_items as $negative_item ) {
 			$negative_total += $this->get_taxable_amount_for_item( $negative_item, $include_one_time_aggregatables );
@@ -296,10 +296,6 @@ class ITE_TaxCloud_API_Lookup extends ITE_TaxCloud_API_Request {
 			$tic = $item->get_tax_code( $provider );
 
 			$price = $this->get_taxable_amount_for_item( $item, $include_one_time_aggregatables );
-
-			if ( $negative_item_interval ) {
-				$price -= $price * $negative_item_interval;
-			}
 
 			$cart_items[] = array(
 				'Index'  => $i,
