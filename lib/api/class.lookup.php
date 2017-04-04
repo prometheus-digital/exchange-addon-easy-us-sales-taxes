@@ -11,9 +11,6 @@
  */
 class ITE_TaxCloud_API_Lookup extends ITE_TaxCloud_API_Request {
 
-	const TIC_SHIPPING = 11010;
-	const TIC_FEE = 10010;
-
 	/**
 	 * Get the taxes for a given line item.
 	 *
@@ -294,25 +291,9 @@ class ITE_TaxCloud_API_Lookup extends ITE_TaxCloud_API_Request {
 			$negative_total += $this->get_taxable_amount_for_item( $negative_item, $include_one_time_aggregatables );
 		}
 
-		if ( $negative_total ) {
-			$item_total = 0.0;
-
-			foreach ( $items as $i => $item ) {
-				$item_total += $this->get_taxable_amount_for_item( $item, $include_one_time_aggregatables );
-			}
-
-			$negative_item_interval = abs( $negative_total ) / $item_total;
-		}
-
 		foreach ( $items as $i => $item ) {
 
-			if ( $item instanceof ITE_Shipping_Line_Item ) {
-				$tic = self::TIC_SHIPPING;
-			} elseif ( $item instanceof ITE_Fee_Line_Item && ! $tic = $item->get_tax_code( $provider ) ) {
-				$tic = self::TIC_FEE;
-			} else {
-				$tic = $item->get_tax_code( $provider );
-			}
+			$tic = $item->get_tax_code( $provider );
 
 			$price = $this->get_taxable_amount_for_item( $item, $include_one_time_aggregatables );
 
@@ -328,6 +309,8 @@ class ITE_TaxCloud_API_Lookup extends ITE_TaxCloud_API_Request {
 				'Qty'    => $item->get_quantity()
 			);
 		}
+
+		$cart_items = it_exchange_proportionally_distribute_cost( $negative_total, $cart_items, 'Price' );
 
 		return $cart_items;
 	}

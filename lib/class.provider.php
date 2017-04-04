@@ -8,6 +8,9 @@
  */
 class ITE_TaxCloud_Tax_Provider extends ITE_Tax_Provider {
 
+	const TIC_SHIPPING = 11010;
+	const TIC_FEE = 10010;
+
 	/**
 	 * @var \ITE_TaxCloud_API_Lookup
 	 */
@@ -25,6 +28,26 @@ class ITE_TaxCloud_Tax_Provider extends ITE_Tax_Provider {
 	 */
 	public function get_tax_code_for_product( IT_Exchange_Product $product ) {
 		return $product->get_feature( 'us-tic' );
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function get_tax_code_for_item( ITE_Line_Item $item ) {
+
+		if ( $item instanceof ITE_Cart_Product ) {
+			return $this->get_tax_code_for_product( $item->get_product() );
+		}
+
+		if ( $item instanceof ITE_Shipping_Line_Item ) {
+			return self::TIC_SHIPPING;
+		}
+
+		if ( $item instanceof ITE_Fee_Line_Item ) {
+			return self::TIC_FEE;
+		}
+
+		return 0;
 	}
 
 	/**
