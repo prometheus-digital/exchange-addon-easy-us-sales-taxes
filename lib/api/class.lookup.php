@@ -178,6 +178,7 @@ class ITE_TaxCloud_API_Lookup extends ITE_TaxCloud_API_Request {
 
 				/** @var ITE_Taxable_Line_Item|ITE_Shipping_Line_Item $shipping */
 				foreach ( $taxable->without( 'shipping' )->flatten()->with_only( 'shipping' )->taxable() as $shipping ) {
+					$shipping->remove_all_taxes();
 					$tax = ITE_TaxCloud_Line_Item::create( $rate, $shipping );
 					$taxes[] = $tax;
 					$shipping->add_tax( $tax );
