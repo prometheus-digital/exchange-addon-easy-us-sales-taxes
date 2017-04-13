@@ -75,7 +75,7 @@ class ITE_TaxCloud_API_Lookup extends ITE_TaxCloud_API_Request {
 			$item->add_tax( $tax );
 
 			if ( $save ) {
-				$cart->get_repository()->save( $item );
+				$cart->save_item( $item );
 			}
 
 			return $tax;
@@ -205,7 +205,7 @@ class ITE_TaxCloud_API_Lookup extends ITE_TaxCloud_API_Request {
 		}
 
 		if ( $save ) {
-			$cart->get_repository()->save_many( $items );
+			$cart->save_many_items( $items );
 		}
 
 		return new ITE_Line_Item_Collection( $taxes, $cart->get_repository() );
